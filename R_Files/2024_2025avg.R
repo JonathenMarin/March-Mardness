@@ -28,8 +28,13 @@ season2025 <- games %>% filter(Season == 2025) %>%
   summarise(across(where(is.numeric), mean, na.rm = TRUE),
             .groups = "drop")
 
+<<<<<<< HEAD
 write_csv(season2024, "C:/Users/jonathenmarin/Documents/March-Mardness/Excel_Files/2024avg.csv")
 write_csv(season2025, "C:/Users/jonathenmarin/Documents/March-Mardness/2025avg.csv")
+=======
+write_csv(season2024, "C:/Users/jonathenmarin/Documents/March-Mardness/2024avg")
+write_csv(season2025, "C:/Users/jonathenmarin/Documents/March-Mardness/2025avg")
+>>>>>>> cb0ed524978ce0acc1d98e0a515a1bf97db8b1e9
 
 
 
