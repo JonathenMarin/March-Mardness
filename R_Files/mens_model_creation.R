@@ -3,6 +3,7 @@ library(readr)
 library(data.table)
 #Season Data
 mens_results <- fread("march-machine-learning-mania-2025/MRegularSeasonDetailedResults.csv")
+#2025
 game_factors <- mens_results %>% 
   mutate(
     W_Poss = WFGA + 0.44 * WFTA + WTO,
@@ -47,7 +48,7 @@ View(four_factors_mens)
 
 #Tournament Data
 tourney_results_mens <- read.csv("march-machine-learning-mania-2025/MNCAATourneyCompactResults.csv")
-training_data_mens <- tourney_results_mens %>% filter(Season < 2025 & Season >= 2003)
+training_data_mens <- tourney_results_mens %>% filter(Season >= 2003)
 
 training_data_mens <- training_data_mens %>%
   mutate(
@@ -84,11 +85,11 @@ model_data_mens <- model_data_mens %>%
   )
 
 write.csv(model_data_mens, "C:/Users/jonathenmarin/Documents/March-Mardness/Excel_Files/mens_data_model_ready.csv")
-
+#dataframe with team1 vs team 2, both teams season averages (that year) and the difference between the two, saying who won
 
 mens_model <- glm(Team1_win ~ eFG_diff + TOV_Pct_diff + ORB_Pct_diff + FTR_diff + Win_diff,
                   data = model_data_mens,
-                  family = binomial(link = "logit")) #model with the differences
+                  family = binomial(link = "logit")) #model with the differences ONLY
 summary(mens_model)
 
 
@@ -135,3 +136,118 @@ first_place_preds <- first_place_preds %>% rename(Pred_Winner = Pred)
 comparison_df <- submission_file %>% 
   left_join(first_place_preds, by = "ID")
 write.csv(comparison_df, "C:/Users/jonathenmarin/Documents/March-Mardness/Excel_Files/DO_Model_Mens_Comparison.csv")
+
+
+
+
+
+#--------------------------------------------------- 2023 below
+training_data_pre_2023 <- model_data_mens %>% filter(Season < 2023)
+
+mens_model_2023 <- glm(Team1_win ~ eFG_diff + TOV_Pct_diff+ ORB_Pct_diff + FTR_diff + Win_diff,
+                       data = training_data_pre_2023,
+                       family = binomial(link = "logit")
+) 
+
+
+mens_2023_games <- read.csv("march-machine-learning-mania-2025/MNCAATourneyCompactResults.csv")
+mens_2023_games <- mens_2023_games %>% filter(Season == "2023") 
+
+prediction_data_2023 <- mens_2023_games %>% 
+  mutate(
+    Team1 = pmin(WTeamID, LTeamID),
+    Team2 = pmax(WTeamID, LTeamID),
+    ID = paste(Season, Team1, Team2, sep = "_"),
+    Actual_Result = if_else(Team1 == WTeamID, 1, 0)
+  ) %>% 
+select(Season, Team1, Team2, ID, Actual_Result)
+    
+
+prediction_data_2023 <- prediction_data_2023 %>% 
+  left_join(four_factors_mens, by = c("Season", "Team1" = "TeamID")) %>% 
+  rename(eFG_T1 = eFG, TOV_Pct_T1 = TOV_Pct, ORB_Pct_T1 = ORB_Pct, FTR_T1 = FTR, Win_T1 = Win) %>%
+  left_join(four_factors_mens, by = c("Season", "Team2" = "TeamID")) %>%
+  rename(eFG_T2 = eFG, TOV_Pct_T2 = TOV_Pct, ORB_Pct_T2 = ORB_Pct, FTR_T2 = FTR, Win_T2 = Win)
+
+prediction_data_2023 <- prediction_data_2023 %>%
+  mutate(
+    # Calculate the difference for every stat. Format is always T1 - T2.
+    eFG_diff     = eFG_T1 - eFG_T2,
+    TOV_Pct_diff = TOV_Pct_T1 - TOV_Pct_T2,
+    ORB_Pct_diff = ORB_Pct_T1 - ORB_Pct_T2,
+    FTR_diff     = FTR_T1 - FTR_T2,
+    Win_diff     = Win_T1 - Win_T2
+  )
+
+prediction_data_2023 %>% 
+  select(ID, Actual_Result, ends_with("_diff")) %>% 
+  head()
+
+prediction_data_2023$Pred <- predict(
+  mens_model_2023, # Using the model trained only up to 2022
+  newdata = prediction_data_2023,
+  type = "response"      # Get probabilities
+)
+
+brier_score_2023 <- mean((prediction_data_2023$Pred - prediction_data_2023$Actual_Result)^2)
+
+final_report_2023 <- prediction_data_2023 %>%
+  select(ID, Pred, Actual_Result) %>%
+  mutate(OverallBrierScore = brier_score_2023,
+         Per_Game_Brier = (Pred-Actual_Result)^2)
+write.csv(final_report_2023, "final_report_2023_per_game.csv", row.names = FALSE)
+
+#------------------------------ 2024
+training_data_pre_2024 <- model_data_mens %>%
+  filter(Season < 2024)
+
+mens_model_for_2024 <- glm(
+  Team1_win ~ eFG_diff + TOV_Pct_diff + ORB_Pct_diff + FTR_diff + Win_diff,
+  data = training_data_pre_2024,
+  family = binomial(link = "logit")
+)
+
+mens_results_2024 <- read.csv("march-machine-learning-mania-2025/MNCAATourneyCompactResults.csv")
+
+prediction_data_2024 <- mens_results_2024 %>% 
+  filter(Season == 2024) %>% 
+  mutate(
+    Team1 = pmin(WTeamID, LTeamID),
+    Team2 = pmax(WTeamID, LTeamID),
+    ID = paste(Season, Team1, Team2, sep = "_"),
+    Actual_Result = if_else(Team1 == WTeamID, 1, 0)
+  ) %>%
+  select(Season, Team1, Team2, ID, Actual_Result)
+
+prediction_data_2024 <- prediction_data_2024 %>%
+left_join(four_factors_mens, by = c("Season", "Team1" = "TeamID")) %>%
+rename(eFG_T1 = eFG, TOV_Pct_T1 = TOV_Pct, ORB_Pct_T1 = ORB_Pct, FTR_T1 = FTR, Win_T1 = Win) %>%
+left_join(four_factors_mens, by = c("Season", "Team2" = "TeamID")) %>%
+rename(eFG_T2 = eFG, TOV_Pct_T2 = TOV_Pct, ORB_Pct_T2 = ORB_Pct, FTR_T2 = FTR, Win_T2 = Win)
+
+prediction_data_2024 <- prediction_data_2024 %>%
+  mutate(
+    # Calculate the difference for every stat. Format is always T1 - T2.
+    eFG_diff     = eFG_T1 - eFG_T2,
+    TOV_Pct_diff = TOV_Pct_T1 - TOV_Pct_T2,
+    ORB_Pct_diff = ORB_Pct_T1 - ORB_Pct_T2,
+    FTR_diff     = FTR_T1 - FTR_T2,
+    Win_diff     = Win_T1 - Win_T2
+  )
+prediction_data_2024 %>% 
+  select(ID, Actual_Result, ends_with("_diff")) %>% 
+  head()
+
+prediction_data_2024$Pred <- predict(
+  mens_model_for_2024, # Using the model trained only up to 2023
+  newdata = prediction_data_2024,
+  type = "response"      # Get probabilities
+)
+brier_score_2024 <- mean((prediction_data_2024$Pred - prediction_data_2024$Actual_Result)^2)
+
+final_report_2024 <- prediction_data_2024 %>%
+  select(ID, Pred, Actual_Result) %>%
+  mutate(OverallBrierScore = brier_score_2024,
+         Per_Game_Brier = (Pred-Actual_Result)^2)
+write.csv(final_report_2024, "final_report_2024.csv", row.names = FALSE)
+
