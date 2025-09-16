@@ -119,3 +119,5 @@ combined_report_2024 <- bind_rows(prediction_data_2024_mens, prediction_data_202
   ) 
 
 
+write_csv(combined_report_2023, "C:/Math/Masters/March-Mardness/Excel_Files/DO_Model_Differences/combined_report_2023.csv")
+write_csv(combined_report_2024, "C:/Math/Masters/March-Mardness/Excel_Files/DO_Model_Differences/combined_report_2024.csv")
