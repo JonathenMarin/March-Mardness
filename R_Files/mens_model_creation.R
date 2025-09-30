@@ -130,12 +130,12 @@ View(submission_file)
 
 write.csv(submission_file, "C:/Users/jonathenmarin/Documents/March-Mardness/Excel_Files/DO_Model_Mens.csv")
 
-first_place_preds <- read.csv("Excel_Files/first_place_pred.csv")
+first_place_preds <- read.csv("Excel_Files/first_place_pred_kaggle.csv")
 first_place_preds <- first_place_preds %>% rename(Pred_Winner = Pred)
 
 comparison_df <- submission_file %>% 
   left_join(first_place_preds, by = "ID")
-write.csv(comparison_df, "C:/Users/jonathenmarin/Documents/March-Mardness/Excel_Files/DO_Model_Mens_Comparison.csv")
+write.csv(comparison_df, "C:/Users/jonathenmarin/Documents/March-Mardness/Excel_Files/final_report_2025")
 
 
 
@@ -195,7 +195,8 @@ final_report_2023 <- prediction_data_2023 %>%
   select(ID, Pred, Actual_Result) %>%
   mutate(OverallBrierScore = brier_score_2023,
          Per_Game_Brier = (Pred-Actual_Result)^2)
-write.csv(final_report_2023, "final_report_2023_per_game.csv", row.names = FALSE)
+write.csv(final_report_2023, "C:/Users/jonathenmarin/Documents/March-Mardness/Excel_Files/DO_Model_Differences/final_report_2023_per_game.csv", 
+          row.names = FALSE)
 
 #------------------------------ 2024
 training_data_pre_2024 <- model_data_mens %>%
@@ -249,5 +250,6 @@ final_report_2024 <- prediction_data_2024 %>%
   select(ID, Pred, Actual_Result) %>%
   mutate(OverallBrierScore = brier_score_2024,
          Per_Game_Brier = (Pred-Actual_Result)^2)
-write.csv(final_report_2024, "final_report_2024.csv", row.names = FALSE)
+write.csv(final_report_2024, "C:/Users/jonathenmarin/Documents/March-Mardness/Excel_Files/DO_Model_Differences/final_report_2024.csv", 
+          row.names = FALSE)
 
