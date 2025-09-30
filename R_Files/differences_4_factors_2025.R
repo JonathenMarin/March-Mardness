@@ -101,4 +101,4 @@ combined_report_2025 <- bind_rows(predictions_2025_mens, predictions_2025_womens
     brier_score_per_game = round((Pred - Team1_win)^2,5)
   )
 
-write_csv(combined_report_2025, "C:/Math/Masters/March-Mardness/Excel_Files/DO_Model_Differences/combined_report_2025.csv")
+write.csv(combined_report_2025, "C:/Math/Masters/March-Mardness/Excel_Files/DO_Model_Differences/combined_report_2025.csv")
