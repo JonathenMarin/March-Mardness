@@ -1,6 +1,6 @@
 library(dplyr)
 library(data.table)
-
+#changes
 #functions
 calculate_four_factors <- function(detailed_results_df) {
   
