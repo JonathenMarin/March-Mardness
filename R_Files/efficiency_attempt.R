@@ -107,6 +107,4 @@ lme4_ratings <- data.frame(
   rating = ratings$`(Intercept)`
 ) %>%
   arrange(desc(rating))
-
-ratings_with_state <- lme4_ratings %>%
   
