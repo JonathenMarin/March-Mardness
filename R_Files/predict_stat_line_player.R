@@ -1,4 +1,3 @@
-# Load necessary libraries
 library(dplyr)
 library(lme4)
 library(hoopR)
@@ -28,9 +27,8 @@ team_games <- team_games %>%
   )
 
 # Calculate season-long team efficiency ratings
-# THE KEY CHANGE IS HERE: Added team_display_name to the group_by()
 team_eff <- team_games %>%
-  group_by(team_id, team_name, team_display_name) %>% # ADDED team_display_name
+  group_by(team_id, team_name, team_display_name) %>% 
   summarize(
     total_points_scored = sum(team_score, na.rm = TRUE),
     total_points_allowed = sum(opponent_team_score, na.rm = TRUE),
