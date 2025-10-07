@@ -1,0 +1,172 @@
+# Load necessary libraries
+library(dplyr)
+library(lme4)
+library(hoopR)
+
+# Load and prepare player box score data
+player_data <- hoopR::load_mbb_player_box(seasons = 2025) %>%
+  mutate(
+    game_date = as.Date(game_date),
+    pts_per_min = points / pmax(minutes, 1),
+    ast_per_min = assists / pmax(minutes, 1),
+    reb_per_min = rebounds / pmax(minutes, 1)
+  ) %>%
+  filter(!is.na(pts_per_min)) %>%
+  filter(game_date < as.Date("2025-03-17"))
+
+# Load and prepare team box score data
+team_games <- hoopR::load_mbb_team_box(seasons = 2025) %>%
+  mutate(game_date = as.Date(game_date)) %>%
+  filter(game_date < as.Date("2025-03-17"))
+
+# Calculate possession-based ratings for each game
+team_games <- team_games %>%
+  mutate(
+    possessions = field_goals_attempted - offensive_rebounds + turnovers + (0.44 * free_throws_attempted),
+    def_rating = (opponent_team_score / possessions) * 100,
+    off_rating = (team_score / possessions) * 100
+  )
+
+# Calculate season-long team efficiency ratings
+# THE KEY CHANGE IS HERE: Added team_display_name to the group_by()
+team_eff <- team_games %>%
+  group_by(team_id, team_name, team_display_name) %>% # ADDED team_display_name
+  summarize(
+    total_points_scored = sum(team_score, na.rm = TRUE),
+    total_points_allowed = sum(opponent_team_score, na.rm = TRUE),
+    total_possessions = sum(possessions, na.rm = TRUE),
+    off_rating = (total_points_scored / total_possessions) * 100,
+    def_rating = (total_points_allowed / total_possessions) * 100,
+    .groups = 'drop'
+  )
+
+# Join team and opponent efficiency ratings to player data
+player_data <- player_data %>%
+  left_join(
+    team_eff %>% select(team_id, team_off_rating = off_rating, team_def_rating = def_rating),
+    by = "team_id"
+  )
+
+player_data <- player_data %>%
+  left_join(
+    team_eff %>% select(opponent_team_id = team_id,
+                        opp_off_rating = off_rating,
+                        opp_def_rating = def_rating),
+    by = "opponent_team_id"
+  )
+
+
+# Scale predictors for the model
+player_data <- player_data %>%
+  mutate(
+    minutes_s = scale(minutes),
+    team_off_rating_s = scale(team_off_rating),
+    team_def_rating_s = scale(team_def_rating),
+    opp_off_rating_s = scale(opp_off_rating), #scale function is (x - mean(x)) / sd(x)
+    opp_def_rating_s = scale(opp_def_rating)
+  )
+
+# Build linear mixed-effects models
+model_pts <- lmer(
+  pts_per_min ~ minutes_s + team_off_rating_s + team_def_rating_s +
+    opp_off_rating_s + opp_def_rating_s +
+    (1 | athlete_id),
+  data = player_data
+)
+
+model_ast <- lmer(
+  ast_per_min ~ minutes_s + team_off_rating_s + team_def_rating_s +
+    opp_off_rating_s + opp_def_rating_s +
+    (1 | athlete_id),
+  data = player_data,
+  control = lmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2e5))
+)
+
+model_reb <- lmer(
+  reb_per_min ~ minutes_s + team_off_rating_s + team_def_rating_s +
+    opp_off_rating_s + opp_def_rating_s +
+    (1 | athlete_id),
+  data = player_data,
+  control = lmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2e5))
+)
+
+
+
+# Define the prediction function
+predict_player_stats_by_id <- function() {
+  
+  player_data_local <- player_data
+  model_pts_local <- model_pts
+  model_ast_local <- model_ast
+  model_reb_local <- model_reb
+  
+  # Ask for athlete_id, opponent_team_id, and expected minutes
+  athlete_id_input <- as.numeric(readline(prompt = "Enter athlete_id: "))
+  opponent_id_input <- as.numeric(readline(prompt = "Enter opponent team_id: "))
+  minutes_input <- as.numeric(readline(prompt = "Enter expected minutes: "))
+  
+  # Pull player's team info
+  player_info <- player_data_local %>%
+    filter(athlete_id == athlete_id_input) %>%
+    select(
+      athlete_display_name,
+      team_display_name, 
+      team_off_rating,
+      team_def_rating
+    ) %>%
+    slice(1)
+  
+  if(nrow(player_info) == 0) stop("athlete_id not found in player_data")
+  
+  # Pull opponent's info from team_eff
+  opponent_info <- team_eff %>%
+    filter(team_id == opponent_id_input) %>%
+    select(
+      opponent_team_display_name = team_display_name,
+      opp_off_rating = off_rating,
+      opp_def_rating = def_rating
+    )
+  
+  if(nrow(opponent_info) == 0) stop("opponent_team_id not found")
+  
+  # Scale numeric predictors
+  minutes_s <- (minutes_input - mean(player_data_local$minutes, na.rm = TRUE)) / sd(player_data_local$minutes, na.rm = TRUE)
+  team_off_s <- (player_info$team_off_rating - mean(player_data_local$team_off_rating, na.rm = TRUE)) / sd(player_data_local$team_off_rating, na.rm = TRUE)
+  team_def_s <- (player_info$team_def_rating - mean(player_data_local$team_def_rating, na.rm = TRUE)) / sd(player_data_local$team_def_rating, na.rm = TRUE)
+  opp_off_s <- (opponent_info$opp_off_rating - mean(player_data_local$opp_off_rating, na.rm = TRUE)) / sd(player_data_local$opp_off_rating, na.rm = TRUE)
+  opp_def_s <- (opponent_info$opp_def_rating - mean(player_data_local$opp_def_rating, na.rm = TRUE)) / sd(player_data_local$opp_def_rating, na.rm = TRUE)
+  
+  # Create new data frame for prediction
+  new_game <- data.frame(
+    athlete_id = athlete_id_input,
+    minutes_s = minutes_s,
+    team_off_rating_s = team_off_s,
+    team_def_rating_s = team_def_s,
+    opp_off_rating_s = opp_off_s,
+    opp_def_rating_s = opp_def_s,
+    minutes = minutes_input
+  )
+  
+  # Predict per-minute stats
+  pred_pts_per_min <- predict(model_pts_local, newdata = new_game, allow.new.levels = TRUE)
+  pred_ast_per_min <- predict(model_ast_local, newdata = new_game, allow.new.levels = TRUE)
+  pred_reb_per_min <- predict(model_reb_local, newdata = new_game, allow.new.levels = TRUE)
+  
+  # Convert to total statline
+  pred_points <- pred_pts_per_min * minutes_input
+  pred_assists <- pred_ast_per_min * minutes_input
+  pred_rebounds <- pred_reb_per_min * minutes_input
+  
+  # Print results
+  cat("\nPredicted statline for", player_info$athlete_display_name, ":\n")
+  cat("Team:", player_info$team_display_name, "\n") 
+  cat("Opponent:", opponent_info$opponent_team_display_name, "\n") 
+  cat("Minutes:", minutes_input, "\n")
+  cat("Points:", round(pred_points, 1), "\n")
+  cat("Assists:", round(pred_assists, 1), "\n")
+  cat("Rebounds:", round(pred_rebounds, 1), "\n")
+}
+
+
+# Now run the function
+predict_player_stats_by_id()
