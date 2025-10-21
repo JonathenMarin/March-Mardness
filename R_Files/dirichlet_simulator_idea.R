@@ -352,6 +352,7 @@ ggplot(minutes_data %>% filter(team == "home"),
        y = "Minutes")
 
 
+#sad
 check_model(model_min)
 
 plot(model_min)
