@@ -358,6 +358,8 @@ check_model(model_min)
 plot(model_min)
 plot(model_pts)
 
+res <- residuals(model_min)
+
 qqnorm(residuals(model_min))
 qqline(residuals(model_min), col = "red")
 
@@ -365,3 +367,6 @@ qqnorm(ranef(model_min)$athlete_id$`(Intercept)`)
 qqline(ranef(model_min)$athlete_id$`(Intercept)`, col = "red")
 
 r2(model_min)
+
+
+hist(res, breaks = 50, main = "histogram of model min residuals", xlab = "resid") #leptokurtic distribution
