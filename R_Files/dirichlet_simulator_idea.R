@@ -352,7 +352,11 @@ ggplot(minutes_data %>% filter(team == "home"),
        y = "Minutes")
 
 
-#sad
+# min model stats
+library(Metrics)
+
+
+
 check_model(model_min)
 
 plot(model_min)
@@ -367,6 +371,17 @@ qqnorm(ranef(model_min)$athlete_id$`(Intercept)`)
 qqline(ranef(model_min)$athlete_id$`(Intercept)`, col = "red")
 
 r2(model_min)
+actual_minutes <- getME(model_min, "y")
+predicted_minutes <- fitted(model_min)
+
+mae_min <- Metrics::mae(actual_minutes, predicted_minutes)
+mape_min <- Metrics::mape(actual_minutes, predicted_minutes)
+rmse_min <- Metrics::rmse(actual_minutes, predicted_minutes)
+
+cat(sprintf("Model: model_min\n"))
+cat(sprintf("MAE:  %.3f\n", mae_min))
+cat(sprintf("MAPE: %.3f%%\n", mape_min * 100)) # Multiply by 100 for percentage
+cat(sprintf("RMSE: %.3f\n", rmse_min))
 
 
 hist(res, breaks = 50, main = "histogram of model min residuals", xlab = "resid") #leptokurtic distribution
