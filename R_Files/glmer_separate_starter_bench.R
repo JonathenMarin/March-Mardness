@@ -7,14 +7,14 @@ library(Metrics)
 library(performance)
 library(ggplot2)
 
-# --- 1. Load and Prepare ALL Data ---
+
 # Load all player box scores for the season
 all_player_data <- hoopR::load_mbb_player_box(seasons = 2025) %>%
   mutate(game_date = as.Date(game_date)) %>%
-  filter(!is.na(minutes), minutes > 0) %>%
+  filter(!is.na(minutes)) %>%
   filter(!is.na(starter))
 
-# Calculate features across the *entire* dataset to prevent data leakage
+
 all_data_features <- all_player_data %>%
   arrange(athlete_id, game_date) %>%
   group_by(athlete_id) %>%
@@ -26,7 +26,6 @@ all_data_features <- all_player_data %>%
   ungroup()
 
 # Calculate the scaling values (mean/sd) from the *training data only*
-# This is critical to prevent the test data from influencing the training data
 train_stats <- all_data_features %>%
   filter(game_date < as.Date("2025-03-17")) %>%
   summarise(
@@ -40,7 +39,7 @@ all_data_scaled <- all_data_features %>%
     recent_minutes_s = (recent_minutes - train_stats$mean_recent_min) / train_stats$sd_recent_min
   )
 
-# --- 2. Split into Training and Testing Sets ---
+
 train_data <- all_data_scaled %>%
   filter(game_date < as.Date("2025-03-17")) %>%
   filter(!is.na(recent_minutes_s))
@@ -52,11 +51,10 @@ test_data <- all_data_scaled %>%
 cat(sprintf("Training on %d player-games, Testing on %d player-games.\n\n",
             nrow(train_data), nrow(test_data)))
 
-# --- 3. Train Models on TRAINING Data Only ---
-cat("Training models...\n")
+
 ctrl <- glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2e5))
 
-# Model for starters, trained ONLY on train_data
+
 model_starter <- glmer.nb(
   minutes ~ recent_minutes_s + (1 | athlete_id),
   data = subset(train_data, starter == TRUE),
@@ -69,10 +67,7 @@ model_bench <- glmer.nb(
   data = subset(train_data, starter == FALSE),
   control = ctrl
 )
-cat("Models trained.\n\n")
 
-# --- 4. Generate Predictions on TESTING Data ---
-# Create prediction dataframes from the test set
 test_starters <- subset(test_data, starter == TRUE)
 test_bench <- subset(test_data, starter == FALSE)
 
@@ -100,27 +95,31 @@ calculate_r2 <- function(actual, predicted) {
   return(r2)
 }
 
-
-
-# --- 5. Evaluate Out-of-Sample Performance ---
 # Calculate the "true" error of the model on unseen data
 mae_all <- Metrics::mae(test_data$minutes, test_data$predicted)
 rmse_all <- Metrics::rmse(test_data$minutes, test_data$predicted)
 r2_all <- calculate_r2(test_data$minutes, test_data$predicted)
+bias_all <- mean(test_data$minutes - test_data$predicted)
+
 
 r2_starters <- calculate_r2(test_starters$minutes, pred_starter)
 r2_bench <- calculate_r2(test_bench$minutes, pred_bench)
 
-cat("--- OUT-OF-SAMPLE TEST RESULTS ---\n")
-cat(sprintf("Overall MAE:  %.3f minutes\n", mae_all))
-cat(sprintf("Overall RMSE: %.3f minutes\n\n", rmse_all))
-cat(sprintf("Overall RMSE: %.3f minutes\n", rmse_all))
-cat(sprintf("Overall R²:   %.3f\n\n", r2_all))
-cat(sprintf("Starter-Only R²: %.3f\n", r2_starters))
-cat(sprintf("Bench-Only R²:   %.3f\n", r2_bench))
+condr2_starter <- r2_nakagawa(model_starter)
+condr2_bench <- r2_nakagawa(model_bench)
+AIC_starter <- AIC(model_starter)
+BIC_starter <- BIC(model_starter)
 
-# --- 6. Visualize Test Results ---
-# --- Predicted vs Actual (Starters) ---
+
+
+cat(sprintf("MAE: %.3f  |  RMSE: %.3f  |  Bias: %.3f  |  R²: %.3f\n",
+            mae_all, rmse_all, bias_all, r2_all))
+cat(sprintf("Starter R²: %.3f  |  Bench R²: %.3f\n", condr2_starter, condr2_bench)) #second line is fixed effects only 
+
+
+
+
+
 print(
   ggplot(subset(test_data, starter == TRUE),
          aes(x = minutes, y = predicted)) +
@@ -131,7 +130,6 @@ print(
     theme_minimal()
 )
 
-# --- Predicted vs Actual (Bench) ---
 print(
   ggplot(subset(test_data, starter == FALSE),
          aes(x = minutes, y = predicted)) +
@@ -149,9 +147,8 @@ player_predictions <- test_data %>%
     athlete_display_name, 
     starter, 
     minutes,   # The actual minutes they played
-    predicted  # Your glmer.nb model's prediction
+    predicted  
   ) %>%
   arrange(game_date)
-
 
 
