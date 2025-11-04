@@ -15,10 +15,10 @@ all_player_data <- hoopR::load_mbb_player_box(seasons = 2025) %>%
   filter(!is.na(starter))
 
 train_data <- all_player_data %>%
-  filter(game_date < as.Date("2025-03-17"))
+  filter(game_date < as.Date("2025-03-20"))
 
 test_data <- all_player_data %>%
-  filter(game_date >= as.Date("2025-03-17"))
+  filter(game_date >= as.Date("2025-03-20") & game_date <= as.Date("2025-04-08"))
 
 player_median_stats <- train_data %>%
   mutate(
@@ -236,3 +236,150 @@ print(matchup3$matchup_table, n = 28)
 print(matchup3$team_sums)
 
 print(matchup4$team_sums)
+
+#brier_score
+team_game_counts <- test_data %>%
+  filter(game_date >= as.Date("2025-03-20")) %>%
+  distinct(game_id, team_display_name) %>%
+  count(team_display_name, name = "games_played")
+
+ncaa_advancing_teams <- team_game_counts %>% 
+  filter(games_played >= 2) %>%
+  pull(team_display_name)
+
+ncaa_game_ids <- test_data %>%
+  filter(game_date >= as.Date("2025-03-20")) %>%
+  group_by(game_id) %>%
+  summarise(
+    has_advancing_team = any(team_display_name %in% ncaa_advancing_teams),
+    .groups = 'drop'
+  ) %>%
+  filter(has_advancing_team) %>%
+  pull(game_id)
+
+cat(sprintf("\nIdentified %d NCAA Tournament games\n", length(ncaa_game_ids)))
+
+# Extract unique games from test set with both teams (NCAA Tournament only)
+test_games <- test_data %>%
+  filter(game_id %in% ncaa_game_ids) %>%
+  group_by(game_id, game_date) %>%
+  summarise(
+    teams = list(unique(team_display_name)),
+    team_ids = list(unique(team_id)),
+    points = list(points),
+    .groups = 'drop'
+  ) %>%
+  filter(lengths(teams) == 2) %>%  # Only games with exactly 2 teams
+  mutate(
+    team_a = sapply(teams, function(x) x[1]),
+    team_b = sapply(teams, function(x) x[2]),
+    team_a_id = sapply(team_ids, function(x) x[1]),
+    team_b_id = sapply(team_ids, function(x) x[2])
+  )
+
+# Get actual points for each team in each game
+game_results <- test_data %>%
+  group_by(game_id, team_id, team_display_name) %>%
+  summarise(
+    actual_team_points = sum(points, na.rm = TRUE),
+    .groups = 'drop'
+  )
+
+# Calculate predictions and Brier scores for each game
+brier_results <- data.frame()
+
+cat("\n--- CALCULATING BRIER SCORES (NCAA TOURNAMENT ONLY) ---\n")
+cat(sprintf("Processing %d NCAA Tournament games...\n\n", nrow(test_games)))
+
+for (i in 1:nrow(test_games)) {
+  game <- test_games[i, ]
+  
+  tryCatch({
+    # Get prediction
+    pred <- predict_points_matchup(game$team_a, game$team_b, player_median_stats)
+    
+    # Extract projected points for each team
+    proj_a <- pred$team_sums %>% 
+      filter(team_display_name == pred$matchup_table$team_display_name[1]) %>% 
+      pull(total_projected)
+    
+    proj_b <- pred$team_sums %>% 
+      filter(team_display_name != pred$matchup_table$team_display_name[1]) %>% 
+      pull(total_projected)
+    
+    # Skip if we couldn't get projections for both teams
+    if (length(proj_a) == 0 || length(proj_b) == 0) next
+    
+    # Get actual points
+    actual_a <- game_results %>% 
+      filter(game_id == game$game_id, team_id == game$team_a_id) %>% 
+      pull(actual_team_points)
+    
+    actual_b <- game_results %>% 
+      filter(game_id == game$game_id, team_id == game$team_b_id) %>% 
+      pull(actual_team_points)
+    
+    if (length(actual_a) == 0 || length(actual_b) == 0) next
+    
+    # Predicted winner (1 if team A, 0 if team B)
+    predicted_a_wins <- ifelse(proj_a > proj_b, 1, 0)
+    
+    # Actual winner (1 if team A won, 0 if team B won)
+    actual_a_wins <- ifelse(actual_a > actual_b, 1, 0)
+    
+    # Brier score
+    brier <- (predicted_a_wins - actual_a_wins)^2
+    
+    # Store results
+    brier_results <- rbind(brier_results, data.frame(
+      game_id = game$game_id,
+      game_date = game$game_date,
+      team_a = game$team_a,
+      team_b = game$team_b,
+      proj_a = proj_a,
+      proj_b = proj_b,
+      actual_a = actual_a,
+      actual_b = actual_b,
+      predicted_winner = ifelse(predicted_a_wins == 1, game$team_a, game$team_b),
+      actual_winner = ifelse(actual_a_wins == 1, game$team_a, game$team_b),
+      correct = predicted_a_wins == actual_a_wins,
+      brier_score = brier
+    ))
+    
+  }, error = function(e) {
+    message(sprintf("Skipping game %s: %s", game$game_id, e$message))
+  })
+}
+
+# Calculate overall statistics
+cat("\n--- NCAA TOURNAMENT BRIER SCORE RESULTS ---\n")
+cat(sprintf("Games analyzed: %d\n", nrow(brier_results)))
+cat(sprintf("Correct predictions: %d (%.1f%%)\n", 
+            sum(brier_results$correct, na.rm = TRUE), 
+            100 * mean(brier_results$correct, na.rm = TRUE)))
+cat(sprintf("Average Brier Score: %.3f\n", mean(brier_results$brier_score, na.rm = TRUE)))
+cat(sprintf("(Note: Brier Score of %.3f = %.1f%% accuracy with binary predictions)\n\n",
+            mean(brier_results$brier_score, na.rm = TRUE),
+            100 * (1 - mean(brier_results$brier_score, na.rm = TRUE))))
+
+# Show some example predictions
+cat("--- Sample Predictions ---\n")
+print((brier_results %>% 
+             select(game_date, team_a, team_b, proj_a, proj_b, 
+                    actual_a, actual_b, predicted_winner, actual_winner, correct)))
+
+# Summary by date range
+cat("\n--- Performance by Date ---\n")
+brier_by_date <- brier_results %>%
+  mutate(date_group = cut(game_date, breaks = "week")) %>%
+  group_by(date_group) %>%
+  summarise(
+    n_games = n(),
+    accuracy = mean(correct),
+    avg_brier = mean(brier_score),
+    .groups = 'drop'
+  )
+print(brier_by_date)
+
+
+
