@@ -3,6 +3,9 @@ library(dplyr)
 library(data.table)
 library(fuzzyjoin)
 
+# data load and cleaning --------------------------------------------------
+
+
 Mteams <- fread("march-machine-learning-mania-2025/MTeams_2025.csv")
 kenpom <- fread("Excel_Files/kenpom-ncaa-2025.csv")
 spellings <- fread("march-machine-learning-mania-2025/MTeamSpellings.csv")
@@ -63,7 +66,6 @@ if(nrow(still_unmatched) > 0) {
 
 write.csv(kenpom_final, "Excel_Files/kenpom_kaggle_combined_team.csv")
 
-#part 2
 
 # Read regular season results
 results <- fread("march-machine-learning-mania-2025/MRegularSeasonDetailedResults.csv") 
@@ -132,7 +134,8 @@ cat("Total training samples:", nrow(train_data), "\n")
 cat("Summary:\n")
 summary(train_data)
 
-#model
+
+# model creation and accuracy check ---------------------------------------
 
 model <- lm(Points ~ OffRating + DefRating + AdjT_team + AdjT_opp, 
             data = train_data)
@@ -179,6 +182,10 @@ train_data <- train_data %>%
     Predicted_SD = sigma
   )
 
+
+# game simulator function -------------------------------------------------
+
+
 # Function to simulate game outcome
 simulate_game <- function(team_a_mean, team_b_mean, sigma, n_sims = 10000) {
   # Simulate scores for both teams
@@ -222,6 +229,16 @@ predict_matchup <- function(team_a_id, team_b_id, kenpom_data, model, sigma) {
   team_a <- kenpom_data %>% filter(TeamID == team_a_id)
   team_b <- kenpom_data %>% filter(TeamID == team_b_id)
   
+  if(nrow(team_a) == 0 | nrow(team_b) == 0) {
+    warning(paste("Missing KenPom data for team", team_a_id, "or", team_b_id))
+    return(list(
+      team_a_win_prob = 0.5,
+      team_b_win_prob = 0.5,
+      avg_margin = 0
+    ))
+  }
+  
+  
   # Predict Team A's score
   team_a_pred <- predict(model, newdata = data.frame(
     OffRating = team_a$ORtg,
@@ -243,6 +260,10 @@ predict_matchup <- function(team_a_id, team_b_id, kenpom_data, model, sigma) {
   
   return(result)
 }
+
+
+# houston vs duke example -------------------------------------------------
+
 
 result <- predict_matchup(team_a_id = 1181, team_b_id = 1222, 
                           kenpom_data = kenpom_final, 
@@ -275,16 +296,21 @@ houston_sims <- rnorm(10000, mean = houston_pred, sd = sigma)
 
 # Plot overlapping histograms
 hist(duke_sims, breaks = 50, col = rgb(0, 0, 1, 0.5),
-     xlim = c(40, 110), main = "Duke vs Houston - First 15 Simulations Connected",
+     xlim = c(40, 110), main = "Duke vs Houston - First 10 Simulations Numbered",
      xlab = "Points", freq = FALSE, ylim = c(0, 0.05))
 hist(houston_sims, breaks = 50, col = rgb(1, 0, 0, 0.5), add = TRUE, freq = FALSE)
 
 
-y_duke <- rep(0.002, 150)
-y_houston <- rep(0.0005, 150)
+y_duke <- rep(0.0025, 15)
+y_houston <- rep(0.0005, 15)
 
-points(duke_sims[1:150], y_duke, col = "lightblue", pch = 19, cex = 1.2)
-points(houston_sims[1:150], y_houston, col = "pink", pch = 19, cex = 1.2)
+# Add numbered points
+points(duke_sims[1:15], y_duke, col = "lightblue", pch = 19, cex = 2)
+points(houston_sims[1:15], y_houston, col = "pink", pch = 19, cex = 2)
+
+# Add numbers on top of points
+text(duke_sims[1:15], y_duke, labels = 1:15, col = "black", cex = 0.7, font = 2)
+text(houston_sims[1:15], y_houston, labels = 1:15, col = "black", cex = 0.7, font = 2)
 
 
 legend("topright", 
@@ -294,12 +320,20 @@ legend("topright",
        lwd = c(NA, NA, 1.5, 1.5),
        col = c(NA, NA, "blue", "red"))
 
+# Print the matchups
+cat("\nFirst 15 simulated games:\n")
+for(i in 1:15) {
+  winner <- ifelse(duke_sims[i] > houston_sims[i], "Duke", "Houston")
+  cat("Sim", i, ": Duke", round(duke_sims[i]), "- Houston", round(houston_sims[i]), "-->", winner, "\n")
+}
 
+# load 2025 tourney -------------------------------------------------------
 #march madness bracket
 tournament_games <- fread("Excel_Files/2025_games_kaggle.csv")
 
-# Filter to rows 2-68
-tournament_games_subset <- tournament_games[2:68, ]
+# Filter to rows 1-67
+tournament_games_subset <- tournament_games[1:67, ]
+
 
 predictions_list <- list()
 
@@ -340,5 +374,63 @@ for(i in 1:nrow(tournament_games_subset)) {
 # Combine all predictions
 tournament_predictions <- bind_rows(predictions_list)
 
+cat("\nDone! Predicted", nrow(tournament_predictions), "games\n\n")
+
+# Evaluate
+log_loss <- -mean(tournament_predictions$Actual * log(pmax(tournament_predictions$Pred, 0.001)) + 
+                    (1 - tournament_predictions$Actual) * log(pmax(1 - tournament_predictions$Pred, 0.001)))
+cat("Log Loss:", round(log_loss, 4), "\n")
+
+accuracy <- mean((tournament_predictions$Pred > 0.5) == tournament_predictions$Actual)
+cat("Bracket Accuracy:", round(accuracy * 100, 1), "%\n")
+
+write.csv(tournament_predictions, "Excel_Files/KenPom_Batervirk_Model/tournament_submission.csv", row.names = FALSE)
+cat("\nSubmission saved!\n")
+
+
+tournament_predictions <- tournament_predictions %>%
+  mutate(
+    Brier_Score = (Pred - Actual)^2
+  )
+
+# Overall Brier Score
+overall_brier <- mean(tournament_predictions$Brier_Score)
+cat("Overall Brier Score:", round(overall_brier, 4), "\n")
+
+
+
+
+results_table <- tournament_predictions %>%
+  arrange(Brier_Score) %>%
+  mutate(
+    Lower_Team = sapply(strsplit(ID, "_"), function(x) x[2]),
+    Higher_Team = sapply(strsplit(ID, "_"), function(x) x[3]),
+    Winner = ifelse(Actual == 1, "Lower", "Higher"),
+    Confidence = round(ifelse(Pred > 0.5, Pred, 1 - Pred) * 100, 1)
+  ) %>%
+  select(ID, Pred, Actual, Winner, Confidence, Brier_Score, ActualScore)
+
+print(head(results_table, 20))
+
+# Summary statistics
+cat("\n=== SUMMARY ===\n")
+cat("Best prediction (lowest Brier):", round(min(tournament_predictions$Brier_Score), 4), "\n")
+cat("Worst prediction (highest Brier):", round(max(tournament_predictions$Brier_Score), 4), "\n")
+cat("Median Brier Score:", round(median(tournament_predictions$Brier_Score), 4), "\n")
+
+# Histogram of Brier scores
+hist(tournament_predictions$Brier_Score, 
+     breaks = 20, 
+     main = "Distribution of Brier Scores",
+     xlab = "Brier Score", 
+     col = "lightblue",
+     border = "white")
+abline(v = overall_brier, col = "red", lwd = 2, lty = 2)
+legend("topright", paste("Mean =", round(overall_brier, 3)), 
+       col = "red", lty = 2, lwd = 2)
+
+# Compare to Log Loss
+cat("\nLog Loss:", round(log_loss, 4), "\n")
+cat("Brier Score:", round(overall_brier, 4), "\n")
 
 
