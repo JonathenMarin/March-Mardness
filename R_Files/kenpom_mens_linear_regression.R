@@ -2,7 +2,7 @@ library(tidyr)
 library(dplyr)
 library(data.table)
 library(fuzzyjoin)
-
+library(ggplot2)
 # data load and cleaning --------------------------------------------------
 
 
@@ -168,7 +168,7 @@ cat("\nPredicted points range:",
 
 # Diagnostic plots
 par(mfrow = c(2, 2))
-plot(model)
+plot(model, sub.caption = "")
 par(mfrow = c(1, 1))
 
 
@@ -295,30 +295,80 @@ duke_sims <- rnorm(10000, mean = duke_pred, sd = sigma)
 houston_sims <- rnorm(10000, mean = houston_pred, sd = sigma)
 
 # Plot overlapping histograms
-hist(duke_sims, breaks = 50, col = rgb(0, 0, 1, 0.5),
-     xlim = c(40, 110), main = "Duke vs Houston - First 10 Simulations Numbered",
-     xlab = "Points", freq = FALSE, ylim = c(0, 0.05))
-hist(houston_sims, breaks = 50, col = rgb(1, 0, 0, 0.5), add = TRUE, freq = FALSE)
+# 1. Prepare Data (Duke Only)
+df_duke <- data.frame(Points = duke_sims, Team = "Duke")
 
+# Subset for the first 15 points
+df_duke_subset <- data.frame(
+  Points = duke_sims[1:15],
+  Team = "Duke",
+  Label = 1:15,
+  Y_pos = 0.0025 # Height of the dots
+)
 
-y_duke <- rep(0.0025, 15)
-y_houston <- rep(0.0005, 15)
+# 2. Plot Duke
+ggplot() +
+  # Histogram
+  geom_histogram(data = df_duke, 
+                 aes(x = Points, y = after_stat(density)), 
+                 fill = "blue", alpha = 0.5, bins = 50) +
+  
+  # Small Points
+  geom_point(data = df_duke_subset, 
+             aes(x = Points, y = Y_pos), 
+             color = "lightblue", size = 3) + # Reduced size to 3
+  
+  # Numbers (Placed slightly above the point)
+  geom_text(data = df_duke_subset, 
+            aes(x = Points, y = Y_pos, label = Label), 
+            color = "black", size = 3, vjust = -1, fontface = "bold") +
+  
+  # Formatting
+  coord_cartesian(xlim = c(40, 110), ylim = c(0, 0.05)) +
+  labs(title = "Duke Simulations (First 15)", x = "Points", y = "Density") +
+  theme_minimal()
 
-# Add numbered points
-points(duke_sims[1:15], y_duke, col = "lightblue", pch = 19, cex = 2)
-points(houston_sims[1:15], y_houston, col = "pink", pch = 19, cex = 2)
+# 1. Prepare Combined Data
+df_sims <- data.frame(
+  Points = c(duke_sims, houston_sims),
+  Team = c(rep("Duke", length(duke_sims)), 
+           rep("Houston", length(houston_sims)))
+)
 
-# Add numbers on top of points
-text(duke_sims[1:15], y_duke, labels = 1:15, col = "black", cex = 0.7, font = 2)
-text(houston_sims[1:15], y_houston, labels = 1:15, col = "black", cex = 0.7, font = 2)
+# Subset for dots (keeping your specific Y-heights)
+df_subset <- data.frame(
+  Points = c(duke_sims[1:15], houston_sims[1:15]),
+  Team = c(rep("Duke", 15), rep("Houston", 15)),
+  Label = c(1:15, 1:15),
+  Y_pos = c(rep(0.0025, 15), rep(0.0005, 15)) 
+)
 
-
-legend("topright", 
-       c("Duke distribution", "Houston distribution"), 
-       fill = c(rgb(0,0,1,0.5), rgb(1,0,0,0.5), NA, NA),
-       lty = c(NA, NA, 2, 2),
-       lwd = c(NA, NA, 1.5, 1.5),
-       col = c(NA, NA, "blue", "red"))
+# 2. Plot Combined
+ggplot() +
+  # Histograms (Identity position allows overlap)
+  geom_histogram(data = df_sims, 
+                 aes(x = Points, fill = Team, y = after_stat(density)), 
+                 alpha = 0.5, position = "identity", bins = 50) +
+  
+  # Small Points
+  geom_point(data = df_subset, 
+             aes(x = Points, y = Y_pos, color = Team), 
+             size = 3, show.legend = FALSE) +
+  
+  # Numbers (Placed above points)
+  geom_text(data = df_subset, 
+            aes(x = Points, y = Y_pos, label = Label), 
+            color = "black", size = 2, vjust = -1, fontface = "bold") +
+  
+  # Colors and Limits
+  scale_fill_manual(values = c("Duke" = "blue", "Houston" = "red")) +
+  scale_color_manual(values = c("Duke" = "blue", "Houston" = "red")) +
+  coord_cartesian(xlim = c(40, 110), ylim = c(0, 0.05)) +
+  
+  # Formatting
+  labs(title = "Duke vs Houston Simulations", x = "Points", y = "Density") +
+  theme_minimal() +
+  theme(legend.position = "top")
 
 # Print the matchups
 cat("\nFirst 15 simulated games:\n")

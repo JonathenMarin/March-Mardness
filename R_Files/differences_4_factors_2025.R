@@ -6,12 +6,17 @@ calculate_four_factors <- function(detailed_results_df) {
   
   game_factors <- detailed_results_df %>%
     mutate(
-      W_Poss = WFGA + 0.44 * WFTA + WTO,
-      L_Poss = LFGA + 0.44 * LFTA + LTO,
+      # Fixed: Added '+' after WTO and '*' inside the parenthesis
+      W_Poss = (WFGA - WOR) + WTO + (0.44 * WFTA),
+      
+      # Fixed: Added '*' inside the parenthesis
+      L_Poss = (LFGA - LOR) + LTO + (0.44 * LFTA),
+      
       W_eFG = (WFGM + 0.5 * WFGM3) / WFGA,
       W_TOV = WTO / W_Poss,
       W_ORB = WOR / (WOR + LDR),
       W_FTR = WFTM / WFGA,
+      
       L_eFG = (LFGM + 0.5 * LFGM3) / LFGA,
       L_TOV = LTO / L_Poss,
       L_ORB = LOR / (LOR + WDR),
@@ -102,3 +107,67 @@ combined_report_2025 <- bind_rows(predictions_2025_mens, predictions_2025_womens
   )
 
 write.csv(combined_report_2025, "C:/Math/Masters/March-Mardness/Excel_Files/DO_Model_Differences/combined_report_2025.csv")
+
+library(ggplot2)
+library(dplyr)
+library(gridExtra)
+
+# --- 1. Helper Function (Ensures Win-Win is Top-Left) ---
+create_conf_matrix <- function(data_df, true_col, pred_prob_col, title_text) {
+  
+  # Create Binary Classification (Cutoff 0.5)
+  plot_data <- data.frame(
+    Actual = data_df[[true_col]],
+    Pred_Prob = data_df[[pred_prob_col]]
+  )
+  plot_data$Predicted_Class <- ifelse(plot_data$Pred_Prob > 0.5, 1, 0)
+  
+  # Aggregate Counts
+  cm_counts <- plot_data %>%
+    group_by(Actual, Predicted = Predicted_Class) %>%
+    summarise(Count = n(), .groups = 'drop')
+  
+  # Set Factor Levels:
+  # Actual: Win (Left) -> Loss (Right)
+  cm_counts$Actual <- factor(cm_counts$Actual, levels = c(1, 0), labels = c("Win", "Loss"))
+  # Predicted: Loss (Bottom) -> Win (Top)
+  cm_counts$Predicted <- factor(cm_counts$Predicted, levels = c(0, 1), labels = c("Loss", "Win"))
+  
+  # Calculate Accuracy
+  acc <- mean(plot_data$Actual == plot_data$Predicted_Class, na.rm = TRUE)
+  
+  # Plot
+  ggplot(cm_counts, aes(x = Actual, y = Predicted, fill = Count)) +
+    geom_tile(color = "white", lwd = 1) +
+    geom_text(aes(label = Count), color = "white", size = 8, fontface = "bold") +
+    scale_fill_gradient(low = "#56B1F7", high = "#132B43") +
+    scale_x_discrete(position = "top") + 
+    labs(
+      title = title_text,
+      subtitle = paste0("Accuracy: ", round(acc * 100, 1), "%"),
+      x = "Actual Outcome",
+      y = "Predicted Outcome",
+      fill = "Games"
+    ) +
+    theme_minimal() +
+    theme(
+      axis.text = element_text(size = 11, face = "bold"),
+      plot.title = element_text(size = 12, face = "bold"),
+      panel.grid = element_blank(),
+      legend.position = "none" 
+    )
+}
+
+# --- 2. Generate Plots using ONLY 2025 Data ---
+
+# Men's 2025
+plot_mens_25 <- create_conf_matrix(predictions_2025_mens, "Team1_win", "Pred", "Men's 2025")
+
+# Women's 2025
+plot_womens_25 <- create_conf_matrix(predictions_2025_womens, "Team1_win", "Pred", "Women's 2025")
+
+# Combined 2025
+plot_combined_25 <- create_conf_matrix(combined_report_2025, "Team1_win", "Pred", "Combined 2025")
+
+# --- 3. Display All 3 Side-by-Side ---
+grid.arrange(plot_mens_25, plot_womens_25, plot_combined_25, ncol = 3)
