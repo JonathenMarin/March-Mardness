@@ -230,8 +230,9 @@ print(womens_tournament_predictions %>%
 
 # Histogram
 hist(womens_tournament_predictions$Brier_Score, 
-     breaks = 20, 
-     main = "Women's Tournament - Brier Score Distribution",
+     breaks = seq(0,1,length.out = 51),
+     xlim = c(0,1),
+     main = "Distribution of Womens Brier Scores",
      xlab = "Brier Score", 
      col = "pink",
      border = "white")

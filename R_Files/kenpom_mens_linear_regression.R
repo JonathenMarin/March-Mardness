@@ -470,11 +470,15 @@ cat("Median Brier Score:", round(median(tournament_predictions$Brier_Score), 4),
 
 # Histogram of Brier scores
 hist(tournament_predictions$Brier_Score, 
-     breaks = 20, 
-     main = "Distribution of Brier Scores",
+     breaks = seq(0,1,length.out = 51),
+     xlim = c(0,1),
+     ylim = c(0,25),
+     yaxt = "n",
+     main = "Distribution of Mens Brier Scores",
      xlab = "Brier Score", 
      col = "lightblue",
      border = "white")
+axis(2, at = seq(0,25, by = 5), las = 1)
 abline(v = overall_brier, col = "red", lwd = 2, lty = 2)
 legend("topright", paste("Mean =", round(overall_brier, 3)), 
        col = "red", lty = 2, lwd = 2)
@@ -482,5 +486,8 @@ legend("topright", paste("Mean =", round(overall_brier, 3)),
 # Compare to Log Loss
 cat("\nLog Loss:", round(log_loss, 4), "\n")
 cat("Brier Score:", round(overall_brier, 4), "\n")
+
+
+
 
 
