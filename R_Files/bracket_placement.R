@@ -1,8 +1,35 @@
-
-
 library(tidyverse)
 
-
+setup_first_four <- function(teams_df) {
+  # Identify play-in teams (teams with same Region and Seed)
+  play_ins <- teams_df %>%
+    group_by(Region, Seed) %>%
+    filter(n() > 1) %>%
+    arrange(Region, Seed, TeamID) %>%
+    mutate(play_in_id = row_number()) %>%
+    ungroup()
+  
+  if(nrow(play_ins) == 0) {
+    return(tibble())
+  }
+  
+  # Create First Four games
+  first_four <- play_ins %>%
+    group_by(Region, Seed) %>%
+    summarise(
+      region = first(Region),
+      round = 0L,  # Round 0 for First Four
+      game_id = paste0(first(Region), "_FirstFour_", first(Seed)),
+      seed_high = first(Seed),
+      seed_low = first(Seed),
+      TeamID_High = first(TeamID),
+      TeamID_Low = last(TeamID),
+      slot = first(Seed),
+      .groups = "drop"
+    )
+  
+  return(first_four)
+}
 
 setup_tournament_bracket <- function() {
   
@@ -29,7 +56,7 @@ setup_tournament_bracket <- function() {
           game_id   = paste0(region, "_R1_G", i),
           seed_high = matchup[1],
           seed_low  = matchup[2],
-          slot      = i  # game number within region
+          slot      = i
         )
       )
     }
@@ -38,14 +65,18 @@ setup_tournament_bracket <- function() {
   bracket
 }
 
-
 create_bracket_with_teams <- function(teams_df) {
+  # Remove duplicates for main bracket (keep first of each play-in pair)
+  teams_main <- teams_df %>%
+    group_by(Region, Seed) %>%
+    slice(1) %>%
+    ungroup()
+  
   bracket <- setup_tournament_bracket()
   
   bracket_teams <- bracket %>%
-    # Attach "high seed" team
     left_join(
-      teams_df %>%
+      teams_main %>%
         transmute(
           Region,
           Seed,
@@ -54,9 +85,8 @@ create_bracket_with_teams <- function(teams_df) {
         ),
       by = c("region" = "Region", "seed_high" = "Seed")
     ) %>%
-    # Attach "low seed" team
     left_join(
-      teams_df %>%
+      teams_main %>%
         transmute(
           Region,
           Seed,
@@ -69,37 +99,76 @@ create_bracket_with_teams <- function(teams_df) {
   bracket_teams
 }
 
-#--------------------------------------------------------------
-
 run_full_tournament <- function(teams_df, prediction_model) {
   
-  current_bracket <- create_bracket_with_teams(teams_df)
-  all_results     <- list()
+  # Step 1: Run First Four if applicable
+  first_four_bracket <- setup_first_four(teams_df)
+  all_results <- list()
+  result_index <- 1
   
+  # Track which seeds have been decided by First Four
+  first_four_winners <- tibble()
+  
+  if(nrow(first_four_bracket) > 0) {
+    cat("Running First Four games...\n")
+    
+    first_four_results <- first_four_bracket %>%
+      rowwise() %>%
+      mutate(
+        .pred       = list(prediction_model(TeamID_High, TeamID_Low)),
+        winner_id   = .pred$winner_id,
+        p_team_high = .pred$p_team1,
+        p_team_low  = .pred$p_team2,
+        winner_seed = seed_high  # Both teams have same seed
+      ) %>%
+      ungroup() %>%
+      select(-.pred)
+    
+    all_results[[result_index]] <- first_four_results
+    result_index <- result_index + 1
+    
+    # Track winners to replace in main bracket
+    first_four_winners <- first_four_results %>%
+      select(region, seed = winner_seed, winner_id)
+  }
+  
+  # Step 2: Create main bracket with First Four winners incorporated
+  teams_for_bracket <- teams_df %>%
+    group_by(Region, Seed) %>%
+    slice(1) %>%
+    ungroup()
+  
+  # Replace teams that lost in First Four
+  if(nrow(first_four_winners) > 0) {
+    teams_for_bracket <- teams_for_bracket %>%
+      left_join(first_four_winners, by = c("Region" = "region", "Seed" = "seed")) %>%
+      mutate(TeamID = coalesce(winner_id, TeamID)) %>%
+      select(-winner_id)
+  }
+  
+  current_bracket <- create_bracket_with_teams(teams_for_bracket)
+  
+  # Step 3: Run rounds 1-6
   for (round_num in 1:6) {
     
-    #---------------------------
-    # Simulate current round
-    #---------------------------
     round_results <- current_bracket %>%
       rowwise() %>%
       mutate(
         .pred       = list(prediction_model(TeamID_High, TeamID_Low)),
         winner_id   = .pred$winner_id,
-        p_team_high = .pred$p_team1,   # prob TeamID_High wins
-        p_team_low  = .pred$p_team2,   # prob TeamID_Low wins
+        p_team_high = .pred$p_team1,
+        p_team_low  = .pred$p_team2,
         winner_seed = ifelse(winner_id == TeamID_High, seed_high, seed_low)
       ) %>%
       ungroup() %>%
       select(-.pred)
     
-    all_results[[round_num]] <- round_results
+    all_results[[result_index]] <- round_results
+    result_index <- result_index + 1
     
-    # Championship done
     if (round_num == 6) break
     
     if (round_num <= 3) {
-      # R1→R2, R2→Sweet16, Sweet16→Elite8 (inside each region)
       current_bracket <- round_results %>%
         group_by(region) %>%
         arrange(slot, .by_group = TRUE) %>%
@@ -117,14 +186,9 @@ run_full_tournament <- function(teams_df, prediction_model) {
         )
       
     } else if (round_num == 4) {
-      # After regional finals → Final Four
-      
       regional_winners <- round_results %>%
         distinct(region, winner_id, winner_seed)
       
-      # FINAL FOUR PAIRING:
-      #   FF_G1: South vs West
-      #   FF_G2: Midwest vs East
       ff_pairs <- tribble(
         ~ff_game, ~region_high, ~region_low,
         1L,       "South",   "West",
@@ -159,7 +223,6 @@ run_full_tournament <- function(teams_df, prediction_model) {
         )
       
     } else if (round_num == 5) {
-      # Final Four → Championship
       current_bracket <- round_results %>%
         summarise(
           region      = "Championship",
@@ -174,10 +237,7 @@ run_full_tournament <- function(teams_df, prediction_model) {
     }
   }
   
-  #---------------------------
-  # Combine all rounds
-  # AND reattach team names for every round
-  #---------------------------
+  # Step 4: Combine all results and attach team names
   full_results <- bind_rows(all_results)
   
   # Remove any existing name columns to avoid duplicates
@@ -208,12 +268,8 @@ run_full_tournament <- function(teams_df, prediction_model) {
     ) %>%
     rename(WinnerName = TeamName)
   
-  return(full_results)  
-  
-  
-  
-  
+  return(full_results)
 }
-  
-  
-message("bracket_placement.R loaded. Use run_full_tournament(teams_df, prediction_model).")
+
+message("bracket_placement.R loaded with First Four support.")
+message("Use run_full_tournament(teams_df, prediction_model).")

@@ -268,14 +268,8 @@ seeds_2025 <- seeds %>%
     )
   )
 
-# Collapse any play-in seeds (11a/11b, etc.) by taking the first for each Region/SeedNum
-seeds_2025_unique <- seeds_2025 %>%
-  arrange(Region, SeedNum) %>%
-  group_by(Region, SeedNum) %>%
-  slice(1) %>%
-  ungroup()
 
-teams_2025 <- seeds_2025_unique %>%
+teams_2025 <- seeds_2025 %>%
   left_join(Mteams %>% select(TeamID, TeamName),
             by = "TeamID") %>%
   transmute(
