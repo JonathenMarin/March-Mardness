@@ -134,8 +134,6 @@ model <- lm(Points ~ OffRating + DefRating + AdjT_team + AdjT_opp +
 
 summary(model)
 sigma <- summary(model)$sigma
-
-sigma <- sigma * 1.15
 cat("Standard deviation (sigma):", sigma, "\n")
 
 # Store predictions for diagnostics
