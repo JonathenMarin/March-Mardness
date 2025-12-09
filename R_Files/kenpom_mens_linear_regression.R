@@ -61,7 +61,6 @@ kenpom_final <- kenpom_final %>% select(-Team_normalized)
 
 cat("Matched teams:", sum(!is.na(kenpom_final$TeamID)), "out of", nrow(kenpom), "\n")
 
-
 # 2. PREPARE TRAINING DATA ------------------------------------------------
 
 # Read regular season results
@@ -130,7 +129,7 @@ cat("Total training samples:", nrow(train_data), "\n")
 
 
 model <- lm(Points ~ OffRating + DefRating + AdjT_team + AdjT_opp + 
-             Diff_NetRtg + (AdjT_team * AdjT_opp), 
+             Diff_NetRtg, 
             data = train_data)
 
 summary(model)
@@ -250,3 +249,119 @@ cat("Brier Score:  ", round(overall_brier, 5), "\n")
 
 plot(model)
 check_model(model, check="vif")
+
+
+
+# tournament --------------------------------------------------------------
+
+seeds <- fread("march-machine-learning-mania-2025/MNCAATourneySeeds.csv")
+
+seeds_2025 <- seeds %>%
+  filter(Season == 2025) %>%
+  mutate(
+    RegionCode = substr(Seed, 1, 1),                # "W","X","Y","Z"
+    SeedNum    = as.integer(substr(Seed, 2, 3)),    # 1–16
+    Region     = dplyr::recode(
+      RegionCode,
+      "W" = "East",
+      "X" = "Midwest",
+      "Y" = "South",
+      "Z" = "West"
+    )
+  )
+
+# Collapse any play-in seeds (11a/11b, etc.) by taking the first for each Region/SeedNum
+seeds_2025_unique <- seeds_2025 %>%
+  arrange(Region, SeedNum) %>%
+  group_by(Region, SeedNum) %>%
+  slice(1) %>%
+  ungroup()
+
+teams_2025 <- seeds_2025_unique %>%
+  left_join(Mteams %>% select(TeamID, TeamName),
+            by = "TeamID") %>%
+  transmute(
+    TeamID,
+    TeamName,
+    Region = Region,
+    Seed   = SeedNum
+  )
+
+cat("Teams in 2025 bracket ", nrow(teams_2025), "\n")
+
+
+
+
+# kenpom wrapper ----------------------------------------------------------
+
+
+
+
+make_kenpom_prediction_model <- function(kenpom_data,
+                                         model,
+                                         sigma,
+                                         mode = c("stochastic", "deterministic"),
+                                         n_sims = 500) {
+  mode <- match.arg(mode)
+  
+  function(team1_id, team2_id) {
+    res <- predict_matchup(
+      team_a_id   = team1_id,
+      team_b_id   = team2_id,
+      kenpom_data = kenpom_data,
+      model       = model,
+      sigma       = sigma
+    )
+    
+    p1 <- res$team_a_win_prob
+    p2 <- 1 - p1
+    
+    winner_id <- if (mode == "stochastic") {
+      ifelse(runif(1) < p1, team1_id, team2_id)
+    } else {
+      ifelse(p1 >= 0.5, team1_id, team2_id)
+    }
+    
+    list(
+      winner_id = winner_id,
+      p_team1   = p1,
+      p_team2   = p2
+    )
+  }
+}
+
+prediction_model_kenpom <- make_kenpom_prediction_model(
+  kenpom_data = kenpom_final,
+  model       = model,
+  sigma       = sigma,
+  mode        = "stochastic"   # or "deterministic"
+)
+
+
+
+source("R_Files/bracket_placement.R")
+
+bracket_results_2025 <- run_full_tournament(
+  teams_df         = teams_2025,
+  prediction_model = prediction_model_kenpom
+)
+
+# Example: view full tournament nicely ordered
+bracket_results_2025 %>%
+  arrange(round, region, slot) %>%
+  select(round, region, game_id,
+         TeamName_High, seed_high,
+         TeamName_Low,  seed_low,
+         winner_id,
+         p_team_high, p_team_low) %>%
+  print(n = 100)
+
+# Example: see just the championship game
+champion_row <- bracket_results_2025 %>%
+  filter(round == 6)
+
+cat("\nPredicted championship matchup:\n")
+print(champion_row)
+
+
+View(bracket_results_2025)
