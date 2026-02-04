@@ -2,6 +2,11 @@ library(data.table)
 library(dplyr)
 library(xgboost)
 library(ggplot2)
+
+
+# data load ---------------------------------------------------------------
+
+
 data_dir <- "march-machine-learning-mania-2025"
 
 M_regular <- fread(file.path(data_dir, "MRegularSeasonDetailedResults.csv"))
@@ -100,6 +105,9 @@ team_seed <- seeds[Season == example_season & TeamID == example_teamid]
 cat("Team seed:\n")
 print(team_seed)
 cat("\n")
+
+
+# data prep ---------------------------------------------------------------
 
 
 prepare_data <- function(df) {
@@ -498,6 +506,9 @@ best_brier <- cv_results$evaluation_log$test_brier_score_mean[best_nround]
 cat("Optimal Rounds found:", best_nround, "\n")
 cat("Best Test Brier Score:", round(best_brier, 5), "\n")
 
+# train model -------------------------------------------------------------
+
+
 # Train Final Model
 final_model <- xgb.train(
   params = params, 
@@ -517,6 +528,9 @@ print(head(importance_matrix, 20))
 
 # Visualize
 xgb.plot.importance(importance_matrix[1:20], main = "Feature Importance (Easy + Medium)")
+
+
+# top 20 only -------------------------------------------------------------
 
 
 #retrain with just top 20 features
@@ -560,6 +574,9 @@ cat("Full Model (", length(features), " features) - Brier:", round(best_brier, 5
 cat("Top 20 Model - Brier:", round(best_brier_top20, 5), "\n")
 cat("Difference:", round(best_brier_top20 - best_brier, 5), "\n")
 
+# train top 20 model ------------------------------------------------------
+
+
 # Train Final Model with Top 20
 final_model_top20 <- xgb.train(
   params = params, 
@@ -578,7 +595,9 @@ print(importance_top20)
 
 xgb.plot.importance(importance_top20, main = "Feature Importance (Top 20 Only)")
 
-#predict 2025 with top 20
+
+# predict 2025 with both ------------------------------------------------------------
+
 
 file_path <- "Excel_Files/2025_games_kaggle.csv"
 
