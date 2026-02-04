@@ -1,0 +1,563 @@
+% PLEASE DO NOT PLAY WITH ALL THESE SETTINGS, UNLESS YOU REALLY KNOW WHAT YOU ARE DOING. 
+
+%IF YOU HAVE ANY QUESTIONS PLEASE CONTACT: Oscar Vega <ovega@csufresno.edu>
+
+%LaTeX file, comments, and Fresno State formatting created and developed by Brent Alexander Wilson: snahhan@gmail.com.
+%Thanks to Dr. Gerardo Munoz for initially creating the formatting of the title, approval, and authorization for reproduction pages.
+%Last Updated: November 2012 (GM).
+%Last Modified: Oscar Vega, August 2021.
+\documentclass[12pt,leqno]{article}
+\usepackage{amsmath, amssymb, comment, amsthm}
+\usepackage{latexsym}
+\usepackage{nextpage}
+%\usepackage[pdftex]{graphicx}   %just in case graphicx is not enough... shouldn't need this
+\usepackage{graphicx}
+\usepackage{thmtools}
+\usepackage{float}
+\usepackage{array, multirow, hhline}%for tricky things with tables
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%                                        Fresno State Formatting Requirements Begins                                  %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{tocloft} %For table of contents.
+\usepackage{verbatim} %Allows us to use \setcounter for manipulating pages
+\usepackage{setspace} %Lets user change line spacing of text: normal, 1.5x, and double
+\usepackage{indentfirst} %Allow first paragraph to be indented in sections/subsections
+\usepackage[font=normal,labelfont=normal,labelsep=period,tableposition=top,justification=raggedright]{caption} %Do a little magic to captions
+\usepackage{flafter} %Ensure floats (tables/figures) are never placed before their references.
+\usepackage{mathrsfs} %For math symbols -- script L for luminosity
+\usepackage{ragged2e} %Used to enable command \raggedright
+\usepackage[compact]{titlesec} %Used for titlespacing command.
+
+\clubpenalty10000
+\widowpenalty10000
+%those are for avoiding orphan lines at top of pages
+
+\raggedright%Enables left adjust of all text and gets rid of hyphenation throughout the paper, which is required for Fresno formatting.
+
+%This disables bold text on section titles and sets the spacing before & after of section title
+\makeatletter
+\renewcommand\section{\@startsection {section}{1}{\z@}%
+{-3.5ex \@plus -1ex \@minus -.2ex}%
+{2.3ex \@plus.2ex}%
+{\normalfont\centering}}
+\makeatother
+
+%This disables bold text on subsection titles and sets the spacing before & after of section title
+\makeatletter
+\renewcommand\subsection{\@startsection {subsection}{1}{\z@}%
+{-3.5ex \@plus -1ex \@minus -.2ex}%
+{0.8pt plus 2pt minus 2pt}%
+{\normalfont}}
+\makeatother
+
+%This disables bold text on subsubsection titles and sets the spacing before & after of section title
+\makeatletter
+\renewcommand\subsubsection{\@startsection {subsubsection}{1}{\z@}%
+{-3.5ex \@plus -1ex \@minus -.2ex}%
+{0.8pt plus 2pt minus 2pt}%
+{\normalfont}}
+\makeatother
+
+\newcommand{\usubsection}[1]{\subsection[#1]{\centering\normalfont\underline{#1}}}% This underlines sub-sections -- must use \usubsection in paper to identify!
+\newcommand{\usubsubsection}[1]{\subsubsection[#1]{\normalfont\normalfont\underline{#1}}}% This underlines sub-sub-sections -- must use \usubsubsection in paper to identify!
+
+\setcounter{tocdepth}{2}%Don't show subsubsections in the Table of Contents:
+\setcounter{secnumdepth}{-1}%Disables chapter, section, and subsection numbering
+\setlength{\parindent}{0.5in}%Paragraphs must be indented 1/2"
+\setlength{\cftbeforefigskip}{0.3cm}% Space between elements of the List of Figures
+\setlength{\cftbeforetabskip}{0.3cm}% Space between elements of the List of Tables
+\setlength{\cftbeforesecskip}{0.3cm}% Space before Section entries in the Table of Contents
+\setlength{\cftbeforesubsecskip}{0.3cm}% Space before Sub-Section entries in the Table of Contents
+\setlength\headsep{12pt}%Change spacing between page number and top of text
+\setlength{\cftfignumwidth}{1.5em}%Change space between Figure X and the caption for it on the List of Figures
+\setlength{\cfttabnumwidth}{1.5em}%Change space between Table X and the caption for it on the List of Tables
+
+\renewcommand{\contentsname}{TABLE OF CONTENTS} %Renames table of contents to how you want it:
+\renewcommand{\cfttoctitlefont}{\centering\normalfont}%Change Table of Contents title to be normal & not bold
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}%This gives you the dots for the table of contents page:
+\renewcommand{\listtablename}{LIST OF TABLES}%Renames table of tables to how you want it:
+\renewcommand{\cftlottitlefont}{\centering\normalfont}%Change List of Tables title to be normal & not bold
+\renewcommand{\cfttabfont}{Table }%Renames "1" on list of tables to "Table 1":
+\renewcommand{\listfigurename}{LIST OF FIGURES}%Renames table of figures to how you want it:
+\renewcommand{\cftloftitlefont}{\centering\normalfont}%Change List of Figures title to be normal & not bold
+\renewcommand{\cftfigfont}{Figure }%Renames "1" on list of figures to "Figure 1":
+\renewcommand{\refname}{REFERENCES}%Renames references to how you want it:
+\renewcommand{\cftfigaftersnum}{.}%Add a period after Figure X in List of Figures
+\renewcommand{\cfttabaftersnum}{.}%Add a period after Table X in List of Tables
+
+%Use this to put page numbers at top right of page
+\usepackage{fancyhdr}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt} % remove the header rule
+\rhead{\thepage}
+\pagestyle{fancy}
+\fancyheadoffset[HR]{0.02in}%Moves (horizontally) the page number                              
+%KEEP ALL THIS TOGETHER
+
+% Change Table of Content section headers and page numbers to normal instead of bold font
+\renewcommand{\cftsecfont}{\normalfont}
+\renewcommand{\cftsecpagefont}{\normalfont}
+
+%%Change margins \marginsize{left}{right}{top}{bottom}:
+\usepackage{anysize}
+\marginsize{1.7in}{1in}{1.2in}{1.6in}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%                                   Fresno State Formatting Requirements Ends                                   %%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%BEGIN OF MATH SYMBOLS AND COMMANDS
+% You, most probably, don't need all what follows. Comment out whatever you don't need to better run LaTeX.
+\usepackage[all]{nowidow} %this is to avoid orphan lines
+\usepackage{array}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{tikz}
+%\usepackage{subfigure}
+
+\newtheorem{lemma}{Lemma}%[chapter]
+\newtheorem{theorem}[lemma]{Theorem}
+\newtheorem{corollary}[lemma]{Corollary}
+\newtheorem{proposition}[lemma]{Proposition}
+\newtheorem{defnition}[lemma]{Definition} %leave this as is, soon this will be redefined as a new environment
+\newtheorem{example}[lemma]{Example}
+\newenvironment{definition}{\begin{defnition} \em}{\end{defnition}}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\close}[1]{\begin{equation} #1 \tag*{$\Box$} \end{equation}}
+
+\newcommand{\wtilde}{\widetilde}
+\newcommand{\what}{\widehat}
+\newcommand{\n}{\noindent}
+\renewcommand{\bar}{\overline}
+%\newcommand{\qed}{\hfill $\square$}%%%%%%%%%%%%%%%%%%%%%%% use \qed to get square at the end of proofs.
+%\newcommand{\proof}{\n \emph{\underline{Proof}} \ : \ }
+\newcommand{\rbox}{\hfill $\Box$}
+\newcommand{\rdef}{\mbox{} \hfill $\rhd$}
+\newcommand{\la}{\langle}
+\newcommand{\ra}{\rangle}
+\newcommand{\normal}{\unlhd}
+\newcommand{\subnormal}{\unlhd \unlhd}
+\newcommand{\kar}{\stackrel{\mathrm{char}}{\normal}}
+\newcommand{\lra}{\Leftrightarrow}
+\newcommand{\labelpar}[1]{\label{#1}}
+\newcommand{\Image}{\mbox{\rm Im} \,}
+\newcommand{\Ker}{\mbox{\rm Ker} \,}
+\renewcommand{\Im}{\mbox{\rm Im} \,}
+\newcommand{\deq}{\stackrel{\mathrm{def}}{=}}
+\newcommand{\ds}{\displaystyle}
+\newcommand{\tst}{\textstyle}
+\newcommand{\mbf}{\mathbf}
+\newcommand{\mbb}[1]{\mbox{\boldmath$#1$}}
+\newcommand{\con}{\, | \,}
+\newcommand{\mb}[1]{{\mathbb #1}}
+\newcommand{\ip}[2]{\left\langle #1, #2 \right\rangle}
+\newcommand{\solution}{\emph{Solution : }}
+\newcommand{\answer}[1]{\begin{center} \framebox{#1} \end{center}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\boxform}[1]{\medskip \mbox{} \hfill #1 \hfill $\Box$}
+\newcommand{\der}[2]{\ds{\frac{\partial #1}{\partial#2}}}
+\newcommand{\se}[1]{\setlength{\extrarowheight}{#1}}
+\newcommand{\Der}[2]{\frac{\partial #1}{\partial#2}}
+\newcommand{\Aut}{\mbox{\rm Aut}}
+\newcommand{\Out}{\mbox{\rm Out}}
+\newcommand{\Inn}{\mbox{\rm Inn}}
+\newcommand{\Sym}{\mbox{\rm Sym}}
+\newcommand{\Alt}{\mbox{\rm Alt}}
+\newcommand{\GL}{\mbox{\rm GL}}
+\newcommand{\PGL}{\mbox{\rm PGL}}
+\newcommand{\SL}{\mbox{\rm SL}}
+\newcommand{\PSL}{\mbox{\rm PSL}}
+\newcommand{\SU}{\mbox{\rm SU}}
+\newcommand{\PSU}{\mbox{\rm PSU}}
+\newcommand{\symp}{\mbox{\rm Sp}}
+\newcommand{\psymp}{\mbox{\rm PSp}}
+\newcommand{\unit}{\mbox{\rm U}}
+\newcommand{\orth}{\mbox{\rm O}}
+\newcommand{\proj}{\mbox{\rm P}}
+\newcommand{\Syl}{\mbox{\rm Syl}}
+\newcommand{\End}{\mbox{\rm End}}
+\newcommand{\rank}{\mbox{\rm rank}}
+\newcommand{\Sol}{\mbox{\rm Sol}}
+\newcommand{\Fit}{\mbox{\rm Fit}}
+\newcommand{\Frat}{\mbox{\rm Frat}}
+\newcommand{\Matr}{\mbox{\rm Matr}}
+\newcommand{\rad}{\mbox{\rm rad}}
+\newcommand{\ord}{\mbox{\rm ord}}
+\newcommand{\Fix}{\mbox{\rm Fix}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\F}{\mathbb{F}}
+%\newcommand{\emptypage}{\newpage \thispagestyle{empty} \begin{tabbing} just an empty page  \kill \end{tabbing}}
+\renewcommand{\liminf}{ \underline{\lim} \,}
+\renewcommand{\limsup}{\overline{\lim} \,}
+\renewcommand{\iff}{\Leftrightarrow}
+\renewcommand{\Re}[1]{\mbox{\rm Re}(#1)}
+\renewcommand{\Im}[1]{\mbox{rm Im}(#1)}
+\newcommand{\Log}{\mbox{\rm Log} \, }
+\newcommand{\hs}{\hspace{1mm}}
+\newcommand{\tcr}{\textcolor{red}}
+%\renewcommand{\thetable}{\Roman{table}}  To make tables numbered using roman numerals
+\newcommand*\mycirc[1]{
+\begin{tikzpicture}[baseline=(C.base)]
+\node[draw,circle,inner sep=1pt](C) {#1};
+\end{tikzpicture}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%END OF MATH SYMBOLS AND COMMANDS
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{center}
+ABSTRACT
+\end{center}
+
+\begin{center}
+%ABSTRACT TITLE
+%SAME TITLE AS TITLE PAGE, SINGLE-SPACED IF OVER \newline
+%ONE LINE, TYPED IN INVERTED PYRAMID FORM
+THE TITLE OF MY PROJECT GOES HERE
+\end{center}
+
+\doublespacing
+
+Start typing the abstract text here. Keep it short but make sure that you give a comprehensive overview of your work that a person with no expertise in your field can understand.
+%The abstract should fit on one page. A blank guard sheet should follow. Neither of these pages receives a page number, and neither is considered part of the project proper. 
+
+\singlespacing
+\vskip 0.3in
+\noindent M. S. Student%ABSTRACT AUTHOR NAME
+
+\noindent May 2021 %Use May or December, depending on the semester you graduate, even though the deadline is earlier than that.
+\thispagestyle{empty}
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%BLANK PAGE AFTER ABSTRACT
+\mbox{}
+\thispagestyle{empty}
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{center}
+%PROJECT TITLE THAT EXTENDS OVER ONE LINE TYPED IN INVERTED PYRAMID FORM. JUST LIKE IN ABSTRACT
+THE TITLE OF MY PROJECT GOES HERE
+\end{center}
+
+\vskip 2in
+
+\begin{center}
+by
+\end{center}
+
+\begin{center}
+M. S. Student%AUTHOR'S FULL NAME
+\end{center}
+
+\vskip 2in
+
+\begin{center}
+A project \\[6pt]
+submitted in partial \\[6pt]
+fulfillment of the requirements for the degree of \\[6pt]
+Master of Science in Mathematics \\[6pt]
+in the College of Science and Mathematics \\[6pt]
+California State University, Fresno
+\end{center}
+
+\begin{center}
+May 2021 %CHECK DATE
+\end{center}
+\setcounter{page}{1}
+\pagenumbering{roman}
+\thispagestyle{empty}
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{center}
+APPROVED
+\end{center}
+
+\begin{center}
+For the Department of Mathematics:
+\end{center}
+
+%Note: Do not use academic titles (i.e., Dr., Ph.D.) when you enter your committee members' names on this page.  Use first and last name only.  When filling in the department name, do not use "Department of"  Simply use Mathematics.  Laser-print this page.  Inkjet print is not acceptable.  Once your committee members have signed, you can bring it to the Graduate Office (Madden Library 4th floor) and I will secure the dean's signature for you.  Delete this box after you have read the instructions.
+
+\noindent
+%We use the quote to move the block of text over so it looks nice and aligned with lines below
+\begin{quote}
+We, the undersigned, certify that the project of the following student meets the required standards of scholarship, format, and style of the university and the student's graduate degree program for the awarding of the master's degree.
+\end{quote}
+
+\vskip 0.5in
+
+\begin{center}
+M. S. Student  %TYPE STUDENT'S NAME THERE. TYPED SAME AS ON TITLE PAGE
+\vskip -0.1in
+\makebox[\textwidth]{\hspace{4pc}\hrulefill\hspace{4pc}}
+Project Author
+\end{center}
+
+\vskip 0.5in
+
+\begin{center}
+ \makebox[\textwidth]{\hspace{2pc}\hrulefill\hspace{2pc}}
+ \end{center}
+ \vskip -0.2in
+ \hspace{2pc}%TYPE CHAIRPERSON'S  NAME THERE
+Project A. Dvisor (Chair) \hfill Mathematics  \hspace{2pc}
+
+%THE REST SHOW UP IN ALPHABETICAL ORDER
+
+\vskip 0.3in
+\begin{center}
+ \makebox[\textwidth]{\hspace{2pc}\hrulefill\hspace{2pc}}
+ \end{center}
+ \vskip -0.2in
+ \hspace{2pc}%TYPE COMMITTEE MEMBER NAME THERE
+Henri Poincar\'e \hfill Mathematics  \hspace{2pc}
+
+\vskip 0.3in
+\begin{center}
+\makebox[\textwidth]{\hspace{2pc}\hrulefill\hspace{2pc}}
+\end{center}
+\vskip -0.2in
+\hspace{2pc}%TYPE COMMITTEE MEMBER NAME THERE
+Felix Klein \hfill Mathematics \hspace{2pc}   %TYPE DEPARTMENT NAME OR PROFESSIONAL AFFILIATION, IN CASE COMMITTEE MEMBER IS NOT IN THE DEPARTMENT OF MATHEMATICS
+
+\thispagestyle{empty}
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{center}
+ACKNOWLEDGMENTS
+\end{center}
+\doublespacing
+
+I would like to thank my advisor, Dr. Dvisor, for her helpful advice, guidance, knowledge, and overall general brilliance. It was an honor for me to have the chance to work with such a great mind. I would also like to thank all project committee members for, hopefully, having read my work and asking easy questions at my defense. I  also thank my parents....
+\newline\newline\newline
+
+\singlespacing
+\thispagestyle{empty}
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\addtocontents{toc}{\hfill Page\par}%This adds text "Page" to Table of Contents
+
+%This creates the table of contents page automatically
+\begin{center}
+\tableofcontents
+\end{center}
+\thispagestyle{empty}
+\newpage
+
+
+
+%TRY TO KEEP YOUR LIST OF TABLES AND FIGURES TO ONE PAGE EACH. IF NOT POSSIBLE, THEN PLEASE CONTACT THE GRADUATE COORDINATOR AS THIS TEMPLATE WILL NEED TO BE MODIFIED TO FIT UNIVERSITY REGULATIONS.
+
+%IF YOU DO NOT HAVE TABLES OR FIGURES, DELETE THE CORRESPONDING PAGE THAT LISTS THEM.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\addtocontents{lot}{\hfill Page\par}%This adds text "Page" to List of Tables
+
+%This creates the list of tables page automatically
+\addcontentsline{toc}{section}{LIST OF TABLES} %This adds List of Tables to table of contents
+\begin{center}
+\listoftables
+\end{center}
+\thispagestyle{empty}
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\addtocontents{lof}{\hfill Page\par}%This adds text "Page" to List of Figures
+
+%This creates the list of figures page automatically
+\addcontentsline{toc}{section}{LIST OF FIGURES} %This adds List of Figures to table of contents
+\begin{center}
+\listoffigures
+\end{center}
+\thispagestyle{empty}
+\newpage
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\doublespacing%From now on everything will be in double spacing
+
+\begin{center}
+\section{INTRODUCTION}
+\end{center}
+\setcounter{page}{1}%THIS IS TO RESET PAGE NUMBERING SO THAT THE FIRST SECTION IS PAGE 1. NO ROMAN NUMERALS ANYMORE. 
+\pagenumbering{arabic}%WE DON'T WANT ROMAN NUMERALS, SO WE SWITCH TO ARABIC.
+\thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
+
+
+
+
+% NOTE THAT THE TEMPLATE DOES NOT HAVE CHAPTERS, BUT SECTIONS, AND THAT THESE ARE NOT NUMBERED...
+
+
+
+
+\usubsection{The First Subsection of this Project}
+
+
+``The mathematician does not study pure mathematics because it is useful; he studies it because he delights in it and he delights in it because it is beautiful."  \\
+Henry Poincar\'e (1854 -- 1912) 
+
+\vskip 0.5 in
+
+
+%YOU SHOULD USE STANDARD LaTeX TO TYPESET YOUR WORK. USE \ref AND \cite, DO NOT HARDCODE YOUR REFERENCES.
+
+These results  are summarized in Table \ref{wlength2}.
+
+\vspace{.5cm}
+
+\begin{table}[htp]
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+Will Return & Will Not Return\\
+\hline
+RL	& RR, RU, RD\\
+UD	& UU, UR, UL\\
+LR	& LL, LU, LD\\
+DU	& DD, DR, DL\\
+\hline
+\end{tabular}
+\end{center}
+\caption{Paths of Length $n=2$}
+\label{wlength2}
+\end{table}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usubsection{The Second Subsection of this Project}
+
+``If I feel unhappy, I do mathematics to become happy. If I am happy, I do mathematics to keep happy." \\
+P\`al Tur\`an (1910--1976) 
+
+\vspace{0.3in}
+
+
+%THIS IS HOW YOU PLACE FIGURES. PLEASE FOLLOW THIS TEMPLATE SO YOUR PICTURES DO NOT FLOAT TO WHERE YOU DO NOT WANT THEM.
+
+%\begin{figure}[H]
+%\begin{center}
+%\includegraphics[scale=.7]{rw2dn4.pdf}
+%\caption{Probability Distribution Frequencies for $n = 4$}
+%\label{2dfrequencies}
+%\end{center}
+%\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usubsection{A Third Subsection with an Equation}
+
+
+\begin{theorem}[Product of Binomial Coefficients by Addition Identity]
+\[
+\binom{n}{a}\binom{n}{b} =
+\]
+\[
+\binom{n-1}{a-1}\binom{n-1}{b}+\binom{n-1}{a}\binom{n-1}{b-1}+\binom{n-1}{a}\binom{n-1}{b}+\binom{n-1}{a-1}\binom{n-1}{b-1}
+\]
+\end{theorem}
+
+\vspace{.5cm}
+
+\begin{proof}
+Note the following:\\
+\begin{align*}
+&\binom{n-1}{a-1}\binom{n-1}{b}+\binom{n-1}{a}\binom{n-1}{b-1}+\binom{n-1}{a}\binom{n-1}{b}+\binom{n-1}{a-1}\binom{n-1}{b-1}\\\\
+&=\left(\frac{(n-1)!}{(n-1-a)!a!}\right)\left(\frac{(n-1)!}{(n-1-b)!b!}\right)\\
+&+\left(\frac{(n-1)!}{(n-a)!(a-1)!}\right)\left(\frac{(n-1)!}{(n-1-b)!b!}\right)\\
+&+\left(\frac{(n-1)!}{(n-1-a)!a!}\right)\left(\frac{(n-1)!}{(n-b)!(b-1)!}\right)\\
+&+\left(\frac{(n-1)!}{(n-a)!(a-1)!}\right)\left(\frac{(n-1)!}{(n-b)!(b-1)!}\right)\\\\
+&=\left(\frac{(n-a)(n-1)!}{(n-a)!a!}\right)\left(\frac{(n-b)(n-1)!}{(n-b)!b!}\right)\\
+&+\left(\frac{a(n-1)!}{(n-a)!a!}\right)\left(\frac{(n-b)(n-1)!}{(n-b)!b!}\right)\\
+&+\left(\frac{(n-a)(n-1)!}{(n-a)!a!}\right)\left(\frac{b(n-1)!}{(n-b)!b!}\right)\\
+&+\left(\frac{a(n-1)!}{(n-a)!a!}\right)\left(\frac{b(n-1)!}{(n-b)!b!}\right)\\\\
+&=\frac{(n-1)!(n-1)!}{a!b!(n-a)!(n-b)!}\left[(n-a)(n-b)+a(n-b)+(n-a)b+ab\right]\\\\
+&=\frac{(n-1)!(n-1)!}{a!b!(n-a)!(n-b)!}\cdot n^{2}\\\\
+&=\frac{n!}{(n-a)!a!}\frac{n!}{(n-b)!b!}\\\\
+&=\binom{n}{a}\binom{n}{b}   \qedhere
+\end{align*} 
+\end{proof}
+
+
+%NOTE THAT ABOVE, I FINISHED THE PROOF WITH  \qedhere. THIS IS SO THE SQUARE IS ON THE SAME LINE AS THE LAST LINE WRITTEN. IF YOU COMMENT THAT OUT, YOU WILL SEE THAT THE SQUARE GOES ONE LINE LOWER, UGLY AND BAD PRACTICE.
+
+
+
+All this follows from \cite{PW}.
+
+
+
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{center}
+\section{A NEW SECTION OF THE PROJECT}
+\end{center}
+\thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
+
+
+\usubsection{Yet Another Subsection}
+
+Proceed with text, equations and figures as above.
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{center}
+\section{A THIRD SECTION}
+\end{center}
+\thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
+
+%%%%%%%%%%%%%%%%%%%%%%
+\usubsection{My Contributions and Analysis}
+Here are my insights...
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{center}
+\section{CONCLUSIONS}
+\end{center}
+\thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
+
+%%%%%%%%%%%%%%%%%%%%%%
+\usubsection{Summary}
+
+As a preliminary assessment...
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{thebibliography}{99}
+\addcontentsline{toc}{section}{REFERENCES} %THIS ADDS REFERENCES TO TABLE OF CONTENTS
+\singlespacing %THIS LOOKS BETTER ON REFERENCE PAGE, DOUBLESPACING WOULD BE TOO UGLY
+\thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
+
+\bibitem{CER}  Y. Caro; M.N. Ellingham; J.E. Ramey. Local structure when all maximal independent sets have equal weight. \emph{SIAM J. Discrete Math.} \textbf{11} (1998), no. 4, 644--654.
+
+\bibitem{JPS} Serre, J.P. \emph{Linear Representations of Finite Groups}, Springer-Verlag (1977).
+
+\bibitem{PW} Peart, P.; Woan, W. J. Generating functions via Hankel and Stieltjes matrices, \emph{Journal of Integer Sequences}, Article 00.2.1, Issue \textbf{2}, Volume 3, 2000.
+
+
+
+%IF YOU ARE DOING A PROJECT IN PURE/APPLIED MATH, THEN YOU NEED TO USE AMS STYLE FOR REFERENCES (GET YOUR REFERENCES FROM MATHSCINET). CONSULT YOUR ADVISOR ABOUT WHAT IS THE STANDARD IN YOUR FIELD, IF YOU ARE DOING STATS OR MATH ED.
+\end{thebibliography}
+\end{document} 
