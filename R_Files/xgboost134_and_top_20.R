@@ -533,7 +533,244 @@ xgb.plot.importance(importance_matrix[1:20], main = "Feature Importance (Easy + 
 
 cat("\n=== EASY + MEDIUM FEATURES COMPLETE ===\n")
 
+# ==============================================================================
+# RETRAIN WITH TOP 20 FEATURES ONLY
+# ==============================================================================
 
+cat("\n\n=== RETRAINING WITH TOP 20 FEATURES ===\n")
+
+# Extract top 20 feature names
+top_20_features <- importance_matrix$Feature[1:20]
+
+cat("Top 20 features selected:\n")
+print(top_20_features)
+cat("\n")
+
+# Create new training matrix with only top 20 features
+dtrain_top20 <- xgb.DMatrix(
+  data = as.matrix(tourney_complete[, ..top_20_features]), 
+  label = tourney_complete$win
+)
+
+# Cross-Validation with Top 20
+cat("\n--- Running Cross-Validation (Top 20) ---\n")
+cv_results_top20 <- xgb.cv(
+  params = params,
+  data = dtrain_top20,
+  nrounds = 2000,
+  nfold = 5,
+  custom_metric = evalerror,
+  maximize = FALSE,
+  early_stopping_rounds = 50,
+  print_every_n = 20,
+  verbose = TRUE
+)
+
+if (is.null(cv_results_top20$best_iteration)) {
+  best_nround_top20 <- which.min(cv_results_top20$evaluation_log$test_brier_score_mean)
+} else {
+  best_nround_top20 <- cv_results_top20$best_iteration
+}
+
+best_brier_top20 <- cv_results_top20$evaluation_log$test_brier_score_mean[best_nround_top20]
+
+cat("\n--- TOP 20 OPTIMIZATION RESULTS ---\n")
+cat("Optimal Rounds found:", best_nround_top20, "\n")
+cat("Best Test Brier Score:", round(best_brier_top20, 5), "\n")
+
+# Compare to full model
+cat("\n--- COMPARISON ---\n")
+cat("Full Model (", length(features), " features) - Brier:", round(best_brier, 5), "\n")
+cat("Top 20 Model - Brier:", round(best_brier_top20, 5), "\n")
+cat("Difference:", round(best_brier_top20 - best_brier, 5), "\n")
+
+# Train Final Model with Top 20
+cat("\n--- Training Final Model (Top 20) ---\n")
+final_model_top20 <- xgb.train(
+  params = params, 
+  data = dtrain_top20, 
+  nrounds = best_nround_top20,
+  evals = list(train = dtrain_top20),
+  custom_metric = evalerror,
+  maximize = FALSE,
+  print_every_n = 20
+)
+
+# Feature Importance for Top 20 model
+importance_top20 <- xgb.importance(feature_names = top_20_features, model = final_model_top20)
+cat("\n--- Feature Importance (Top 20 Model) ---\n")
+print(importance_top20)
+
+xgb.plot.importance(importance_top20, main = "Feature Importance (Top 20 Only)")
+
+cat("\n=== TOP 20 MODEL TRAINING COMPLETE ===\n")
+
+
+# ==============================================================================
+# PREDICT 2025 WITH TOP 20 MODEL
+# ==============================================================================
+
+file_path <- "C:/Users/jonathenmarin/Documents/March-Mardness/Excel_Files/2025_games_kaggle.csv"
+
+if(file.exists(file_path)) {
+  cat("\n=== LOADING 2025 TEST DATA (TOP 20 MODEL) ===\n")
+  test_games <- fread(file_path)
+  
+  # Prepare test matchups in standard format (lower ID = T1)
+  test_set <- test_games[, .(
+    Season,
+    T1_TeamID = ifelse(WTeamID < LTeamID, WTeamID, LTeamID),
+    T2_TeamID = ifelse(WTeamID > LTeamID, WTeamID, LTeamID),
+    Actual_Result = ifelse(WTeamID < LTeamID, 1, 0)
+  )]
+  
+  cat("Test games loaded:", nrow(test_set), "\n\n")
+  
+  # --- MERGE EASY FEATURES ---
+  
+  # Merge simple stats for T1
+  test_set <- merge(test_set, simple_stats,
+                    by.x = c("Season", "T1_TeamID"),
+                    by.y = c("Season", "TeamID"),
+                    all.x = TRUE)
+  setnames(test_set, 
+           c("games_played", "win_pct", "avg_score", "avg_opp_score", "avg_point_diff"),
+           c("T1_games", "T1_win_pct", "T1_avg_score", "T1_avg_opp_score", "T1_avg_point_diff"))
+  
+  # Merge simple stats for T2
+  test_set <- merge(test_set, simple_stats,
+                    by.x = c("Season", "T2_TeamID"),
+                    by.y = c("Season", "TeamID"),
+                    all.x = TRUE)
+  setnames(test_set,
+           c("games_played", "win_pct", "avg_score", "avg_opp_score", "avg_point_diff"),
+           c("T2_games", "T2_win_pct", "T2_avg_score", "T2_avg_opp_score", "T2_avg_point_diff"))
+  
+  # Merge seeds for T1
+  test_set <- merge(test_set, seeds_T1, 
+                    by = c("Season", "T1_TeamID"), 
+                    all.x = TRUE)
+  
+  # Merge seeds for T2
+  test_set <- merge(test_set, seeds_T2, 
+                    by = c("Season", "T2_TeamID"), 
+                    all.x = TRUE)
+  
+  # Create seed differential
+  test_set[, Seed_diff := T2_seed - T1_seed]
+  
+  # Add men/women indicator
+  test_set[, men_women := as.integer(substr(as.character(T1_TeamID), 1, 1) == "1")]
+  
+  # Create differential features
+  test_set[, win_pct_diff := T1_win_pct - T2_win_pct]
+  test_set[, avg_score_diff := T1_avg_score - T2_avg_score]
+  test_set[, avg_opp_score_diff := T1_avg_opp_score - T2_avg_opp_score]
+  test_set[, avg_point_diff_diff := T1_avg_point_diff - T2_avg_point_diff]
+  
+  # --- MERGE MEDIUM FEATURES ---
+  
+  # Merge T1 medium features
+  t1_prof_test <- copy(final_profiles)
+  setnames(t1_prof_test, setdiff(names(t1_prof_test), c("Season", "TeamID")), 
+           paste0("T1_", setdiff(names(t1_prof_test), c("Season", "TeamID"))))
+  test_set <- merge(test_set, t1_prof_test, 
+                    by.x = c("Season", "T1_TeamID"), 
+                    by.y = c("Season", "TeamID"), 
+                    all.x = TRUE)
+  
+  # Merge T2 medium features
+  t2_prof_test <- copy(final_profiles)
+  setnames(t2_prof_test, setdiff(names(t2_prof_test), c("Season", "TeamID")), 
+           paste0("T2_", setdiff(names(t2_prof_test), c("Season", "TeamID"))))
+  test_set <- merge(test_set, t2_prof_test, 
+                    by.x = c("Season", "T2_TeamID"), 
+                    by.y = c("Season", "TeamID"), 
+                    all.x = TRUE)
+  
+  cat("\n=== TEST SET FEATURE CHECK (TOP 20) ===\n")
+  cat("Total columns:", ncol(test_set), "\n")
+  cat("Rows before filtering:", nrow(test_set), "\n")
+  
+  # Filter to complete cases using ONLY top 20 features
+  valid_test_top20 <- test_set[complete.cases(test_set[, ..top_20_features])]
+  
+  cat("Rows with complete features (top 20):", nrow(valid_test_top20), "\n\n")
+  
+  if(nrow(valid_test_top20) > 0) {
+    # Create prediction matrix
+    d2025_top20 <- xgb.DMatrix(data = as.matrix(valid_test_top20[, ..top_20_features]))
+    
+    # Get predictions from BOTH models
+    probs_full <- predict(final_model, xgb.DMatrix(data = as.matrix(valid_test_top20[, ..features])))
+    probs_top20 <- predict(final_model_top20, d2025_top20)
+    
+    # Check if sigmoid needed
+    if(min(probs_full) < 0 || max(probs_full) > 1) { 
+      probs_full <- 1 / (1 + exp(-probs_full))
+    }
+    if(min(probs_top20) < 0 || max(probs_top20) > 1) { 
+      probs_top20 <- 1 / (1 + exp(-probs_top20))
+    }
+    
+    # Calculate metrics for BOTH models
+    predictions_full <- ifelse(probs_full > 0.5, 1, 0)
+    predictions_top20 <- ifelse(probs_top20 > 0.5, 1, 0)
+    
+    acc_full <- mean(predictions_full == valid_test_top20$Actual_Result)
+    brier_full <- mean((probs_full - valid_test_top20$Actual_Result)^2)
+    
+    acc_top20 <- mean(predictions_top20 == valid_test_top20$Actual_Result)
+    brier_top20 <- mean((probs_top20 - valid_test_top20$Actual_Result)^2)
+    
+    cat("\n=== 2025 PERFORMANCE COMPARISON ===\n")
+    cat("FULL MODEL (", length(features), " features):\n")
+    cat("  Accuracy:    ", round(acc_full * 100, 2), "%\n")
+    cat("  Brier Score: ", round(brier_full, 5), "\n\n")
+    
+    cat("TOP 20 MODEL:\n")
+    cat("  Accuracy:    ", round(acc_top20 * 100, 2), "%\n")
+    cat("  Brier Score: ", round(brier_top20, 5), "\n\n")
+    
+    cat("DIFFERENCE:\n")
+    cat("  Accuracy:    ", round((acc_top20 - acc_full) * 100, 2), "% points\n")
+    cat("  Brier Score: ", round(brier_top20 - brier_full, 5), "\n\n")
+    
+    # Create results table with BOTH predictions
+    results_comparison <- valid_test_top20[, .(Season, T1_TeamID, T2_TeamID, T1_seed, T2_seed, 
+                                               Seed_diff, Actual_Result)]
+    results_comparison$Prob_Full <- round(probs_full, 4)
+    results_comparison$Prob_Top20 <- round(probs_top20, 4)
+    results_comparison$Pred_Full <- predictions_full
+    results_comparison$Pred_Top20 <- predictions_top20
+    results_comparison$Full_Correct <- results_comparison$Pred_Full == results_comparison$Actual_Result
+    results_comparison$Top20_Correct <- results_comparison$Pred_Top20 == results_comparison$Actual_Result
+    results_comparison$Agreement <- results_comparison$Pred_Full == results_comparison$Pred_Top20
+    
+    cat("=== SAMPLE PREDICTIONS (COMPARISON) ===\n")
+    print(head(results_comparison[, .(T1_TeamID, T2_TeamID, Actual_Result, 
+                                      Prob_Full, Prob_Top20, 
+                                      Pred_Full, Pred_Top20, Agreement)], 15))
+    
+    cat("\n=== PREDICTION SUMMARY ===\n")
+    cat("Full Model - Correct:", sum(results_comparison$Full_Correct), 
+        "Incorrect:", sum(!results_comparison$Full_Correct), "\n")
+    cat("Top 20 Model - Correct:", sum(results_comparison$Top20_Correct), 
+        "Incorrect:", sum(!results_comparison$Top20_Correct), "\n")
+    cat("Agreement rate:", round(mean(results_comparison$Agreement) * 100, 2), "%\n")
+    
+  } else {
+    cat("ERROR: No valid test cases after merging features!\n")
+    cat("Check that 2025 teams exist in regular season data.\n")
+  }
+  
+} else {
+  cat("\n!!! FILE NOT FOUND !!!\n")
+  cat("Expected path:", file_path, "\n")
+  cat("Please verify the file exists and path is correct.\n")
+}
+
+cat("\n=== TOP 20 MODEL COMPARISON COMPLETE ===\n")
 
 # ==============================================================================
 # PREDICT 2025
