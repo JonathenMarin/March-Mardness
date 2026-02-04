@@ -3,9 +3,6 @@ library(dplyr)
 library(xgboost)
 library(ggplot2)
 
-# ==============================================================================
-# 1. CLEAN START & DATA LOADING
-# ==============================================================================
 data_dir <- "march-machine-learning-mania-2025"
 
 M_regular <- fread(file.path(data_dir, "MRegularSeasonDetailedResults.csv"))
@@ -21,9 +18,9 @@ seeds           <- rbind(M_seeds, W_seeds)[Season >= 2003]
 
 cat("Data Loaded. Regular Rows:", nrow(regular_results), "\n")
 
-# ==============================================================================
-# 2. FEATURE ENGINEERING (Strict Mode - No Leaks)
-# ==============================================================================
+
+# features ----------------------------------------------------------------
+
 # A. Get Regular Season Stats
 get_season_stats <- function(df) {
   w_view <- df[, .(Season, TeamID=WTeamID, Score=WScore, OppScore=LScore, Win=1)]
@@ -73,10 +70,8 @@ tourney_clean <- tourney_master[complete.cases(tourney_master)]
 
 cat("Training Rows Ready:", nrow(tourney_clean), "\n")
 
-# ==============================================================================
-# 2.5. EXPLORATORY PLOTS
-# ==============================================================================
-cat("\n--- Generating Seed Plots ---\n")
+
+# plots -------------------------------------------------------------------
 
 # 1. Point Differential by T1 Seed
 seed_summary <- tourney_clean[, .(
@@ -138,13 +133,11 @@ p2 <- ggplot(seed_diff_summary[abs(Seed_diff) <= 15],
   theme_minimal()
 
 print(p2)
-cat("Plots Generated.\n")
 
 
-# ==============================================================================
-# 3. OPTIMIZATION (Cross-Validation)
-# ==============================================================================
-# Features explicitly listed to prevent leaks
+# CV ----------------------------------------------------------------------
+
+
 features <- c("T1_win_pct", "T1_avg_score", "T1_avg_opp", "T1_avg_margin", "T1_seed",
               "T2_win_pct", "T2_avg_score", "T2_avg_opp", "T2_avg_margin", "T2_seed",
               "Seed_diff")
@@ -166,7 +159,6 @@ evalerror <- function(preds, dtrain) {
   return(list(metric = "brier_score", value = err))
 }
 
-cat("\n--- Running Cross-Validation ---\n")
 cv_results <- xgb.cv(
   params = params, 
   data = dtrain, 
@@ -178,7 +170,6 @@ cv_results <- xgb.cv(
   verbose = TRUE
 )
 
-# Find the "Sweet Spot"
 best_round <- ifelse(is.null(cv_results$best_iteration), 
                      which.min(cv_results$evaluation_log$test_brier_score_mean), 
                      cv_results$best_iteration)
@@ -186,10 +177,7 @@ cat("\nOptimal Rounds Found:", best_round, "\n")
 cat("Expected Test Brier Score:", min(cv_results$evaluation_log$test_brier_score_mean), "\n")
 
 
-# ==============================================================================
-# 4. FINAL TRAINING
-# ==============================================================================
-cat("--- Training Final Model ---\n")
+# train model -------------------------------------------------------------
 final_model <- xgb.train(
   params = params, 
   data = dtrain, 
@@ -205,10 +193,10 @@ importance <- xgb.importance(feature_names = features, model = final_model)
 xgb.plot.importance(importance, main="Feature Importance (Clean Model)")
 
 
-# ==============================================================================
-# 5. PREDICT 2025
-# ==============================================================================
-file_path <- "C:/Users/jonathenmarin/Documents/March-Mardness/Excel_Files/2025_games_kaggle.csv"
+
+# prediction --------------------------------------------------------------
+
+file_path <- "Excel_Files/2025_games_kaggle.csv"
 
 if(file.exists(file_path)) {
   test_games <- fread(file_path)
@@ -250,7 +238,6 @@ if(file.exists(file_path)) {
     acc <- mean((ifelse(probs > 0.5, 1, 0) == valid_test$Actual_Result))
     brier <- mean((probs - valid_test$Actual_Result)^2)
     
-    cat("\n--- 2025 PERFORMANCE ---\n")
     cat("Accuracy:   ", round(acc*100, 2), "%\n")
     cat("Brier Score:", round(brier, 5), "\n\n")
     
@@ -262,10 +249,5 @@ if(file.exists(file_path)) {
     cat("Check that 2025 teams exist in regular season data.\n")
   }
   
-} else {
-  cat("\n!!! FILE NOT FOUND !!!\n")
-  cat("Expected path:", file_path, "\n")
-  cat("Please verify the file exists and path is correct.\n")
 }
 
-cat("\n=== SCRIPT COMPLETE ===\n")
