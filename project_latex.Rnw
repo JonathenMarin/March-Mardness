@@ -698,38 +698,38 @@ As a preliminary assessment...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-% \begin{thebibliography}{99}
-% \addcontentsline{toc}{section}{REFERENCES} %THIS ADDS REFERENCES TO TABLE OF CONTENTS
-% \singlespacing %THIS LOOKS BETTER ON REFERENCE PAGE, DOUBLESPACING WOULD BE TOO UGLY
-% \thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
-% 
-% \bibitem{Berkowitz2025} S. Berkowitz. NCAA revenue shattered record in 2024, but association faces massive debt from legal settlements. \emph{USA Today}. (2025). Available at https://www.usatoday.com/story/sports/college/2025/02/27/ncaa-financial-report-revenue-surplus/80733616007/
-% 
-% \bibitem{AGA2025} Cohen, Dara. “Americans to Legally Wager Estimated \$3.1 Billion on March Madness - American Gaming Association.” American Gaming Association, 13 Mar. 2025, www.americangaming.org/americans-to-legally-wager-estimated-3-1-billion-on-march-madness/.
-% 
-% \bibitem{Torvik} Torvik, Bart. “T-Rank FAQ.” Blogspot.com, 2017, adamcwisports.blogspot.com/p/every-possession-counts.html.
-% 
-% \bibitem{GD} IBM. “Gradient Descent.” Ibm.com, 7 Oct. 2021, www.ibm.com/think/topics/gradient-descent.
-% 
-% \bibitem{XGBoost} Kavlakoglu, Eda, and Erika Russi. “XGBoost.” Ibm.com, 9 May 2024, www.ibm.com/think/topics/xgboost.
-% 
-% \bibitem{CBS} Boone, Kyle. “How NIL Has Changed College Basketball: Numbers Deep Dive Reveals Surprising Trends, Recipe for Success.” CBSSports.com, 2025, www.cbssports.com/college-basketball/news/how-nil-has-changed-college-basketball-numbers-deep-dive-reveals-surprising-trends-recipe-for-success/.
-% 
-% \bibitem{Optimization} Melis Kizildemir, et al. “A Family of Solutions Related to Shin’s Model for Probability Forecasts.” Journal of Quantitative Analysis in Sports, vol. 21, no. 2, 6 Feb. 2025, pp. 153–158, https://doi.org/10.1515/jqas-2024-0064. Accessed 20 Jan. 2026.
-% 
-% \bibitem{EMH} Burns, William. “Efficient-Market Hypothesis (EMH) | EBSCO.” EBSCO Information Services, Inc. | Www.ebsco.com, 2024, www.ebsco.com/research-starters/social-sciences-and-humanities/efficient-market-hypothesis-emh.
-% 
-% \bibitem{goto} gotoConversion. “GitHub - GotoConversion/Goto\_conversion: Goto\_conversion - Powered $47,000$ of Prize Money, over $10$ Gold Medals and $100$ Medals on Kaggle.” GitHub, 2025, github.com/gotoConversion/goto\_conversion/tree/main. Accessed 20 Jan. 2026.
-% 
-% \bibitem{chess} Glickman, Mark  E., and Thomas Doan. The US Chess Rating System. 26 July 2025, www.glicko.net/ratings/rating.system.pdf.
-% 
-% \bibitem{OLS} Lumivero. “Ordinary Least Squares Regression (OLS).” XLSTAT, Your Data Analysis Solution, 2025, www.xlstat.com/solutions/features/ordinary-least-squares-regression-ols.
-% 
-% \bibitem{logphoto} Kanade, Vijay. “Everything You Need to Know about Logistic Regression.” Spiceworks Inc, Spiceworks, 8 Apr. 2022, www.spiceworks.com/soft-tech/what-is-logistic-regression/.
-% 
-% \bibitem{linearphoto} Raschka, Sebastian. “LinearRegression: An Implementation of Ordinary Least-Squares Linear Regression - Mlxtend.” Rasbt.github.io, rasbt.github.io/mlxtend/user\_guide/regressor/LinearRegression/.
-% 
-% \bibitem{Large Numbers} “Law of Large Numbers | EBSCO.” EBSCO Information Services, Inc. | Www.ebsco.com, 2022, www.ebsco.com/research-starters/mathematics/law-large-numbers.
-% %IF YOU ARE DOING A PROJECT IN PURE/APPLIED MATH, THEN YOU NEED TO USE AMS STYLE FOR REFERENCES (GET YOUR REFERENCES FROM MATHSCINET). CONSULT YOUR ADVISOR ABOUT WHAT IS THE STANDARD IN YOUR FIELD, IF YOU ARE DOING STATS OR MATH ED.
-% \end{thebibliography}
+\begin{thebibliography}{99}
+\addcontentsline{toc}{section}{REFERENCES} %THIS ADDS REFERENCES TO TABLE OF CONTENTS
+\singlespacing %THIS LOOKS BETTER ON REFERENCE PAGE, DOUBLESPACING WOULD BE TOO UGLY
+\thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
+
+\bibitem{Berkowitz2025} S. Berkowitz. NCAA revenue shattered record in 2024, but association faces massive debt from legal settlements. \emph{USA Today}. (2025). Available at https://www.usatoday.com/story/sports/college/2025/02/27/ncaa-financial-report-revenue-surplus/80733616007/
+
+\bibitem{AGA2025} Cohen, Dara. “Americans to Legally Wager Estimated \$3.1 Billion on March Madness - American Gaming Association.” American Gaming Association, 13 Mar. 2025, www.americangaming.org/americans-to-legally-wager-estimated-3-1-billion-on-march-madness/.
+
+\bibitem{Torvik} Torvik, Bart. “T-Rank FAQ.” Blogspot.com, 2017, adamcwisports.blogspot.com/p/every-possession-counts.html.
+
+\bibitem{GD} IBM. “Gradient Descent.” Ibm.com, 7 Oct. 2021, www.ibm.com/think/topics/gradient-descent.
+
+\bibitem{XGBoost} Kavlakoglu, Eda, and Erika Russi. “XGBoost.” Ibm.com, 9 May 2024, www.ibm.com/think/topics/xgboost.
+
+\bibitem{CBS} Boone, Kyle. “How NIL Has Changed College Basketball: Numbers Deep Dive Reveals Surprising Trends, Recipe for Success.” CBSSports.com, 2025, www.cbssports.com/college-basketball/news/how-nil-has-changed-college-basketball-numbers-deep-dive-reveals-surprising-trends-recipe-for-success/.
+
+\bibitem{Optimization} Melis Kizildemir, et al. “A Family of Solutions Related to Shin’s Model for Probability Forecasts.” Journal of Quantitative Analysis in Sports, vol. 21, no. 2, 6 Feb. 2025, pp. 153–158, https://doi.org/10.1515/jqas-2024-0064. Accessed 20 Jan. 2026.
+
+\bibitem{EMH} Burns, William. “Efficient-Market Hypothesis (EMH) | EBSCO.” EBSCO Information Services, Inc. | Www.ebsco.com, 2024, www.ebsco.com/research-starters/social-sciences-and-humanities/efficient-market-hypothesis-emh.
+
+\bibitem{goto} gotoConversion. “GitHub - GotoConversion/Goto\_conversion: Goto\_conversion - Powered $47,000$ of Prize Money, over $10$ Gold Medals and $100$ Medals on Kaggle.” GitHub, 2025, github.com/gotoConversion/goto\_conversion/tree/main. Accessed 20 Jan. 2026.
+
+\bibitem{chess} Glickman, Mark  E., and Thomas Doan. The US Chess Rating System. 26 July 2025, www.glicko.net/ratings/rating.system.pdf.
+
+\bibitem{OLS} Lumivero. “Ordinary Least Squares Regression (OLS).” XLSTAT, Your Data Analysis Solution, 2025, www.xlstat.com/solutions/features/ordinary-least-squares-regression-ols.
+
+\bibitem{logphoto} Kanade, Vijay. “Everything You Need to Know about Logistic Regression.” Spiceworks Inc, Spiceworks, 8 Apr. 2022, www.spiceworks.com/soft-tech/what-is-logistic-regression/.
+
+\bibitem{linearphoto} Raschka, Sebastian. “LinearRegression: An Implementation of Ordinary Least-Squares Linear Regression - Mlxtend.” Rasbt.github.io, rasbt.github.io/mlxtend/user\_guide/regressor/LinearRegression/.
+
+\bibitem{Large Numbers} “Law of Large Numbers | EBSCO.” EBSCO Information Services, Inc. | Www.ebsco.com, 2022, www.ebsco.com/research-starters/mathematics/law-large-numbers.
+%IF YOU ARE DOING A PROJECT IN PURE/APPLIED MATH, THEN YOU NEED TO USE AMS STYLE FOR REFERENCES (GET YOUR REFERENCES FROM MATHSCINET). CONSULT YOUR ADVISOR ABOUT WHAT IS THE STANDARD IN YOUR FIELD, IF YOU ARE DOING STATS OR MATH ED.
+\end{thebibliography}
 \end{document} 
