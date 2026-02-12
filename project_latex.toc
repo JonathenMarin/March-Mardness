@@ -6,19 +6,19 @@
 \contentsline {section}{LITERATURE REVIEW}{10}{}%
 \contentsline {subsection}{Past Strategies}{10}{}%
 \contentsline {subsection}{Modeling Techniques}{13}{}%
-\contentsline {section}{Binary Prediction Models}{18}{}%
-\contentsline {subsection}{Data Cleaning}{18}{}%
-\contentsline {subsection}{Variable Selection}{18}{}%
+\contentsline {section}{Probability Prediction Models}{17}{}%
 \contentsline {subsection}{Logistic Regression}{18}{}%
-\contentsline {subsection}{Boosting}{18}{}%
-\contentsline {subsection}{Results}{18}{}%
-\contentsline {section}{Point Spread Models}{19}{}%
-\contentsline {subsection}{s}{19}{}%
-\contentsline {section}{Comparison of models}{20}{}%
-\contentsline {subsection}{My Contributions and Analysis}{20}{}%
-\contentsline {section}{2026 Competition}{21}{}%
-\contentsline {subsection}{Strategies}{21}{}%
+\contentsline {subsection}{Variable Selection}{18}{}%
+\contentsline {subsection}{Logistic Regression}{21}{}%
+\contentsline {subsection}{Boosting}{21}{}%
 \contentsline {subsection}{Results}{21}{}%
-\contentsline {section}{CONCLUSIONS}{22}{}%
-\contentsline {subsection}{Summary}{22}{}%
-\contentsline {section}{REFERENCES}{23}{}%
+\contentsline {section}{Point Spread Models}{22}{}%
+\contentsline {subsection}{s}{22}{}%
+\contentsline {section}{Comparison of models}{23}{}%
+\contentsline {subsection}{My Contributions and Analysis}{23}{}%
+\contentsline {section}{2026 Competition}{24}{}%
+\contentsline {subsection}{Strategies}{24}{}%
+\contentsline {subsection}{Results}{24}{}%
+\contentsline {section}{CONCLUSIONS}{25}{}%
+\contentsline {subsection}{Summary}{25}{}%
+\contentsline {section}{REFERENCES}{26}{}%

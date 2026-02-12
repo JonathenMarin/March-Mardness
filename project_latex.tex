@@ -661,10 +661,6 @@ Here, $f_k(x_i)$ is the prediction of the $k^{\text{th}}$ tree for the $i^{\text
 \end{equation}
 where $l$ is the loss function which simply computes the difference between the true and predicted, and $\Omega$ is the regularization term, discouraging overly complex trees. The optimization process then proceeds via gradient descent on the residuals. For more information regarding gradient descent we refer the reader to \cite{GD}. XGBoost is widely adopted in competitive machine learning for its performance on structured data and ability to capture complex interactions and relationships between features. 
 
-Neural Networks are a class of machine learning models inspired by biological neural systems, consisting of interconnected layers of computational nodes (neurons) that learn hierarchical feature representations through iterative optimization. A feedforward neural network transforms input features through multiple layers of weighted connections and nonlinear activation functions.
-
-For a network with $L$ layers, the output at layer $\ell$ is computed as
-
 \begin{equation}
 h^{(\ell)} = \sigma\left(W^{(\ell)} h^{(\ell-1)} + b^{(\ell)}\right)
 \end{equation}
@@ -673,15 +669,39 @@ if i do neural nets i will keep going with this.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{center}
-\section{Binary Prediction Models}
+\section{Probability Prediction Models}
 \end{center}
 \thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
+This section details the development and evaluation of models designed to predict a continuous win probability $P \in (0, 1)$ for any given matchup.  While the tournament results are ultimately binary, the Brier Score evaluation metric heavily penalizes overconfidence in incorrect predictions and rewards well-calibrated probabilities. Consequently, this research moves beyond simple classification to focus on models that quantify the uncertainty inherent in the March Madness environment. By establishing a framework where a value $P > 0.5$ denotes a predicted victory for Team A, a baseline is created for performance that accounts for the high variance of single-elimination play. This probabilistic approach serves as the engine of the project and bridges the gap between theoretical literature and the empirical application of machine learning.
 
-\usubsection{Data Cleaning}
-1 if team A won 0 if team A loss for each game
-considering training/testing strategies why i chose what i did (amount of data/ why reg season?) why only that year? 
+To expand further on these concepts, the methodology begins with a rigorous data processing phase where historical box scores are transformed into a symmetric training set.  This ensures that the models learn to evaluate the relative strength between two competitors rather than relying on arbitrary formatting artifacts. This section details the complete machine learning pipeline implemented for the 2026 tournament prediction. We first examine the data cleaning procedures required to tailor the feature sets to the specific statistical assumptions of each algorithm. Following this, we explore the variable selection process used to identify high signal metrics such as KenPom and Massey data. Finally, we implement and compare two distinct modeling architectures, specifically Logistic Regression and XGBoost, to determine which approach best minimizes the Brier Score in a high variance environment.
 
+\usubsection{Logistic Regression}
 \usubsection{Variable Selection}
+To accurately model basketball outcomes, one must first deconstruct the sport into its atomic statistical events. A standard game is composed of a finite sequence of possessions. Within these possessions, specific discrete actions determine the flow of the contest. The primary events recorded in the raw dataset include Field Goals, Free Throws, Rebounds, Turnovers, and Personal Fouls. A Field Goal ($FGM$) represents the primary method of scoring and is worth either two or three points. A Free Throw ($FTM$) is an unopposed attempt worth one point awarded after a foul. A Rebound is recorded when a player retrieves the ball after a missed shot; this is further categorized into Offensive Rebounds ($OR$), which grant the shooting team a second opportunity, and Defensive Rebounds ($DR$), which terminate the opponent's possession. Finally, a Turnover ($TO$) is a loss of possession due to a violation or steal, resulting in zero points.
+
+Analyzing these events using raw totals is statistically flawed due to the confounding variable of pace. A team that plays at a high tempo may record high totals for points and rebounds simply because they generate more possessions, not because they are efficient. To resolve this, this model utilizes the "Four Factors of Basketball Success." Developed by Dean Oliver, this framework isolates the four specific components that correlate most strongly with winning: shooting efficiency, turnover avoidance, rebounding dominance, and free throw frequency \cite{Dean}. 
+
+Crucial to these efficiency calculations is the estimation of total Possessions ($Poss$). A possession is defined as the period during which a team controls the ball, ending with a shot attempt, a turnover, or a trip to the free-throw line.  Since possessions are not explicitly tracked in standard box scores, they must be estimated using the following formula: \begin{equation}Poss = (FGA - OR) + TO + (0.44 \cdot FTA).\end{equation}
+
+This equation aggregates the three ways a possession can end: a field goal attempt ($FGA$), a turnover ($TO$), or free throws ($FTA$). The term $(FGA - OR)$ accounts for missed shots that are rebounded by the offense; because the team retains the ball, the possession continues, and thus the initial attempt is subtracted to avoid double-counting. The coefficient $0.44$ applied to Free Throw Attempts estimates the proportion of trips to the line that actually terminate a possession (e.g., the second of two shots), accounting for and-one (fouled while successfully scoring) situations and technical fouls. This derived metric serves as the denominator for rate statistics, allowing for a direct comparison between teams of differing tempos.
+
+The first factor is Effective Field Goal Percentage ($eFG\%$). This metric refines standard field goal percentage by accounting for the fact that a three-point shot is worth $50\%$ more than a two-point shot. It is calculated as:
+\begin{equation}
+eFG\% = \frac{FGM + 0.5 \cdot FGM3}{FGA}
+\end{equation}
+By including the $0.5$ weighting for three-pointers ($FGM3$), this variable measures a team's ability to maximize points per attempt regardless of their shot selection strategy.
+The second factor is Turnover Percentage ($TOV\%$). Unlike raw turnover counts, this metric normalizes errors against the total number of possessions calculated above.
+\begin{equation}
+TOV\% = \frac{TO}{Poss}
+\end{equation}
+This ratio identifies teams that value the basketball. A lower percentage indicates a disciplined offense that rarely forfeits scoring opportunities.
+The third factor is Offensive Rebound Percentage ($ORB\%$). This metric measures a team's physical dominancr relative to their available opportunities. Using raw offensive rebound totals is misleading because a team that misses many shots will naturally have more chances to rebound. This metric corrects for that bias by comparing offensive rebounds ($OR$) to the total number of rebounds available at that specific rim:
+\begin{equation}
+ORB\% = \frac{OR}{OR + DR_{opp}}
+\end{equation}
+Here, $DR_{opp}$ represents the defensive rebounds secured by the opponent. A higher percentage indicates a team that frequently generates "second chance" points.
+Finally, the model incorporates Win Percentage ($Win\%$) as a fifth feature to capture intangible qualities such as coaching and clutch performance. This is calculated as the mean of the binary game results ($1$ for a win, $0$ for a loss) over the course of the season. Crucially, the logistic regression algorithm does not process these values in isolation. Instead, the dataset is transformed to calculate the differential between the two competing teams for every metric (e.g., $eFG\%_{diff} = eFG\%_{TeamA} - eFG\%_{TeamB}$). This centers the analysis on the relative mismatch between the opponents rather than their absolute statistics.
 %%%%%%%%%%%%%%%%%%%%%%
 \usubsection{Logistic Regression}
 \usubsection{Boosting}
@@ -783,5 +803,11 @@ As a preliminary assessment...
 
 \bibitem{Large Numbers} “Law of Large Numbers | EBSCO.” EBSCO Information Services, Inc. | Www.ebsco.com, 2022, www.ebsco.com/research-starters/mathematics/law-large-numbers.
 %IF YOU ARE DOING A PROJECT IN PURE/APPLIED MATH, THEN YOU NEED TO USE AMS STYLE FOR REFERENCES (GET YOUR REFERENCES FROM MATHSCINET). CONSULT YOUR ADVISOR ABOUT WHAT IS THE STANDARD IN YOUR FIELD, IF YOU ARE DOING STATS OR MATH ED.
+
+\bibitem{Pace} “Hoops in Motion: The Evolution of Pace in Basketball.” Substack.com, SLT Sports Analytics: Slamming Data into the Game, Mar. 2024, sltsportsanalytics.substack.com/p/hoops-in-motion-the-evolution-of.
+
+\bibitem{Dean} Oliver, Dean. Basketball on Paper. Potomac Books, 1 Nov. 2004.
+ 
+
 \end{thebibliography}
 \end{document} 
