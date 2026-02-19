@@ -1,3 +1,12 @@
+
+
+
+
+
+
+
+
+
 % PLEASE DO NOT PLAY WITH ALL THESE SETTINGS, UNLESS YOU REALLY KNOW WHAT YOU ARE DOING. 
 
 %IF YOU HAVE ANY QUESTIONS PLEASE CONTACT: Oscar Vega <ovega@csufresno.edu>
@@ -621,6 +630,7 @@ P(Y=1|X) = \frac{1}{1 + e^{-(\beta_0 + \beta_1 x_1 + \beta_2 x_2 + ... + \beta_n
 where $Y$ is the binary outcome, $X = (x_1,x_2,\ldots,x_n)$ represents the feature vector, and $\beta = (\beta_0,\beta_1\, \ldots, \beta_n)$ are the model coefficients estimated through the maximum likelihood estimation. This function ensures the predicted probabilities are bounded between $[0,1]$. Logistic regression assumes a linear relationship between the input features and the log-odds of the outcome. This assumption can be restrictive when the true relationships are nonlinear. To address this limitation, common approaches are feature engineering with polynomial or interaction terms (e.g, $x^2, x_i \cdot x_j)$ to capture nonlinear patterns. 
 
 Linear Regression is a supervised learning method that models the relationship between a dependent variable and one or more independent variables by fitting a linear equation to the observed data. Linear Regression is defined as:
+
 \begin{equation}
 \hat{Y} = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \ldots + \beta_n x_n
 \end{equation}
@@ -677,7 +687,7 @@ This section details the development and evaluation of models designed to predic
 To expand further on these concepts, the methodology begins with a rigorous data processing phase where historical box scores are transformed into a symmetric training set.  This ensures that the models learn to evaluate the relative strength between two competitors rather than relying on arbitrary formatting artifacts. This section details the complete machine learning pipeline implemented for the 2026 tournament prediction. We first examine the data cleaning procedures required to tailor the feature sets to the specific statistical assumptions of each algorithm. Following this, we explore the variable selection process used to identify high signal metrics such as KenPom and Massey data. Finally, we implement and compare two distinct modeling architectures, specifically Logistic Regression and XGBoost, to determine which approach best minimizes the Brier Score in a high variance environment.
 
 \usubsection{Logistic Regression}
-\usubsection{Variable Selection}
+\usubsubsection{Variable Selection}
 To accurately model basketball outcomes, one must first deconstruct the sport into its atomic statistical events. A standard game is composed of a finite sequence of possessions. Within these possessions, specific discrete actions determine the flow of the contest. The primary events recorded in the raw dataset include Field Goals, Free Throws, Rebounds, Turnovers, and Personal Fouls. A Field Goal ($FGM$) represents the primary method of scoring and is worth either two or three points. A Free Throw ($FTM$) is an unopposed attempt worth one point awarded after a foul. A Rebound is recorded when a player retrieves the ball after a missed shot; this is further categorized into Offensive Rebounds ($OR$), which grant the shooting team a second opportunity, and Defensive Rebounds ($DR$), which terminate the opponent's possession. Finally, a Turnover ($TO$) is a loss of possession due to a violation or steal, resulting in zero points.
 
 Analyzing these events using raw totals is statistically flawed due to the confounding variable of pace. A team that plays at a high tempo may record high totals for points and rebounds simply because they generate more possessions, not because they are efficient. To resolve this, this model utilizes the "Four Factors of Basketball Success." Developed by Dean Oliver, this framework isolates the four specific components that correlate most strongly with winning: shooting efficiency, turnover avoidance, rebounding dominance, and free throw frequency \cite{Dean}. 
@@ -702,6 +712,96 @@ ORB\% = \frac{OR}{OR + DR_{opp}}
 \end{equation}
 Here, $DR_{opp}$ represents the defensive rebounds secured by the opponent. A higher percentage indicates a team that frequently generates "second chance" points.
 Finally, the model incorporates Win Percentage ($Win\%$) as a fifth feature to capture intangible qualities such as coaching and clutch performance. This is calculated as the mean of the binary game results ($1$ for a win, $0$ for a loss) over the course of the season. Crucially, the logistic regression algorithm does not process these values in isolation. Instead, the dataset is transformed to calculate the differential between the two competing teams for every metric (e.g., $eFG\%_{diff} = eFG\%_{TeamA} - eFG\%_{TeamB}$). This centers the analysis on the relative mismatch between the opponents rather than their absolute statistics.
+
+\usubsubsection{Data Cleaning}
+
+To construct a robust predictive pipeline, the data architecture must establish a strict boundary between feature generation and model training. The independent variables, specifically the Four Factors and Win Percentage, are calculated exclusively utilizing historical regular-season detailed results. Conversely, the logistic regression algorithm is trained entirely on historical NCAA tournament outcomes. By isolating regular-season efficiency metrics as the predictors and tournament game results as the target variable, the framework ensures that the model evaluates how a team's sustained performance over a thirty-game span translates to the high-variance, single-elimination environment of postseason play. This distinction is critical, as regular-season data provides a sufficiently large sample size to stabilize efficiency metrics, while tournament data provides the specific contextual outcomes the model ultimately aims to predict.
+
+Furthermore, to prevent data leakage and simulate the exact informational constraints of a real-world forecaster, the logistic regression model is trained using a strictly defined rolling time window. To evaluate historical accuracy and construct valid out-of-sample predictions, the framework is systematically back tested across consecutive tournament years. For example, to generate probability forecasts for the 2025 NCAA Tournament, the model is trained exclusively on the tournament matchups from the preceding 2023 and 2024 seasons. The decision to restrict the training data to a brief temporal window is grounded in the structural realities of collegiate athletics. NCAA basketball is characterized by high roster turnover, as student-athletes possess limited eligibility and typically serve as primary contributors for only three to four seasons. Consequently, a university program undergoes a complete personnel and strategic transformation within a short cycle. Training the algorithm on data exceeding this window would introduce noise from past iterations of a team that share no roster overlap with the current squad. During this localized training phase, the algorithm maps the recent regular-season metrics to their respective tournament results, learning the optimal coefficient weights without accessing any data from the target prediction year. This rolling training window shifts iteratively for historical benchmark predictions, ensuring that all evaluations remain mathematically rigorous and entirely devoid of look-ahead bias.
+
+The primary obstacle in processing the historical game records is the fundamental structure of the Kaggle dataset. The raw regular-season and tournament data files utilize a deterministic outcome schema. Within this structure, every game observation is explicitly bifurcated into winning and losing statistics. Metrics belonging to the victorious program are assigned column headers prefixed with a 'W', while the defeated opponent's metrics are prefixed with an 'L'.
+
+If a classification algorithm is trained directly on this format, it inevitably suffers from severe target leakage. The logistic regression algorithm would trivially learn to associate the column position with the outcome, mathematically recognizing that the entity occupying the 'W' feature space possesses a 100 percent win probability. This renders the model entirely incapable of out-of-sample prediction, as the ultimate objective is to forecast matchups between two neutral entities before the outcome is known. The following output illustrates this problematic data architecture, demonstrating how the game result is inherently encoded into the feature presentation itself.
+
+\begin{table}[h!]
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{head}\hldef{(mens_results} \hlopt{%>%}
+       \hlkwd{select}\hldef{(Season, WTeamID, WScore,}
+              \hldef{LTeamID, LScore, WFGM,}
+              \hldef{LFGM, WTO, LTO),} \hlnum{4}\hldef{)}
+\end{alltt}
+\begin{verbatim}
+##    Season WTeamID WScore LTeamID LScore  WFGM  LFGM   WTO   LTO
+##     <int>   <int>  <int>   <int>  <int> <int> <int> <int> <int>
+## 1:   2003    1104     68    1328     62    27    22    23    18
+## 2:   2003    1272     70    1393     63    26    24    13    12
+## 3:   2003    1266     73    1437     61    24    22    10    12
+## 4:   2003    1296     56    1457     50    18    18    12    19
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+\caption{Snapshot of raw Kaggle regular-season data demonstrating the 'W' and 'L' column structure.}
+  \label{tab:raw_data}
+\end{table}
+
+
+To resolve the target leakage inherent in the raw dataset, the first phase of data processing transforms the game-level observations into season-level team averages. This transformation is executed via the \texttt{calculate\_four\_factors} function. Initially, the function estimates the total possessions for both the winning and losing teams using the standard formula. Subsequently, it computes the Four Factors (Effective Field Goal Percentage, Turnover Percentage, Offensive Rebound Percentage, and Free Throw Rate) for each team in every game.
+
+Rather than maintaining the winner and loser statistics in a single row, the function separates the victors and the defeated into two distinct dataframes. A binary \texttt{Win} variable is appended, assigning a value of $1$ to the winning dataframe and $0$ to the losing dataframe. These two structures are then vertically concatenated using a row-bind operation. Finally, the data is grouped by \texttt{Season} and \texttt{TeamID} to calculate the mean of all numeric variables. This yields a single, stable efficiency profile and an aggregate regular season win percentage for every program in a given year.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{prepare_model_data} \hlkwb{<-} \hlkwa{function}\hldef{(}\hlkwc{tourney_results_df}\hldef{,}
+                               \hlkwc{four_factors_df}\hldef{) \{}
+
+\hldef{training_data} \hlkwb{<-} \hldef{tourney_results_df} \hlopt{%>%}
+\hlkwd{mutate}\hldef{(}
+\hlkwc{Team1} \hldef{=} \hlkwd{pmin}\hldef{(WTeamID, LTeamID),}
+\hlkwc{Team2} \hldef{=} \hlkwd{pmax}\hldef{(WTeamID, LTeamID),}
+\hlkwc{Team1_win} \hldef{=} \hlkwd{if_else}\hldef{(Team1} \hlopt{==} \hldef{WTeamID,} \hlnum{1}\hldef{,} \hlnum{0}\hldef{)}
+\hldef{)} \hlopt{%>%}
+\hlkwd{select}\hldef{(Season, Team1, Team2, Team1_win)}
+
+\hldef{model_data} \hlkwb{<-} \hldef{training_data} \hlopt{%>%}
+\hlkwd{left_join}\hldef{(four_factors_df,}
+          \hlkwc{by} \hldef{=} \hlkwd{c}\hldef{(}\hlsng{"Season"}\hldef{,} \hlsng{"Team1"} \hldef{=} \hlsng{"TeamID"}\hldef{))} \hlopt{%>%}
+\hlkwd{rename_with}\hldef{(}\hlopt{~}\hlkwd{paste0}\hldef{(.,} \hlsng{"_T1"}\hldef{),}
+\hlkwc{.cols} \hldef{=} \hlopt{-}\hlkwd{c}\hldef{(Season, Team1, Team2, Team1_win))} \hlopt{%>%}
+\hlkwd{left_join}\hldef{(four_factors_df,}
+          \hlkwc{by} \hldef{=} \hlkwd{c}\hldef{(}\hlsng{"Season"}\hldef{,} \hlsng{"Team2"} \hldef{=} \hlsng{"TeamID"}\hldef{))} \hlopt{%>%}
+\hlkwd{rename_with}\hldef{(}\hlopt{~}\hlkwd{paste0}\hldef{(.,} \hlsng{"_T2"}\hldef{),}
+\hlkwc{.cols} \hldef{=} \hlopt{-}\hlkwd{c}\hldef{(Season, Team1, Team2, Team1_win,} \hlkwd{ends_with}\hldef{(}\hlsng{"_T1"}\hldef{)))} \hlopt{%>%}
+\hlkwd{mutate}\hldef{(}
+\hlkwc{eFG_diff}     \hldef{= eFG_T1} \hlopt{-} \hldef{eFG_T2,}
+\hlkwc{TOV_Pct_diff} \hldef{= TOV_Pct_T1} \hlopt{-} \hldef{TOV_Pct_T2,}
+\hlkwc{ORB_Pct_diff} \hldef{= ORB_Pct_T1} \hlopt{-} \hldef{ORB_Pct_T2,}
+\hlkwc{FTR_diff}     \hldef{= FTR_T1} \hlopt{-} \hldef{FTR_T2,}
+\hlkwc{Win_diff}     \hldef{= Win_T1} \hlopt{-} \hldef{Win_T2}
+\hldef{)} \hlopt{%>%}
+\hlkwd{na.omit}\hldef{()}
+
+\hlkwd{return}\hldef{(model_data)}
+\hldef{\}}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\usubsubsection{Model Implementation}
+
+Following the systematic cleaning and neutralization of the dataset, the analysis proceeds to the implementation of the predictive framework. To evaluate the impact of regular-season efficiency on postseason success, a series of logistic regression models are constructed. This method is chosen specifically for its ability to model the probability of a binary outcome—in this case, whether the lower-ID team (Team 1) wins or loses—based on the linear combination of the statistical differentials. The models utilize a logit link function to map the relationship between the independent variables and the probability of a victory. The formal specification for each model iteration is defined by the following equation:
+
+\begin{equation}
+\begin{split}
+\text{logit}(P) = \ln\left(\frac{P}{1-P}\right) = \beta_0 & + \beta_1(\text{eFG\_diff}) + \beta_2(\text{TOV\_diff}) \\
+& + \beta_3(\text{ORB\_diff}) + \beta_4(\text{FTR\_diff}) + \beta_5(\text{Win\_diff})
+\end{split}
+\end{equation}
+
+Where $P$ represents the probability of a Team 1 victory. The coefficients ($\beta$) represent the change in log-odds of winning for every one unit increase in the respective statistical differential. 
+
 %%%%%%%%%%%%%%%%%%%%%%
 \usubsection{Logistic Regression}
 \usubsection{Boosting}
@@ -810,4 +910,11 @@ As a preliminary assessment...
  
 
 \end{thebibliography}
+
+
+
+
+
+
+
 \end{document} 
