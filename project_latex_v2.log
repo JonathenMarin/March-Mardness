@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2026.2.19)  19 FEB 2026 15:43
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2026.2.19)  19 FEB 2026 15:58
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**C:/Users/jonathenmarin/Documents/March-Mardness/project_latex.tex
-(c:/Users/jonathenmarin/Documents/March-Mardness/project_latex.tex
+**C:/Users/jonathenmarin/Documents/March-Mardness/project_latex_v2.tex
+(c:/Users/jonathenmarin/Documents/March-Mardness/project_latex_v2.tex
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
 (c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/article.cls
@@ -520,8 +520,8 @@ File: tikzlibrarytopaths.code.tex 2025-08-29 v3.1.11a (3.1.11a)
 (c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count324
-) (./project_latex.aux)
-\openout1 = `project_latex.aux'.
+) (./project_latex_v2.aux)
+\openout1 = `project_latex_v2.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 282.
 LaTeX Font Info:    ... okay on input line 282.
@@ -554,7 +554,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 [1{c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}
 
-] [2] [3] [1] [2] [3] (./project_latex.toc
+] [2] [3] [1] [2] [3] (./project_latex_v2.toc
 LaTeX Font Info:    Trying to load font information for U+msa on input line 2.
 (c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
@@ -572,15 +572,15 @@ LaTeX Font Info:    Trying to load font information for U+rsfs on input line 2.
 File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
 ))
 \tf@toc=\write5
-\openout5 = `project_latex.toc'.
+\openout5 = `project_latex_v2.toc'.
 
-[4] (./project_latex.lot)
+[4] (./project_latex_v2.lot)
 \tf@lot=\write6
-\openout6 = `project_latex.lot'.
+\openout6 = `project_latex_v2.lot'.
 
-[5] (./project_latex.lof)
+[5] (./project_latex_v2.lof)
 \tf@lof=\write7
-\openout7 = `project_latex.lof'.
+\openout7 = `project_latex_v2.lof'.
 
 [6] [1]
 
@@ -854,7 +854,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[32] (./project_latex.aux)
+[32] (./project_latex_v2.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
@@ -862,14 +862,14 @@ L3 programming layer <2026-01-19>
  ) 
 Here is how much of TeX's memory you used:
  16747 strings out of 469514
- 341818 string characters out of 5467463
- 706297 words of memory out of 5000000
+ 341899 string characters out of 5467463
+ 706303 words of memory out of 5000000
  45044 multiletter control sequences out of 15000+600000
  634732 words of font info for 69 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 88i,18n,94p,1638b,463s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 88i,18n,94p,1641b,463s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1200.600pk><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on project_latex.pdf (41 pages, 524889 bytes).
+Output written on project_latex_v2.pdf (41 pages, 524889 bytes).
 PDF statistics:
  215 PDF objects out of 1000 (max. 8388607)
  134 compressed objects within 2 object streams
