@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2026.2.19)  19 FEB 2026 15:58
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2026.2.19)  23 FEB 2026 14:26
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -336,7 +336,7 @@ Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
 Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
 )))
 
-Package xcolor Warning: Package option `usenames' is obsolete and ignored on input line 185.
+Package xcolor Warning: Package option `usenames' is obsolete and ignored on input line 187.
 
 (c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pgf/frontendlayer/tikz.sty (c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty (c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pgf/utilities/pgfrcs.sty (c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfutil-common.tex
 \pgfutil@everybye=\toks38
@@ -523,20 +523,20 @@ File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
 ) (./project_latex_v2.aux)
 \openout1 = `project_latex_v2.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 282.
-LaTeX Font Info:    ... okay on input line 282.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 282.
-LaTeX Font Info:    ... okay on input line 282.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 282.
-LaTeX Font Info:    ... okay on input line 282.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 282.
-LaTeX Font Info:    ... okay on input line 282.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 282.
-LaTeX Font Info:    ... okay on input line 282.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 282.
-LaTeX Font Info:    ... okay on input line 282.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 282.
-LaTeX Font Info:    ... okay on input line 282.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 284.
+LaTeX Font Info:    ... okay on input line 284.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 284.
+LaTeX Font Info:    ... okay on input line 284.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 284.
+LaTeX Font Info:    ... okay on input line 284.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 284.
+LaTeX Font Info:    ... okay on input line 284.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 284.
+LaTeX Font Info:    ... okay on input line 284.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 284.
+LaTeX Font Info:    ... okay on input line 284.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 284.
+LaTeX Font Info:    ... okay on input line 284.
 (c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
@@ -610,10 +610,10 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 <paper_photos/regseason.png, id=50, 1400.98407pt x 542.77782pt>
 File: paper_photos/regseason.png Graphic file (type png)
 <use paper_photos/regseason.png>
-Package pdftex.def Info: paper_photos/regseason.png  used on input line 495.
+Package pdftex.def Info: paper_photos/regseason.png  used on input line 497.
 (pdftex.def)             Requested size: 420.29846pt x 162.8346pt.
 
-Overfull \hbox (17.91934pt too wide) in paragraph at lines 495--496
+Overfull \hbox (17.91934pt too wide) in paragraph at lines 497--498
  [] 
  []
 
@@ -628,7 +628,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 <paper_photos/kenpom.png, id=57, 713.66624pt x 415.5525pt>
 File: paper_photos/kenpom.png Graphic file (type png)
 <use paper_photos/kenpom.png>
-Package pdftex.def Info: paper_photos/kenpom.png  used on input line 519.
+Package pdftex.def Info: paper_photos/kenpom.png  used on input line 521.
 (pdftex.def)             Requested size: 356.83224pt x 207.77574pt.
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -649,7 +649,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 <paper_photos/bartervik.png, id=65, 1143.52219pt x 313.17pt>
 File: paper_photos/bartervik.png Graphic file (type png)
 <use paper_photos/bartervik.png>
-Package pdftex.def Info: paper_photos/bartervik.png  used on input line 543.
+Package pdftex.def Info: paper_photos/bartervik.png  used on input line 545.
 (pdftex.def)             Requested size: 400.23877pt x 109.61113pt.
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -662,7 +662,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 <paper_photos/massey.png, id=70, 663.98062pt x 177.66376pt>
 File: paper_photos/massey.png Graphic file (type png)
 <use paper_photos/massey.png>
-Package pdftex.def Info: paper_photos/massey.png  used on input line 553.
+Package pdftex.def Info: paper_photos/massey.png  used on input line 555.
 (pdftex.def)             Requested size: 331.98949pt x 88.83165pt.
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -699,12 +699,12 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 <paper_photos/logisticreg.png, id=95, 722.7pt x 482.80376pt>
 File: paper_photos/logisticreg.png Graphic file (type png)
 <use paper_photos/logisticreg.png>
-Package pdftex.def Info: paper_photos/logisticreg.png  used on input line 644.
+Package pdftex.def Info: paper_photos/logisticreg.png  used on input line 646.
 (pdftex.def)             Requested size: 181.06937pt x 120.96585pt.
 <paper_photos/simple_regression.png, id=96, 736.7525pt x 581.17125pt>
 File: paper_photos/simple_regression.png Graphic file (type png)
 <use paper_photos/simple_regression.png>
-Package pdftex.def Info: paper_photos/simple_regression.png  used on input line 651.
+Package pdftex.def Info: paper_photos/simple_regression.png  used on input line 653.
 (pdftex.def)             Requested size: 181.06937pt x 142.82716pt.
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -771,34 +771,34 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 [22]
 LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <12> not available
-(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 730.
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 732.
 
-Overfull \hbox (5.17108pt too wide) in paragraph at lines 736--736
+Overfull \hbox (5.17108pt too wide) in paragraph at lines 738--738
 []\OT1/cmtt/m/n/12 ##    Season WTeamID WScore LTeamID LScore  WFGM  LFGM   WTO   LTO 
  []
 
 
-Overfull \hbox (5.17108pt too wide) in paragraph at lines 737--737
+Overfull \hbox (5.17108pt too wide) in paragraph at lines 739--739
 []\OT1/cmtt/m/n/12 ##     <int>   <int>  <int>   <int>  <int> <int> <int> <int> <int>[] 
  []
 
 
-Overfull \hbox (5.17108pt too wide) in paragraph at lines 738--738
+Overfull \hbox (5.17108pt too wide) in paragraph at lines 740--740
 []\OT1/cmtt/m/n/12 ## 1:   2003    1104     68    1328     62    27    22    23    18[] 
  []
 
 
-Overfull \hbox (5.17108pt too wide) in paragraph at lines 739--739
+Overfull \hbox (5.17108pt too wide) in paragraph at lines 741--741
 []\OT1/cmtt/m/n/12 ## 2:   2003    1272     70    1393     63    26    24    13    12[] 
  []
 
 
-Overfull \hbox (5.17108pt too wide) in paragraph at lines 740--740
+Overfull \hbox (5.17108pt too wide) in paragraph at lines 742--742
 []\OT1/cmtt/m/n/12 ## 3:   2003    1266     73    1437     61    24    22    10    12[] 
  []
 
 
-Overfull \hbox (5.17108pt too wide) in paragraph at lines 741--741
+Overfull \hbox (5.17108pt too wide) in paragraph at lines 743--743
 []\OT1/cmtt/m/n/12 ## 4:   2003    1296     56    1457     50    18    18    12    19[] 
  []
 
@@ -810,14 +810,14 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [23]
-LaTeX Font Info:    Trying to load font information for OMS+cmtt on input line 758.
+LaTeX Font Info:    Trying to load font information for OMS+cmtt on input line 760.
 (c:/Program Files/R/R-4.5.1/share/texmf/tex/latex/omscmtt.fd
 File: omscmtt.fd 
 )
 LaTeX Font Info:    Font shape `OMS/cmtt/m/n' in size <12> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 758.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 760.
 
-Overfull \hbox (5.17108pt too wide) in paragraph at lines 776--776
+Overfull \hbox (5.17108pt too wide) in paragraph at lines 778--778
 [][]\OT1/cmtt/m/n/12 .cols[] []=[] []-[][]c[][](Season, Team1, Team2, Team1_win,[] []ends_with[][]([][]"_T1"[][])))[] []%>%[][] 
  []
 
@@ -844,7 +844,50 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[26] [27] [28] [29] [30] [31
+[26]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[27]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[28]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[29]
+
+LaTeX Warning: Reference `tab:coefficients' on page 30 undefined on input line 843.
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[30]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[31] [32] [33] [34] [35] [36
 
 ]
 
@@ -854,25 +897,28 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[32] (./project_latex_v2.aux)
+[37] (./project_latex_v2.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
+
+LaTeX Warning: There were undefined references.
+
  ) 
 Here is how much of TeX's memory you used:
- 16747 strings out of 469514
- 341899 string characters out of 5467463
- 706303 words of memory out of 5000000
- 45044 multiletter control sequences out of 15000+600000
- 634732 words of font info for 69 fonts, out of 8000000 for 9000
+ 16757 strings out of 469514
+ 342064 string characters out of 5467463
+ 706377 words of memory out of 5000000
+ 45053 multiletter control sequences out of 15000+600000
+ 635039 words of font info for 70 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  88i,18n,94p,1641b,463s stack positions out of 10000i,1000n,20000p,200000b,200000s
- <c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1200.600pk><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on project_latex_v2.pdf (41 pages, 524889 bytes).
+ <c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1200.600pk><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
+Output written on project_latex_v2.pdf (46 pages, 544876 bytes).
 PDF statistics:
- 215 PDF objects out of 1000 (max. 8388607)
- 134 compressed objects within 2 object streams
+ 236 PDF objects out of 1000 (max. 8388607)
+ 148 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  43 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -7,6 +7,8 @@
 
 
 
+
+
 % PLEASE DO NOT PLAY WITH ALL THESE SETTINGS, UNLESS YOU REALLY KNOW WHAT YOU ARE DOING. 
 
 %IF YOU HAVE ANY QUESTIONS PLEASE CONTACT: Oscar Vega <ovega@csufresno.edu>
@@ -791,7 +793,7 @@ Rather than maintaining the winner and loser statistics in a single row, the fun
 
 \usubsubsection{Model Implementation}
 
-Following the systematic cleaning and neutralization of the dataset, the analysis proceeds to the implementation of the predictive framework. To evaluate the impact of regular-season efficiency on postseason success, a series of logistic regression models are constructed. This method is chosen specifically for its ability to model the probability of a binary outcome—in this case, whether the lower-ID team (Team 1) wins or loses—based on the linear combination of the statistical differentials. The models utilize a logit link function to map the relationship between the independent variables and the probability of a victory. The formal specification for each model iteration is defined by the following equation:
+Following the systematic cleaning and neutralization of the dataset, the analysis proceeds to the implementation of the predictive framework. The primary objective is to construct a logistic regression pipeline capable of generating calibrated win probabilities for every possible matchup in the 2026 NCAA Tournament. This method is chosen specifically for its ability to model the probability of a binary outcome, in this case whether the lower-ID team (Team 1) wins or loses, based on a linear combination of statistical differentials. The models utilize a logit link function to map the relationship between the independent variables and the probability of a victory. The formal specification for each model iteration is defined by the following equation:
 
 \begin{equation}
 \begin{split}
@@ -800,7 +802,85 @@ Following the systematic cleaning and neutralization of the dataset, the analysi
 \end{split}
 \end{equation}
 
-Where $P$ represents the probability of a Team 1 victory. The coefficients ($\beta$) represent the change in log-odds of winning for every one unit increase in the respective statistical differential. 
+Where $P$ represents the probability of a Team 1 victory. The coefficients ($\beta$) represent the change in log-odds of winning for every one unit increase in the respective statistical differential.
+
+The model is estimated using maximum likelihood estimation, which identifies the coefficient vector $\beta$ that maximizes the probability of observing the recorded tournament outcomes given the input differentials. Because the response variable is binary, the log-likelihood function takes the form:
+
+\begin{equation}
+\sum_{i=1}^n \left[ y_i \log p(x_i) + (1-y_i)\log(1-p(x_i)) \right]
+\end{equation}
+
+where $y_i \in \{0, 1\}$ is the observed outcome for the $i$-th matchup and $p(x_i)$ is the model's predicted probability \cite{logistic} of a Team 1 victory. Maximizing this function is equivalent to minimizing the binary cross-entropy loss. The resulting coefficients reflect both the direction and magnitude of each differential's contribution to the probability of winning. A positive coefficient on \texttt{eFG\_diff}, for instance, indicates that a larger shooting efficiency advantage is associated with a higher probability of victory, which is consistent with what basketball theory would predict.
+
+For the 2026 deployment, separate models are trained for the men's and women's divisions. The choice to train independent models for each division rather than a single combined model with a gender indicator reflects a fundamental assumption that the Four Factors carry structurally different predictive weight in the men's and women's game. Differences in pace, physicality, and three-point volume between the two divisions suggest that the relationship between shooting efficiency and winning probability may not be uniform across genders. Training separate models allows each set of coefficients to reflect the unique dynamics of its respective division rather than forcing a shared parameter estimate that could mask meaningful differences. 
+
+Nonetheless, Each model is trained exclusively on tournament outcomes from the 2024 and 2025 seasons, with the corresponding regular-season Four Factors serving as the independent variables. This two-year window was selected to reflect the current competitive landscape of college basketball while respecting the structural roster turnover discussed previously. The Kaggle competition provides a submission file containing every possible 2026 tournament matchup, numbering in the thousands of pairings across both divisions. The Four Factors for each team are computed from their 2025 regular-season results and differenced for every candidate pairing. The fitted models then generate a probability $\hat{P} \in (0,1)$ for each of these matchups via the inverse logit transformation, producing the final submission.
+
+An important practical consideration in this implementation is the relatively small sample size introduced by the two-year training window. A single NCAA tournament produces only 63 games for the men's bracket and 63 for the women's, yielding a combined training pool of roughly 250 observations per model iteration. While this is sufficient for a low-dimensional model such as logistic regression, it places meaningful constraints on the complexity of the architecture that can be reliably estimated. Overfitting becomes a nontrivial risk if additional interaction terms or polynomial features are introduced without sufficient regularization. For this reason, the model is deliberately kept simple, relying on five theoretically motivated differentials rather than a broader set of engineered features. This simplicity is consistent with the principle of Occam's Razor in model selection \cite{occam}, where a simpler model that generalizes well out-of-sample is preferred over a complex one that fits the training data too closely.
+
+Prior to submitting predictions for the 2026 tournament, the pipeline is validated through a series of backtests spanning the 2023, 2024, and 2025 competitions. [Image of rolling window cross-validation timeline for time series forecasting] These historical evaluations serve a specific purpose: to confirm that the rolling two-year training window generalizes to unseen tournament data before any live predictions are committed. For the 2023 backtest, the model is trained on tournament outcomes from 2021 and 2022. For the 2024 backtest, the training window shifts forward to include 2022 and 2023. Finally, for the 2025 backtest, the model is trained on 2023 and 2024 tournament data. In each case, the Four Factors are derived exclusively from the regular-season data preceding the target year, and no tournament results from the prediction year are ever introduced into the training process.
+
+The resulting Brier Scores from these backtests are compared against the winning submission scores published by Kaggle for the corresponding competition years. This comparison provides a meaningful external benchmark, situating the logistic regression framework within the broader landscape of competitor strategies. Table \ref{tab:brier_results} summarizes the Brier Scores produced by the model across all three backtest years alongside the winning scores for their respective competitions.
+
+\begin{table}[h!]
+\centering
+\caption{Logistic Regression Backtest Results vs. Kaggle Benchmarks}
+\label{tab:brier_results}
+\begin{tabular}{lcc}
+\hline
+\textbf{Tournament Year} & \textbf{Model Brier Score} & \textbf{Winning Brier Score} \\ \hline
+2023 & 0.21653 & 0.17371 \\
+2024 & 0.21064 & 0.05313 \\
+2025 & 0.18401 & 0.10411 \\ \hline
+\end{tabular}
+\end{table}
+
+It is important to note that the 2024 winning Brier Score of 0.05313 is not directly comparable to the scores recorded in 2023 and 2025. In that competition year, Kaggle introduced a significant structural change to the submission format. Rather than submitting a single set of game-by-game win probabilities, competitors were permitted to submit a portfolio of up to one hundred thousand distinct bracket entries. The final score was then computed by averaging the Brier Score across rounds rather than across individual games, placing substantially greater weight on later-round matchups where fewer games are played. This round-weighted averaging mechanism naturally compresses scores toward lower values relative to the standard per-game formulation. Consequently, the 0.05313 figure reflects a fundamentally different evaluation environment and should be interpreted as a benchmark specific to the 2024 format rather than as evidence of superior predictive accuracy over other competition years.
+
+Setting aside the 2024 anomaly, the remaining backtests reveal a consistent trend of improvement. The model's Brier Score declined from 0.21653 in 2023 to 0.18401 in 2025, reflecting incremental gains in calibration as the pipeline was refined. Crucially, the 2025 backtest represents the most direct analog to the 2026 submission, as it uses the identical training structure and feature set that will be deployed. While the model trails the top competitors in each year, it remains well above the naive 0.25 baseline and demonstrates stable generalization across multiple tournament cycles. These results provided sufficient confidence in the pipeline to justify its deployment for the 2026 Kaggle submission.
+
+\usubsubsection{Model Analysis}
+With the models estimated on the 2023 and 2024 tournament data, the resulting coefficients can be examined to evaluate which of the Four Factors carry meaningful predictive weight in each division. Table \ref{tab:coefficients} presents the estimated coefficients, standard errors, and significance levels for both the men's and women's models.
+
+% latex table generated in R 4.5.1 by xtable 1.8-4 package
+% Mon Feb 23 14:26:07 2026
+\begin{table}[ht]
+\centering
+\caption{Logistic Regression Coefficient Estimates (Men's 2025 Model)} 
+\label{tab:mens_coef}
+\begin{tabular}{lrr}
+  \hline
+Variable & Estimate & p-value \\ 
+  \hline
+Intercept & 0.4352 & 0.0348 \\ 
+  eFG Diff & 7.7952 & 0.2244 \\ 
+  TOV Pct Diff & -20.5106 & 0.0901 \\ 
+  ORB Pct Diff & 12.3634 & 0.0027 \\ 
+  FTR Diff & -1.4307 & 0.7527 \\ 
+  Win Diff & 1.3253 & 0.4365 \\ 
+   \hline
+\end{tabular}
+\end{table}
+% latex table generated in R 4.5.1 by xtable 1.8-4 package
+% Mon Feb 23 14:26:07 2026
+\begin{table}[ht]
+\centering
+\caption{Logistic Regression Coefficient Estimates (Women's 2025 Model)} 
+\label{tab:womens_coef}
+\begin{tabular}{lrr}
+  \hline
+Variable & Estimate & p-value \\ 
+  \hline
+Intercept & -0.0888 & 0.6657 \\ 
+  eFG Diff & 17.4458 & 0.0016 \\ 
+  TOV Pct Diff & -19.8212 & 0.0237 \\ 
+  ORB Pct Diff & 12.4308 & 0.0004 \\ 
+  FTR Diff & 3.9742 & 0.4420 \\ 
+  Win Diff & -1.8468 & 0.4172 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
 
 %%%%%%%%%%%%%%%%%%%%%%
 \usubsection{Logistic Regression}
@@ -907,12 +987,15 @@ As a preliminary assessment...
 \bibitem{Pace} “Hoops in Motion: The Evolution of Pace in Basketball.” Substack.com, SLT Sports Analytics: Slamming Data into the Game, Mar. 2024, sltsportsanalytics.substack.com/p/hoops-in-motion-the-evolution-of.
 
 \bibitem{Dean} Oliver, Dean. Basketball on Paper. Potomac Books, 1 Nov. 2004.
- 
+
+\bibitem{logistic} Logistic Regression 12.1 Modeling Conditional Probabilities.
+
+\bibitem{occam} Tavhare, Avadhoot. “Occam’s Razor in Machine Learning: The Principle of Parsimony.” Medium, 21 May 2024, medium.com/@qjbqvwzmg/occams-razor-in-machine-learning-the-principle-of-parsimony-de110ce7fe13.
 
 \end{thebibliography}
 
 
-
+ 
 
 
 
