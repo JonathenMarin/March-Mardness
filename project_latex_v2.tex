@@ -843,7 +843,7 @@ Setting aside the 2024 anomaly, the remaining backtests reveal a consistent tren
 With the models estimated on the 2023 and 2024 tournament data, the resulting coefficients can be examined to evaluate which of the Four Factors carry meaningful predictive weight in each division. Because separate models were trained for the men's and women's tournaments, the coefficient structures can be analyzed independently and then compared to assess whether the Four Factors operate differently across divisions. Tables \ref{tab:mens_coef} and \ref{tab:womens_coef} present the estimated coefficients, p-values, and significance levels for the men's and women's models respectively.
 
 % latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Tue Feb 24 10:12:36 2026
+% Tue Feb 24 15:42:49 2026
 \begin{table}[ht]
 \centering
 \caption{Logistic Regression Coefficient Estimates (Men's 2025 Model)} 
@@ -862,7 +862,7 @@ Intercept & 0.4352 & 0.0348 & * \\
 \end{tabular}
 \end{table}
 % latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Tue Feb 24 10:12:36 2026
+% Tue Feb 24 15:42:49 2026
 \begin{table}[ht]
 \centering
 \caption{Logistic Regression Coefficient Estimates (Women's 2025 Model)} 
@@ -912,16 +912,12 @@ However, classification accuracy alone is an incomplete measure of model quality
 
 Despite this gap, the 2025 results validate the pipeline as a functional and reproducible baseline. The model generalizes consistently across both divisions, produces accuracy well above chance, and maintains a Brier Score substantially below the naive $0.25$ baseline. These characteristics provide a foundation from which the more sophisticated modeling techniques discussed in the following sections aim to improve.
 
-
 %%%%%%%%%%%%%%%%%%%%%%
-\usubsection{Logistic Regression}
+\newpage
 \usubsection{Boosting}
+While logistic regression provides an interpretable and theoretically grounded baseline, its core assumption of a linear relationship between the input differentials and the log-odds of winning imposes meaningful constraints on its predictive ceiling. In reality, the relationship between team efficiency metrics and tournament success may be nonlinear and subject to complex interactions. For instance, a team with a dominant offensive rebounding advantage may only convert that advantage into wins when paired with a sufficient shooting efficiency threshold, a conditional relationship that a linear model cannot capture without explicit feature engineering. To address this limitation, the analysis extends the modeling framework to include XGBoost, an ensemble method that constructs predictions through the sequential combination of decision trees and is capable of learning these nonlinear patterns directly from the data.
 
-\usubsection{Results}
-
-
-Here are my insights...
-
+XGBoost is a natural candidate for this problem for several reasons beyond its flexibility. Unlike parametric models, it does not require assumptions about the distributional form of the predictors or their relationship to the outcome. It is also robust to the scale differences between features, meaning the large coefficient magnitudes observed for Turnover Percentage and Offensive Rebound Percentage in the logistic regression output do not require normalization before fitting. Furthermore, XGBoost includes built-in regularization parameters that directly penalize model complexity, which is particularly valuable given the small training sample introduced by the two-year rolling window. The following subsections detail the variable selection, data cleaning, and implementation decisions made for the boosting framework, mirroring the structure of the logistic regression analysis to facilitate a direct comparison between the two approaches.
 \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -945,8 +941,6 @@ Here are my insights...
 \thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
 
 %%%%%%%%%%%%%%%%%%%%%%
-\usubsection{My Contributions and Analysis}
-Here are my insights...
 
 \newpage
 
@@ -1022,6 +1016,8 @@ As a preliminary assessment...
 \bibitem{logistic} Logistic Regression 12.1 Modeling Conditional Probabilities.
 
 \bibitem{occam} Tavhare, Avadhoot. “Occam’s Razor in Machine Learning: The Principle of Parsimony.” Medium, 21 May 2024, medium.com/@qjbqvwzmg/occams-razor-in-machine-learning-the-principle-of-parsimony-de110ce7fe13.
+
+\bibitem{regularization} “XGBoost Regularization Techniques | XGBoosting.” Xgboosting.com, 2024, xgboosting.com/xgboost-regularization-techniques/.
 
 \end{thebibliography}
 

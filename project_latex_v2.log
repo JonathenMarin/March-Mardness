@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2026.2.19)  24 FEB 2026 10:12
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2026.2.19)  24 FEB 2026 15:42
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -929,7 +929,15 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[36] [37] [38] [39] [40] [41
+[36]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[37] [38] [39] [40] [41] [42
 
 ]
 
@@ -939,25 +947,25 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[42] (./project_latex_v2.aux)
+[43] (./project_latex_v2.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 16768 strings out of 469514
- 342448 string characters out of 5467463
- 706400 words of memory out of 5000000
- 45063 multiletter control sequences out of 15000+600000
+ 16769 strings out of 469514
+ 342464 string characters out of 5467463
+ 706404 words of memory out of 5000000
+ 45064 multiletter control sequences out of 15000+600000
  635207 words of font info for 71 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  88i,18n,94p,1641b,463s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1200.600pk><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmitt10.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb><c:/Users/jonathenmarin/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on project_latex_v2.pdf (51 pages, 564185 bytes).
+Output written on project_latex_v2.pdf (52 pages, 565628 bytes).
 PDF statistics:
- 264 PDF objects out of 1000 (max. 8388607)
- 167 compressed objects within 2 object streams
+ 267 PDF objects out of 1000 (max. 8388607)
+ 169 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  48 words of extra memory for PDF output out of 10000 (max. 10000000)
 
