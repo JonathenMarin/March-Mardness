@@ -1,295 +1,8 @@
-<<setup, include=FALSE>>=
-library(dplyr)
-library(data.table)
-library(tidyr)
-
-options(width = 65)
-@
-
-<<2025_code, include=FALSE, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE>>=
-#changes
-#functions
-calculate_four_factors <- function(detailed_results_df) {
-  
-  game_factors <- detailed_results_df %>%
-    mutate(
-      W_Poss = (WFGA - WOR) + WTO + (0.44 * WFTA),
-      L_Poss = (LFGA - LOR) + LTO + (0.44 * LFTA),
-      W_eFG = (WFGM + 0.5 * WFGM3) / WFGA,
-      W_TOV = WTO / W_Poss,
-      W_ORB = WOR / (WOR + LDR),
-      W_FTR = WFTM / WFGA,
-      L_eFG = (LFGM + 0.5 * LFGM3) / LFGA,
-      L_TOV = LTO / L_Poss,
-      L_ORB = LOR / (LOR + WDR),
-      L_FTR = LFTM / LFGA
-    )
-  
-  winners_factors <- game_factors %>%
-    select(Season, TeamID = WTeamID, eFG = W_eFG, TOV_Pct = W_TOV, ORB_Pct = W_ORB, FTR = W_FTR) %>%
-    mutate(Win = 1)
-  
-  losers_factors <- game_factors %>%
-    select(Season, TeamID = LTeamID, eFG = L_eFG, TOV_Pct = L_TOV, ORB_Pct = L_ORB, FTR = L_FTR) %>%
-    mutate(Win = 0)
-  
-  four_factors_df <- bind_rows(winners_factors, losers_factors) %>%
-    arrange(Season, TeamID) %>%
-    group_by(Season, TeamID) %>%
-    summarise(
-      across(where(is.numeric), mean, na.rm = TRUE),
-      .groups = "drop"
-    )
-  
-  return(four_factors_df)
-}
-
-prepare_model_data <- function(tourney_results_df, four_factors_df) {
-  training_data <- tourney_results_df %>%
-    mutate(
-      Team1 = pmin(WTeamID, LTeamID),
-      Team2 = pmax(WTeamID, LTeamID),
-      Team1_win = if_else(Team1 == WTeamID, 1, 0)
-    ) %>%
-    select(Season, Team1, Team2, Team1_win)
-  model_data <- training_data %>%
-    left_join(four_factors_df, by = c("Season", "Team1" = "TeamID")) %>%
-    rename_with(~paste0(., "_T1"), .cols = -c(Season, Team1, Team2, Team1_win)) %>%
-    left_join(four_factors_df, by = c("Season", "Team2" = "TeamID")) %>%
-    rename_with(~paste0(., "_T2"), .cols = -c(Season, Team1, Team2, Team1_win, ends_with("_T1"))) %>%
-    mutate(
-      eFG_diff     = eFG_T1 - eFG_T2,
-      TOV_Pct_diff = TOV_Pct_T1 - TOV_Pct_T2,
-      ORB_Pct_diff = ORB_Pct_T1 - ORB_Pct_T2,
-      FTR_diff     = FTR_T1 - FTR_T2,
-      Win_diff     = Win_T1 - Win_T2
-    ) %>%
-    na.omit()
-  return(model_data)
-}
-#load data
-mens_results <- fread("march-machine-learning-mania-2025/MRegularSeasonDetailedResults.csv")
-womens_results <- fread("march-machine-learning-mania-2025/WRegularSeasonDetailedResults.csv")
-tourney_results_mens <- fread("march-machine-learning-mania-2025/MNCAATourneyCompactResults.csv")
-tourney_results_womens <- fread("march-machine-learning-mania-2025/WNCAATourneyCompactResults.csv")
-
-four_factors_mens <- calculate_four_factors(mens_results)
-four_factors_womens <- calculate_four_factors(womens_results)
-
-model_data_mens <- prepare_model_data(tourney_results_mens %>% filter(Season >= 2003), four_factors_mens)
-model_data_womens <- prepare_model_data(tourney_results_womens %>% filter(Season >= 2010), four_factors_womens)
-
-mens_model_2025 <- glm(Team1_win ~ eFG_diff + TOV_Pct_diff + ORB_Pct_diff + FTR_diff + Win_diff,
-                       data = model_data_mens %>% filter(Season %in% c(2023, 2024)),
-                       family = binomial(link = "logit"))
-
-womens_model_2025 <- glm(Team1_win ~ eFG_diff + TOV_Pct_diff + ORB_Pct_diff + FTR_diff + Win_diff,
-                         data = model_data_womens %>% filter(Season %in% c(2023, 2024)),
-                         family = binomial(link = "logit"))
-
-games_to_predict_2025 <- fread("Excel_Files/2025_games_kaggle.csv")
-
-predictions_2025_mens <- prepare_model_data(
-  games_to_predict_2025 %>% filter(WTeamID < 3000), 
-  four_factors_mens
-)
-predictions_2025_womens <- prepare_model_data(
-  games_to_predict_2025 %>% filter(WTeamID > 3000), 
-  four_factors_womens
-)
-
-predictions_2025_mens$Pred <- predict(mens_model_2025, newdata = predictions_2025_mens, type = "response")
-predictions_2025_womens$Pred <- predict(womens_model_2025, newdata = predictions_2025_womens, type = "response")
-
-combined_report_2025 <- bind_rows(predictions_2025_mens, predictions_2025_womens) %>% 
-  mutate(
-    brier_score_2025 = round(mean((Pred - Team1_win)^2, na.rm = TRUE),5),
-    winning_brier_score = 0.10411,
-    brier_score_per_game = round((Pred - Team1_win)^2,5)
-  )
-
-create_conf_matrix <- function(data_df, true_col, pred_prob_col, title_text) {
-  
-  # Create Binary Classification (Cutoff 0.5)
-  plot_data <- data.frame(
-    Actual = data_df[[true_col]],
-    Pred_Prob = data_df[[pred_prob_col]]
-  )
-  plot_data$Predicted_Class <- ifelse(plot_data$Pred_Prob > 0.5, 1, 0)
-  
-  # Aggregate Counts
-  cm_counts <- plot_data %>%
-    group_by(Actual, Predicted = Predicted_Class) %>%
-    summarise(Count = n(), .groups = 'drop')
-  
-  # Set Factor Levels:
-  # Actual: Win (Left) -> Loss (Right)
-  cm_counts$Actual <- factor(cm_counts$Actual, levels = c(1, 0), labels = c("Win", "Loss"))
-  # Predicted: Loss (Bottom) -> Win (Top)
-  cm_counts$Predicted <- factor(cm_counts$Predicted, levels = c(0, 1), labels = c("Loss", "Win"))
-  
-  # Calculate Accuracy
-  acc <- mean(plot_data$Actual == plot_data$Predicted_Class, na.rm = TRUE)
-  
-  # Plot
-  ggplot(cm_counts, aes(x = Actual, y = Predicted, fill = Count)) +
-    geom_tile(color = "white", lwd = 1) +
-    geom_text(aes(label = Count), color = "white", size = 8, fontface = "bold") +
-    scale_fill_gradient(low = "#56B1F7", high = "#132B43") +
-    scale_x_discrete(position = "top") + 
-    labs(
-      title = title_text,
-      subtitle = paste0("Accuracy: ", round(acc * 100, 1), "%"),
-      x = "Actual Outcome",
-      y = "Predicted Outcome",
-      fill = "Games"
-    ) +
-    theme_minimal() +
-    theme(
-      axis.text = element_text(size = 11, face = "bold"),
-      plot.title = element_text(size = 12, face = "bold"),
-      panel.grid = element_blank(),
-      legend.position = "none" 
-    )
-}
-
-# Men's 2025
-plot_mens_25 <- create_conf_matrix(predictions_2025_mens, "Team1_win", "Pred", "Men's 2025")
-
-# Women's 2025
-plot_womens_25 <- create_conf_matrix(predictions_2025_womens, "Team1_win", "Pred", "Women's 2025")
-
-# Combined 2025
-plot_combined_25 <- create_conf_matrix(combined_report_2025, "Team1_win", "Pred", "Combined 2025")
-
-grid.arrange(plot_mens_25, plot_womens_25, plot_combined_25, ncol = 3)
-
-@
-
-
-
-<<2024_2023_code, include=FALSE, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE>>=
-
-#functions- the mens_model_creation got ugly so i redid it
-calculate_four_factors <- function(detailed_results_df) {
-  
-  game_factors <- detailed_results_df %>%
-    mutate(
-      W_Poss = WFGA + 0.44 * WFTA + WTO,
-      L_Poss = LFGA + 0.44 * LFTA + LTO,
-      W_eFG = (WFGM + 0.5 * WFGM3) / WFGA,
-      W_TOV = WTO / W_Poss,
-      W_ORB = WOR / (WOR + LDR),
-      W_FTR = WFTM / WFGA,
-      L_eFG = (LFGM + 0.5 * LFGM3) / LFGA,
-      L_TOV = LTO / L_Poss,
-      L_ORB = LOR / (LOR + WDR),
-      L_FTR = LFTM / LFGA
-    )
-  
-  winners_factors <- game_factors %>%
-    select(Season, TeamID = WTeamID, eFG = W_eFG, TOV_Pct = W_TOV, ORB_Pct = W_ORB, FTR = W_FTR) %>%
-    mutate(Win = 1)
-  
-  losers_factors <- game_factors %>%
-    select(Season, TeamID = LTeamID, eFG = L_eFG, TOV_Pct = L_TOV, ORB_Pct = L_ORB, FTR = L_FTR) %>%
-    mutate(Win = 0)
-  
-  four_factors_df <- bind_rows(winners_factors, losers_factors) %>%
-    arrange(Season, TeamID) %>%
-    group_by(Season, TeamID) %>%
-    summarise(
-      across(where(is.numeric), mean, na.rm = TRUE),
-      .groups = "drop"
-    )
-  
-  return(four_factors_df)
-}
-
-prepare_model_data <- function(tourney_results_df, four_factors_df) {
-  
-  training_data <- tourney_results_df %>%
-    mutate(
-      Team1 = pmin(WTeamID, LTeamID),
-      Team2 = pmax(WTeamID, LTeamID),
-      Team1_win = if_else(Team1 == WTeamID, 1, 0)
-    ) %>%
-    select(Season, Team1, Team2, Team1_win)
-  
-  model_data <- training_data %>%
-    left_join(four_factors_df, by = c("Season", "Team1" = "TeamID")) %>%
-    rename_with(~paste0(., "_T1"), .cols = -c(Season, Team1, Team2, Team1_win)) %>%
-    left_join(four_factors_df, by = c("Season", "Team2" = "TeamID")) %>%
-    rename_with(~paste0(., "_T2"), .cols = -c(Season, Team1, Team2, Team1_win, ends_with("_T1"))) %>%
-    mutate(
-      eFG_diff     = eFG_T1 - eFG_T2,
-      TOV_Pct_diff = TOV_Pct_T1 - TOV_Pct_T2,
-      ORB_Pct_diff = ORB_Pct_T1 - ORB_Pct_T2,
-      FTR_diff     = FTR_T1 - FTR_T2,
-      Win_diff     = Win_T1 - Win_T2
-    )
-  
-  return(model_data)
-}
-#data loading
-mens_results <- fread("march-machine-learning-mania-2025/MRegularSeasonDetailedResults.csv")
-womens_results <- fread("march-machine-learning-mania-2025/WRegularSeasonDetailedResults.csv")
-tourney_results_mens <- fread("march-machine-learning-mania-2025/MNCAATourneyCompactResults.csv")
-tourney_results_womens <- fread("march-machine-learning-mania-2025/WNCAATourneyCompactResults.csv")
-
-#calculations
-four_factors_mens <- calculate_four_factors(mens_results)
-four_factors_womens <- calculate_four_factors(womens_results)
-#data loading
-model_data_mens <- prepare_model_data(tourney_results_mens %>% filter(Season >= 2003), four_factors_mens)
-model_data_womens <- prepare_model_data(tourney_results_womens %>% filter(Season >= 2010), four_factors_womens)
-#2023 models
-mens_model_2023 <- glm(Team1_win ~ eFG_diff + TOV_Pct_diff + ORB_Pct_diff + FTR_diff + Win_diff,
-                       data = model_data_mens %>% filter(Season %in% c(2021, 2022)),
-                       family = binomial(link = "logit"))
-womens_model_2023 <- glm(Team1_win ~ eFG_diff + TOV_Pct_diff + ORB_Pct_diff + FTR_diff + Win_diff,
-                         data = model_data_womens %>% filter(Season %in% c(2021, 2022)),
-                         family = binomial(link = "logit"))
-#mens 2023
-prediction_data_2023_mens <- prepare_model_data(tourney_results_mens %>% filter(Season == 2023), four_factors_mens)
-prediction_data_2023_mens$Pred <- predict(mens_model_2023, newdata = prediction_data_2023_mens, type = "response")
-#womens 2023
-prediction_data_2023_womens <- prepare_model_data(tourney_results_womens %>% filter(Season == 2023), four_factors_womens)
-prediction_data_2023_womens$Pred <- predict(womens_model_2023, newdata = prediction_data_2023_womens, type = "response")
-
-combined_report_2023 <- bind_rows(prediction_data_2023_mens, prediction_data_2023_womens) %>% 
-  mutate(
-    brier_score_2023 = round(mean((Pred - Team1_win)^2, na.rm = TRUE),5),
-    winning_brier_score = 0.17371,
-    brier_score_per_game = round((Pred - Team1_win)^2,5)
-  )
-
-#2024 model and data
-mens_model_2024 <- glm(Team1_win ~ eFG_diff + TOV_Pct_diff + ORB_Pct_diff + FTR_diff + Win_diff,
-                       data = model_data_mens %>% filter(Season %in% c(2022, 2023)),
-                       family = binomial(link = "logit"))
-
-womens_model_2024 <- glm(Team1_win ~ eFG_diff + TOV_Pct_diff + ORB_Pct_diff + FTR_diff + Win_diff,
-                         data = model_data_womens %>% filter(Season %in% c(2022, 2023)),
-                         family = binomial(link = "logit"))
-#mens prediction per game 2024
-prediction_data_2024_mens <- prepare_model_data(tourney_results_mens %>% filter(Season == 2024), four_factors_mens)
-prediction_data_2024_mens$Pred <- predict(mens_model_2024, newdata = prediction_data_2024_mens, type = "response")
-#womens prediction per game 2024
-prediction_data_2024_womens <- prepare_model_data(tourney_results_womens %>% filter(Season == 2024), four_factors_womens)
-prediction_data_2024_womens$Pred <- predict(womens_model_2024, newdata = prediction_data_2024_womens, type = "response")
-#1st place has an interesting discussion on the ratings of two teams into probability of a team winning (elo system)
-combined_report_2024 <- bind_rows(prediction_data_2024_mens, prediction_data_2024_womens) %>% 
-  mutate(
-    brier_score_2024 = round(mean((Pred - Team1_win)^2, na.rm = TRUE),5),
-    winning_brier_score = 0.05313,
-    brier_score_per_game = round((Pred - Team1_win)^2,5)
-  ) 
 
 
 
 
-@
+
 
 
 
@@ -302,7 +15,57 @@ combined_report_2024 <- bind_rows(prediction_data_2024_mens, prediction_data_202
 %Thanks to Dr. Gerardo Munoz for initially creating the formatting of the title, approval, and authorization for reproduction pages.
 %Last Updated: November 2012 (GM).
 %Last Modified: Oscar Vega, August 2021.
-\documentclass[12pt,leqno]{article}
+\documentclass[12pt,leqno]{article}\usepackage[pdftex]{graphicx}\usepackage[usenames,dvipsnames]{xcolor}
+% maxwidth is the original width if it is less than linewidth
+% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlsng}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hldef}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+\let\hlipl\hlkwb
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
 \usepackage{amsmath,amssymb,comment,amsthm}
 \usepackage{latexsym}
 \usepackage{nextpage}
@@ -514,6 +277,8 @@ combined_report_2024 <- bind_rows(prediction_data_2024_mens, prediction_data_202
 %END OF MATH SYMBOLS AND COMMANDS
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{center}
@@ -959,12 +724,24 @@ The primary obstacle in processing the historical game records is the fundamenta
 If a classification algorithm is trained directly on this format, it inevitably suffers from severe target leakage. The logistic regression algorithm would trivially learn to associate the column position with the outcome, mathematically recognizing that the entity occupying the 'W' feature space possesses a 100 percent win probability. This renders the model entirely incapable of out-of-sample prediction, as the ultimate objective is to forecast matchups between two neutral entities before the outcome is known. The following output illustrates this problematic data architecture, demonstrating how the game result is inherently encoded into the feature presentation itself.
 
 \begin{table}[h!]
-<<raw_data_snapshot, echo=TRUE>>=
-head(mens_results %>% 
-       select(Season, WTeamID, WScore, 
-              LTeamID, LScore, WFGM, 
-              LFGM, WTO, LTO), 4)
-@
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{head}\hldef{(mens_results} \hlopt{%>%}
+       \hlkwd{select}\hldef{(Season, WTeamID, WScore,}
+              \hldef{LTeamID, LScore, WFGM,}
+              \hldef{LFGM, WTO, LTO),} \hlnum{4}\hldef{)}
+\end{alltt}
+\begin{verbatim}
+##    Season WTeamID WScore LTeamID LScore  WFGM  LFGM   WTO   LTO
+##     <int>   <int>  <int>   <int>  <int> <int> <int> <int> <int>
+## 1:   2003    1104     68    1328     62    27    22    23    18
+## 2:   2003    1272     70    1393     63    26    24    13    12
+## 3:   2003    1266     73    1437     61    24    22    10    12
+## 4:   2003    1296     56    1457     50    18    18    12    19
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
 \caption{Snapshot of raw Kaggle regular-season data demonstrating the 'W' and 'L' column structure.}
   \label{tab:raw_data}
 \end{table}
@@ -974,43 +751,47 @@ To resolve the target leakage inherent in the raw dataset, the first phase of da
 
 Rather than maintaining the winner and loser statistics in a single row, the function separates the victors and the defeated into two distinct dataframes. A binary \texttt{Win} variable is appended, assigning a value of $1$ to the winning dataframe and $0$ to the losing dataframe. These two structures are then vertically concatenated using a row-bind operation. Finally, the data is grouped by \texttt{Season} and \texttt{TeamID} to calculate the mean of all numeric variables. This yields a single, stable efficiency profile and an aggregate regular season win percentage for every program in a given year.
 
-<<prepare_data_code, echo=TRUE, eval=FALSE>>=
-prepare_model_data <- function(tourney_results_df, 
-                               four_factors_df) {
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{prepare_model_data} \hlkwb{<-} \hlkwa{function}\hldef{(}\hlkwc{tourney_results_df}\hldef{,}
+                               \hlkwc{four_factors_df}\hldef{) \{}
 
-training_data <- tourney_results_df %>%
-mutate(
-Team1 = pmin(WTeamID, LTeamID),
-Team2 = pmax(WTeamID, LTeamID),
-Team1_win = if_else(Team1 == WTeamID, 1, 0)
-) %>%
-select(Season, Team1, Team2, Team1_win)
+\hldef{training_data} \hlkwb{<-} \hldef{tourney_results_df} \hlopt{%>%}
+\hlkwd{mutate}\hldef{(}
+\hlkwc{Team1} \hldef{=} \hlkwd{pmin}\hldef{(WTeamID, LTeamID),}
+\hlkwc{Team2} \hldef{=} \hlkwd{pmax}\hldef{(WTeamID, LTeamID),}
+\hlkwc{Team1_win} \hldef{=} \hlkwd{if_else}\hldef{(Team1} \hlopt{==} \hldef{WTeamID,} \hlnum{1}\hldef{,} \hlnum{0}\hldef{)}
+\hldef{)} \hlopt{%>%}
+\hlkwd{select}\hldef{(Season, Team1, Team2, Team1_win)}
 
-model_data <- training_data %>%
-left_join(four_factors_df, 
-          by = c("Season", "Team1" = "TeamID")) %>%
-rename_with(~paste0(., "_T1"),
-.cols = -c(Season, Team1, Team2, Team1_win)) %>%
-left_join(four_factors_df, 
-          by = c("Season", "Team2" = "TeamID")) %>%
-rename_with(~paste0(., "_T2"),
-.cols = -c(Season, Team1, Team2, Team1_win, ends_with("_T1"))) %>%
-mutate(
-eFG_diff     = eFG_T1 - eFG_T2,
-TOV_Pct_diff = TOV_Pct_T1 - TOV_Pct_T2,
-ORB_Pct_diff = ORB_Pct_T1 - ORB_Pct_T2,
-FTR_diff     = FTR_T1 - FTR_T2,
-Win_diff     = Win_T1 - Win_T2
-) %>%
-na.omit()
+\hldef{model_data} \hlkwb{<-} \hldef{training_data} \hlopt{%>%}
+\hlkwd{left_join}\hldef{(four_factors_df,}
+          \hlkwc{by} \hldef{=} \hlkwd{c}\hldef{(}\hlsng{"Season"}\hldef{,} \hlsng{"Team1"} \hldef{=} \hlsng{"TeamID"}\hldef{))} \hlopt{%>%}
+\hlkwd{rename_with}\hldef{(}\hlopt{~}\hlkwd{paste0}\hldef{(.,} \hlsng{"_T1"}\hldef{),}
+\hlkwc{.cols} \hldef{=} \hlopt{-}\hlkwd{c}\hldef{(Season, Team1, Team2, Team1_win))} \hlopt{%>%}
+\hlkwd{left_join}\hldef{(four_factors_df,}
+          \hlkwc{by} \hldef{=} \hlkwd{c}\hldef{(}\hlsng{"Season"}\hldef{,} \hlsng{"Team2"} \hldef{=} \hlsng{"TeamID"}\hldef{))} \hlopt{%>%}
+\hlkwd{rename_with}\hldef{(}\hlopt{~}\hlkwd{paste0}\hldef{(.,} \hlsng{"_T2"}\hldef{),}
+\hlkwc{.cols} \hldef{=} \hlopt{-}\hlkwd{c}\hldef{(Season, Team1, Team2, Team1_win,} \hlkwd{ends_with}\hldef{(}\hlsng{"_T1"}\hldef{)))} \hlopt{%>%}
+\hlkwd{mutate}\hldef{(}
+\hlkwc{eFG_diff}     \hldef{= eFG_T1} \hlopt{-} \hldef{eFG_T2,}
+\hlkwc{TOV_Pct_diff} \hldef{= TOV_Pct_T1} \hlopt{-} \hldef{TOV_Pct_T2,}
+\hlkwc{ORB_Pct_diff} \hldef{= ORB_Pct_T1} \hlopt{-} \hldef{ORB_Pct_T2,}
+\hlkwc{FTR_diff}     \hldef{= FTR_T1} \hlopt{-} \hldef{FTR_T2,}
+\hlkwc{Win_diff}     \hldef{= Win_T1} \hlopt{-} \hldef{Win_T2}
+\hldef{)} \hlopt{%>%}
+\hlkwd{na.omit}\hldef{()}
 
-return(model_data)
-}
-@
+\hlkwd{return}\hldef{(model_data)}
+\hldef{\}}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
 
 \usubsubsection{Model Implementation}
 
-Following the systematic cleaning and neutralization of the dataset, the analysis proceeds to the implementation of the predictive framework. The primary objective is to construct a logistic regression pipeline capable of generating calibrated win probabilities for every possible matchup in the 2026 NCAA Tournament. This method is chosen specifically for its ability to model the probability of a binary outcome, in this case whether the lower-ID team (Team 1) wins or loses, based on a linear combination of statistical differentials. The models utilize a logit link function to map the relationship between the independent variables and the probability of a victory. The formal specification for each model iteration is defined by the following equation:
+Following the systematic cleaning and neutralization of the dataset, the analysis proceeds to the implementation of the predictive framework. To evaluate the impact of regular-season efficiency on postseason success, a series of logistic regression models are constructed. This method is chosen specifically for its ability to model the probability of a binary outcome—in this case, whether the lower-ID team (Team 1) wins or loses—based on the linear combination of the statistical differentials. The models utilize a logit link function to map the relationship between the independent variables and the probability of a victory. The formal specification for each model iteration is defined by the following equation:
 
 \begin{equation}
 \begin{split}
@@ -1019,132 +800,17 @@ Following the systematic cleaning and neutralization of the dataset, the analysi
 \end{split}
 \end{equation}
 
-Where $P$ represents the probability of a Team 1 victory. The coefficients ($\beta$) represent the change in log-odds of winning for every one unit increase in the respective statistical differential.
-
-The model is estimated using maximum likelihood estimation, which identifies the coefficient vector $\beta$ that maximizes the probability of observing the recorded tournament outcomes given the input differentials. Because the response variable is binary, the log-likelihood function takes the form:
-
-\begin{equation}
-\sum_{i=1}^n \left[ y_i \log p(x_i) + (1-y_i)\log(1-p(x_i)) \right]
-\end{equation}
-
-where $y_i \in \{0, 1\}$ is the observed outcome for the $i$-th matchup and $p(x_i)$ is the model's predicted probability \cite{logistic} of a Team 1 victory. Maximizing this function is equivalent to minimizing the binary cross-entropy loss. The resulting coefficients reflect both the direction and magnitude of each differential's contribution to the probability of winning. A positive coefficient on \texttt{eFG\_diff}, for instance, indicates that a larger shooting efficiency advantage is associated with a higher probability of victory, which is consistent with what basketball theory would predict.
-
-For the 2026 deployment, separate models are trained for the men's and women's divisions. The choice to train independent models for each division rather than a single combined model with a gender indicator reflects a fundamental assumption that the Four Factors carry structurally different predictive weight in the men's and women's game. Differences in pace, physicality, and three-point volume between the two divisions suggest that the relationship between shooting efficiency and winning probability may not be uniform across genders. Training separate models allows each set of coefficients to reflect the unique dynamics of its respective division rather than forcing a shared parameter estimate that could mask meaningful differences. 
-
-Nonetheless, Each model is trained exclusively on tournament outcomes from the 2024 and 2025 seasons, with the corresponding regular-season Four Factors serving as the independent variables. This two-year window was selected to reflect the current competitive landscape of college basketball while respecting the structural roster turnover discussed previously. The Kaggle competition provides a submission file containing every possible 2026 tournament matchup, numbering in the thousands of pairings across both divisions. The Four Factors for each team are computed from their 2025 regular-season results and differenced for every candidate pairing. The fitted models then generate a probability $\hat{P} \in (0,1)$ for each of these matchups via the inverse logit transformation, producing the final submission.
-
-An important practical consideration in this implementation is the relatively small sample size introduced by the two-year training window. A single NCAA tournament produces only 63 games for the men's bracket and 63 for the women's, yielding a combined training pool of roughly 250 observations per model iteration. While this is sufficient for a low-dimensional model such as logistic regression, it places meaningful constraints on the complexity of the architecture that can be reliably estimated. Overfitting becomes a nontrivial risk if additional interaction terms or polynomial features are introduced without sufficient regularization. For this reason, the model is deliberately kept simple, relying on five theoretically motivated differentials rather than a broader set of engineered features. This simplicity is consistent with the principle of Occam's Razor in model selection \cite{occam}, where a simpler model that generalizes well out-of-sample is preferred over a complex one that fits the training data too closely.
-
-Prior to submitting predictions for the 2026 tournament, the pipeline is validated through a series of backtests spanning the 2023, 2024, and 2025 competitions. [Image of rolling window cross-validation timeline for time series forecasting] These historical evaluations serve a specific purpose: to confirm that the rolling two-year training window generalizes to unseen tournament data before any live predictions are committed. For the 2023 backtest, the model is trained on tournament outcomes from 2021 and 2022. For the 2024 backtest, the training window shifts forward to include 2022 and 2023. Finally, for the 2025 backtest, the model is trained on 2023 and 2024 tournament data. In each case, the Four Factors are derived exclusively from the regular-season data preceding the target year, and no tournament results from the prediction year are ever introduced into the training process.
-
-The resulting Brier Scores from these backtests are compared against the winning submission scores published by Kaggle for the corresponding competition years. This comparison provides a meaningful external benchmark, situating the logistic regression framework within the broader landscape of competitor strategies. Table \ref{tab:brier_results} summarizes the Brier Scores produced by the model across all three backtest years alongside the winning scores for their respective competitions.
-
-\begin{table}[h!]
-\centering
-\caption{Logistic Regression Backtest Results vs. Kaggle Benchmarks}
-\label{tab:brier_results}
-\begin{tabular}{lcc}
-\hline
-\textbf{Tournament Year} & \textbf{Model Brier Score} & \textbf{Winning Brier Score} \\ \hline
-2023 & 0.21653 & 0.17371 \\
-2024 & 0.21064 & 0.05313 \\
-2025 & 0.18401 & 0.10411 \\ \hline
-\end{tabular}
-\end{table}
-
-It is important to note that the 2024 winning Brier Score of 0.05313 is not directly comparable to the scores recorded in 2023 and 2025. In that competition year, Kaggle introduced a significant structural change to the submission format. Rather than submitting a single set of game-by-game win probabilities, competitors were permitted to submit a portfolio of up to one hundred thousand distinct bracket entries. The final score was then computed by averaging the Brier Score across rounds rather than across individual games, placing substantially greater weight on later-round matchups where fewer games are played. This round-weighted averaging mechanism naturally compresses scores toward lower values relative to the standard per-game formulation. Consequently, the 0.05313 figure reflects a fundamentally different evaluation environment and should be interpreted as a benchmark specific to the 2024 format rather than as evidence of superior predictive accuracy over other competition years.
-
-Setting aside the 2024 anomaly, the remaining backtests reveal a consistent trend of improvement. The model's Brier Score declined from 0.21653 in 2023 to 0.18401 in 2025, reflecting incremental gains in calibration as the pipeline was refined. Crucially, the 2025 backtest represents the most direct analog to the 2026 submission, as it uses the identical training structure and feature set that will be deployed. While the model trails the top competitors in each year, it remains well above the naive 0.25 baseline and demonstrates stable generalization across multiple tournament cycles. These results provided sufficient confidence in the pipeline to justify its deployment for the 2026 Kaggle submission.
-
-\usubsubsection{Model Analysis}
-With the models estimated on the 2023 and 2024 tournament data, the resulting coefficients can be examined to evaluate which of the Four Factors carry meaningful predictive weight in each division. Because separate models were trained for the men's and women's tournaments, the coefficient structures can be analyzed independently and then compared to assess whether the Four Factors operate differently across divisions. Tables \ref{tab:mens_coef} and \ref{tab:womens_coef} present the estimated coefficients, p-values, and significance levels for the men's and women's models respectively.
-
-<<coef_tables, echo=FALSE, results='asis', message=FALSE, warning=FALSE>>=
-library(xtable)
-
-mens_coef <- summary(mens_model_2025)$coefficients
-womens_coef <- summary(womens_model_2025)$coefficients
-
-# Clean variable names to prevent LaTeX underscore errors
-clean_vars <- c("Intercept", "eFG Diff", "TOV Pct Diff", "ORB Pct Diff", "FTR Diff", "Win Diff")
-
-# Helper function to generate standard significance stars
-add_stars <- function(p) {
-  sapply(p, function(x) {
-    if (x < 0.001) "***"
-    else if (x < 0.01) "**"
-    else if (x < 0.05) "*"
-    else if (x < 0.1) "."
-    else ""
-  })
-}
-
-# 1. Men's Dataframe
-mens_df <- data.frame(
-  Variable = clean_vars,
-  Estimate = round(mens_coef[,1], 4),
-  p_value  = round(mens_coef[,4], 4),
-  Sig      = add_stars(mens_coef[,4])
-)
-colnames(mens_df) <- c("Variable", "Estimate", "p-value", "Sig.")
-
-# 2. Women's Dataframe
-womens_df <- data.frame(
-  Variable = clean_vars,
-  Estimate = round(womens_coef[,1], 4),
-  p_value  = round(womens_coef[,4], 4),
-  Sig      = add_stars(womens_coef[,4])
-)
-colnames(womens_df) <- c("Variable", "Estimate", "p-value", "Sig.")
-
-# Print Men's Table
-print(xtable(mens_df,
-  caption = "Logistic Regression Coefficient Estimates (Men's 2025 Model)",
-  label   = "tab:mens_coef",
-  digits  = 4),
-  include.rownames = FALSE,
-  caption.placement = "top"
-)
-
-# Print Women's Table
-print(xtable(womens_df,
-  caption = "Logistic Regression Coefficient Estimates (Women's 2025 Model)",
-  label   = "tab:womens_coef",
-  digits  = 4),
-  include.rownames = FALSE,
-  caption.placement = "top"
-)
-@
-
-In the men's model, the only variable to reach conventional statistical significance is Offensive Rebound Percentage, with an estimated coefficient of 12.3634 and a p-value of 0.003. The positive sign is theoretically consistent with Dean Oliver's framework \cite{Dean}, as a team that dominates the offensive glass generates additional possessions while simultaneously denying the opponent easy transition opportunities. Turnover Percentage approaches significance at the 0.10 level with an estimate of -20.5106, and the negative direction is again theoretically correct, as a team that surrenders possessions more frequently than its opponent is expected to win less often. Effective Field Goal Percentage, Free Throw Rate, and Win Percentage all fail to reach significance in the men's model, suggesting that within the narrow two-year training window, shooting efficiency differentials and win records carry limited additional explanatory power once rebounding and turnover control are accounted for. The intercept of 0.4352 is statistically significant at the 0.05 level, implying a slight structural tendency for the lower-ID team to win in the men's tournament even after controlling for all efficiency differentials. This is likely an artifact of the team ID assignment convention rather than a genuine basketball phenomenon.
-
-The women's model tells a different story. Three variables reach statistical significance: Offensive Rebound Percentage (12.4308, $p < 0.001$), Effective Field Goal Percentage (17.4458, $p = 0.002$), and Turnover Percentage (-19.8212, $p = 0.024$). The consistency of Offensive Rebound Percentage across both models is the single most robust finding of this analysis, as the near identical magnitude of the estimates (12.36 in the men's model and 12.43 in the women's model) across two independently trained models strongly suggests that second chance scoring dominance is a universal determinant of tournament success regardless of division. The women's intercept is effectively zero and insignificant, indicating no structural bias toward either team ordering in that division.
-
-The most substantive structural difference between the two models is the role of Effective Field Goal Percentage. In the women's model, it is the second most significant predictor with a coefficient nearly twice the magnitude of the men's estimate. In the men's model, the same variable is statistically indistinguishable from zero. This divergence suggests that shooting efficiency differentials are a more decisive factor in women's tournament outcomes, where a meaningful gap in $eFG\%$ between two opponents translates more reliably into a victory. In the men's tournament, the compressed talent distribution and faster pace of play may reduce the marginal impact of a given efficiency advantage, as superior athleticism and shot creation ability can compensate for efficiency deficits in ways that are not captured by the Four Factors alone. This finding provides direct empirical support for the decision to train the two models independently rather than pooling them under a shared parameter structure. Had a combined model been used, the women's strong shooting efficiency signal would have been diluted by the men's null result, and the men's rebound signal would have been the only surviving predictor across both divisions.
-
-Free Throw Rate fails to reach significance in either model, which is consistent with the nature of the statistic itself. Unlike shooting efficiency or turnover rate, free throw volume tends to be relatively stable across teams at the tournament level, as elite programs generally reach the line at comparable rates. When the differential between two opponents is consistently narrow, the variable carries little discriminatory power and the model appropriately assigns it a negligible coefficient. Win Percentage similarly contributes no significant explanatory power in either model once the efficiency differentials are controlled for. This suggests that the Four Factors effectively subsume the information contained in raw win-loss records; a team's season-long efficiency profile captures the underlying quality of the program more precisely than its aggregate record, which can be inflated or deflated by schedule strength and margin of victory.
-
-\usubsubsection{Results}
-
-The performance of the 2025 logistic regression models is evaluated along two dimensions: classification accuracy via the confusion matrices and probability calibration via the Brier Score. Figure \ref{fig:conf_matrices_2025} presents the confusion matrices for the men's, women's, and combined models.
-
-<<conf_matrices_2025, echo=FALSE, fig.cap="Confusion Matrices for the 2025 Logistic Regression Models", fig.width=10, fig.height=4, out.width="\\textwidth">>=
-library(gridExtra)
-grid.arrange(plot_mens_25, plot_womens_25, plot_combined_25, ncol = 3)
-@
-
-The women's model achieves the strongest classification performance at 77.6\% accuracy, followed by the combined model at $73.9\%$ and the men's model at $70.1\%$. This ordering is consistent with the coefficient analysis in the prior section. The women's model benefits from three statistically significant predictors, Offensive Rebound Percentage, Effective Field Goal Percentage, and Turnover Percentage, providing a richer signal for binary classification. The men's model, where only Offensive Rebound Percentage reaches conventional significance, has a narrower basis for discrimination and consequently misclassifies a greater proportion of games. All three accuracy figures comfortably exceed the $50\%$ baseline that would be expected from random prediction, indicating that the Four Factors carry genuine discriminatory power in both divisions.
-
-However, classification accuracy alone is an incomplete measure of model quality in this context. The Brier Score evaluation framework penalizes not just incorrect predictions but overconfident ones, meaning a model that correctly identifies the winner but assigns a probability of 0.95 rather than $0.65$ is still penalized heavily when upsets occur. The combined 2025 Brier Score of $0.18401$ reflects this tension. While the model demonstrates solid directional accuracy, the gap between its Brier Score and the competition winning score of $0.10411$ suggests that the predicted probabilities are not as well calibrated as those produced by the top competitors. This is an expected limitation of a parsimonious four factor framework. Models that incorporate additional signals such as KenPom efficiency ratings, seed differentials, or market-derived probabilities are better positioned to assign more conservative probabilities to matchups involving significant uncertainty, which is precisely where the Brier Score penalizes most heavily.
-
-Despite this gap, the 2025 results validate the pipeline as a functional and reproducible baseline. The model generalizes consistently across both divisions, produces accuracy well above chance, and maintains a Brier Score substantially below the naive $0.25$ baseline. These characteristics provide a foundation from which the more sophisticated modeling techniques discussed in the following sections aim to improve.
+Where $P$ represents the probability of a Team 1 victory. The coefficients ($\beta$) represent the change in log-odds of winning for every one unit increase in the respective statistical differential. 
 
 %%%%%%%%%%%%%%%%%%%%%%
-\newpage
+\usubsection{Logistic Regression}
 \usubsection{Boosting}
-While logistic regression provides an interpretable and theoretically grounded baseline, its core assumption of a linear relationship between the input differentials and the log-odds of winning imposes meaningful constraints on its predictive ceiling. In reality, the relationship between team efficiency metrics and tournament success may be nonlinear and subject to complex interactions. For instance, a team with a dominant offensive rebounding advantage may only convert that advantage into wins when paired with a sufficient shooting efficiency threshold, a conditional relationship that a linear model cannot capture without explicit feature engineering. To address this limitation, the analysis extends the modeling framework to include XGBoost, an ensemble method that constructs predictions through the sequential combination of decision trees and is capable of learning these nonlinear patterns directly from the data.
 
-XGBoost is a natural candidate for this problem for several reasons beyond its flexibility. Unlike parametric models, it does not require assumptions about the distributional form of the predictors or their relationship to the outcome. It is also robust to the scale differences between features, meaning the large coefficient magnitudes observed for Turnover Percentage and Offensive Rebound Percentage in the logistic regression output do not require normalization before fitting. Furthermore, XGBoost includes built-in regularization parameters that directly penalize model complexity, which is particularly valuable given the small training sample introduced by the two-year rolling window. The following subsections detail the variable selection, data cleaning, and implementation decisions made for the boosting framework, mirroring the structure of the logistic regression analysis to facilitate a direct comparison between the two approaches.
+\usubsection{Results}
+
+
+Here are my insights...
+
 \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1168,6 +834,8 @@ Here are my insights...
 \thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
 
 %%%%%%%%%%%%%%%%%%%%%%
+\usubsection{My Contributions and Analysis}
+Here are my insights...
 
 \newpage
 
@@ -1239,17 +907,12 @@ As a preliminary assessment...
 \bibitem{Pace} “Hoops in Motion: The Evolution of Pace in Basketball.” Substack.com, SLT Sports Analytics: Slamming Data into the Game, Mar. 2024, sltsportsanalytics.substack.com/p/hoops-in-motion-the-evolution-of.
 
 \bibitem{Dean} Oliver, Dean. Basketball on Paper. Potomac Books, 1 Nov. 2004.
-
-\bibitem{logistic} Logistic Regression 12.1 Modeling Conditional Probabilities.
-
-\bibitem{occam} Tavhare, Avadhoot. “Occam’s Razor in Machine Learning: The Principle of Parsimony.” Medium, 21 May 2024, medium.com/@qjbqvwzmg/occams-razor-in-machine-learning-the-principle-of-parsimony-de110ce7fe13.
-
-\bibitem{regularization} “XGBoost Regularization Techniques | XGBoosting.” Xgboosting.com, 2024, xgboosting.com/xgboost-regularization-techniques/.
+ 
 
 \end{thebibliography}
 
 
- 
+
 
 
 

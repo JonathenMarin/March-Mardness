@@ -840,46 +840,77 @@ It is important to note that the 2024 winning Brier Score of 0.05313 is not dire
 Setting aside the 2024 anomaly, the remaining backtests reveal a consistent trend of improvement. The model's Brier Score declined from 0.21653 in 2023 to 0.18401 in 2025, reflecting incremental gains in calibration as the pipeline was refined. Crucially, the 2025 backtest represents the most direct analog to the 2026 submission, as it uses the identical training structure and feature set that will be deployed. While the model trails the top competitors in each year, it remains well above the naive 0.25 baseline and demonstrates stable generalization across multiple tournament cycles. These results provided sufficient confidence in the pipeline to justify its deployment for the 2026 Kaggle submission.
 
 \usubsubsection{Model Analysis}
-With the models estimated on the 2023 and 2024 tournament data, the resulting coefficients can be examined to evaluate which of the Four Factors carry meaningful predictive weight in each division. Table \ref{tab:coefficients} presents the estimated coefficients, standard errors, and significance levels for both the men's and women's models.
+With the models estimated on the 2023 and 2024 tournament data, the resulting coefficients can be examined to evaluate which of the Four Factors carry meaningful predictive weight in each division. Because separate models were trained for the men's and women's tournaments, the coefficient structures can be analyzed independently and then compared to assess whether the Four Factors operate differently across divisions. Tables \ref{tab:mens_coef} and \ref{tab:womens_coef} present the estimated coefficients, p-values, and significance levels for the men's and women's models respectively.
 
 % latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Mon Feb 23 14:26:07 2026
+% Tue Feb 24 10:12:36 2026
 \begin{table}[ht]
 \centering
 \caption{Logistic Regression Coefficient Estimates (Men's 2025 Model)} 
 \label{tab:mens_coef}
-\begin{tabular}{lrr}
+\begin{tabular}{lrrl}
   \hline
-Variable & Estimate & p-value \\ 
+Variable & Estimate & p-value & Sig. \\ 
   \hline
-Intercept & 0.4352 & 0.0348 \\ 
-  eFG Diff & 7.7952 & 0.2244 \\ 
-  TOV Pct Diff & -20.5106 & 0.0901 \\ 
-  ORB Pct Diff & 12.3634 & 0.0027 \\ 
-  FTR Diff & -1.4307 & 0.7527 \\ 
-  Win Diff & 1.3253 & 0.4365 \\ 
+Intercept & 0.4352 & 0.0348 & * \\ 
+  eFG Diff & 7.7952 & 0.2244 &  \\ 
+  TOV Pct Diff & -20.5106 & 0.0901 & . \\ 
+  ORB Pct Diff & 12.3634 & 0.0027 & ** \\ 
+  FTR Diff & -1.4307 & 0.7527 &  \\ 
+  Win Diff & 1.3253 & 0.4365 &  \\ 
    \hline
 \end{tabular}
 \end{table}
 % latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Mon Feb 23 14:26:07 2026
+% Tue Feb 24 10:12:36 2026
 \begin{table}[ht]
 \centering
 \caption{Logistic Regression Coefficient Estimates (Women's 2025 Model)} 
 \label{tab:womens_coef}
-\begin{tabular}{lrr}
+\begin{tabular}{lrrl}
   \hline
-Variable & Estimate & p-value \\ 
+Variable & Estimate & p-value & Sig. \\ 
   \hline
-Intercept & -0.0888 & 0.6657 \\ 
-  eFG Diff & 17.4458 & 0.0016 \\ 
-  TOV Pct Diff & -19.8212 & 0.0237 \\ 
-  ORB Pct Diff & 12.4308 & 0.0004 \\ 
-  FTR Diff & 3.9742 & 0.4420 \\ 
-  Win Diff & -1.8468 & 0.4172 \\ 
+Intercept & -0.0888 & 0.6657 &  \\ 
+  eFG Diff & 17.4458 & 0.0016 & ** \\ 
+  TOV Pct Diff & -19.8212 & 0.0237 & * \\ 
+  ORB Pct Diff & 12.4308 & 0.0004 & *** \\ 
+  FTR Diff & 3.9742 & 0.4420 &  \\ 
+  Win Diff & -1.8468 & 0.4172 &  \\ 
    \hline
 \end{tabular}
 \end{table}
+
+
+In the men's model, the only variable to reach conventional statistical significance is Offensive Rebound Percentage, with an estimated coefficient of 12.3634 and a p-value of 0.003. The positive sign is theoretically consistent with Dean Oliver's framework \cite{Dean}, as a team that dominates the offensive glass generates additional possessions while simultaneously denying the opponent easy transition opportunities. Turnover Percentage approaches significance at the 0.10 level with an estimate of -20.5106, and the negative direction is again theoretically correct, as a team that surrenders possessions more frequently than its opponent is expected to win less often. Effective Field Goal Percentage, Free Throw Rate, and Win Percentage all fail to reach significance in the men's model, suggesting that within the narrow two-year training window, shooting efficiency differentials and win records carry limited additional explanatory power once rebounding and turnover control are accounted for. The intercept of 0.4352 is statistically significant at the 0.05 level, implying a slight structural tendency for the lower-ID team to win in the men's tournament even after controlling for all efficiency differentials. This is likely an artifact of the team ID assignment convention rather than a genuine basketball phenomenon.
+
+The women's model tells a different story. Three variables reach statistical significance: Offensive Rebound Percentage (12.4308, $p < 0.001$), Effective Field Goal Percentage (17.4458, $p = 0.002$), and Turnover Percentage (-19.8212, $p = 0.024$). The consistency of Offensive Rebound Percentage across both models is the single most robust finding of this analysis, as the near identical magnitude of the estimates (12.36 in the men's model and 12.43 in the women's model) across two independently trained models strongly suggests that second chance scoring dominance is a universal determinant of tournament success regardless of division. The women's intercept is effectively zero and insignificant, indicating no structural bias toward either team ordering in that division.
+
+The most substantive structural difference between the two models is the role of Effective Field Goal Percentage. In the women's model, it is the second most significant predictor with a coefficient nearly twice the magnitude of the men's estimate. In the men's model, the same variable is statistically indistinguishable from zero. This divergence suggests that shooting efficiency differentials are a more decisive factor in women's tournament outcomes, where a meaningful gap in $eFG\%$ between two opponents translates more reliably into a victory. In the men's tournament, the compressed talent distribution and faster pace of play may reduce the marginal impact of a given efficiency advantage, as superior athleticism and shot creation ability can compensate for efficiency deficits in ways that are not captured by the Four Factors alone. This finding provides direct empirical support for the decision to train the two models independently rather than pooling them under a shared parameter structure. Had a combined model been used, the women's strong shooting efficiency signal would have been diluted by the men's null result, and the men's rebound signal would have been the only surviving predictor across both divisions.
+
+Free Throw Rate fails to reach significance in either model, which is consistent with the nature of the statistic itself. Unlike shooting efficiency or turnover rate, free throw volume tends to be relatively stable across teams at the tournament level, as elite programs generally reach the line at comparable rates. When the differential between two opponents is consistently narrow, the variable carries little discriminatory power and the model appropriately assigns it a negligible coefficient. Win Percentage similarly contributes no significant explanatory power in either model once the efficiency differentials are controlled for. This suggests that the Four Factors effectively subsume the information contained in raw win-loss records; a team's season-long efficiency profile captures the underlying quality of the program more precisely than its aggregate record, which can be inflated or deflated by schedule strength and margin of victory.
+
+\usubsubsection{Results}
+
+The performance of the 2025 logistic regression models is evaluated along two dimensions: classification accuracy via the confusion matrices and probability calibration via the Brier Score. Figure \ref{fig:conf_matrices_2025} presents the confusion matrices for the men's, women's, and combined models.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+
+
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# \\\#\# Attaching package: 'gridExtra'}}
+
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# The following object is masked from 'package:dplyr':\\\#\# \\\#\# \ \ \ \ combine}}\end{kframe}\begin{figure}
+\includegraphics[width=\textwidth]{figure/conf_matrices_2025-1} \caption[Confusion Matrices for the 2025 Logistic Regression Models]{Confusion Matrices for the 2025 Logistic Regression Models}\label{fig:conf_matrices_2025}
+\end{figure}
+
+\end{knitrout}
+
+The women's model achieves the strongest classification performance at 77.6\% accuracy, followed by the combined model at $73.9\%$ and the men's model at $70.1\%$. This ordering is consistent with the coefficient analysis in the prior section. The women's model benefits from three statistically significant predictors, Offensive Rebound Percentage, Effective Field Goal Percentage, and Turnover Percentage, providing a richer signal for binary classification. The men's model, where only Offensive Rebound Percentage reaches conventional significance, has a narrower basis for discrimination and consequently misclassifies a greater proportion of games. All three accuracy figures comfortably exceed the $50\%$ baseline that would be expected from random prediction, indicating that the Four Factors carry genuine discriminatory power in both divisions.
+
+However, classification accuracy alone is an incomplete measure of model quality in this context. The Brier Score evaluation framework penalizes not just incorrect predictions but overconfident ones, meaning a model that correctly identifies the winner but assigns a probability of 0.95 rather than $0.65$ is still penalized heavily when upsets occur. The combined 2025 Brier Score of $0.18401$ reflects this tension. While the model demonstrates solid directional accuracy, the gap between its Brier Score and the competition winning score of $0.10411$ suggests that the predicted probabilities are not as well calibrated as those produced by the top competitors. This is an expected limitation of a parsimonious four factor framework. Models that incorporate additional signals such as KenPom efficiency ratings, seed differentials, or market-derived probabilities are better positioned to assign more conservative probabilities to matchups involving significant uncertainty, which is precisely where the Brier Score penalizes most heavily.
+
+Despite this gap, the 2025 results validate the pipeline as a functional and reproducible baseline. The model generalizes consistently across both divisions, produces accuracy well above chance, and maintains a Brier Score substantially below the naive $0.25$ baseline. These characteristics provide a foundation from which the more sophisticated modeling techniques discussed in the following sections aim to improve.
 
 
 %%%%%%%%%%%%%%%%%%%%%%
