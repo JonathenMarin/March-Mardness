@@ -2,7 +2,7 @@ library(data.table)
 library(dplyr)
 library(xgboost)
 library(ggplot2)
-
+library(gridExtra)
 
 # data load ---------------------------------------------------------------
 
@@ -137,6 +137,73 @@ tourney_simple[, Seed_diff := T2_seed - T1_seed]
 tourney_simple <- tourney_simple[!is.na(T1_seed) & !is.na(T2_seed)]
 cat("Rows with complete seed data:", nrow(tourney_simple), "\n\n")
 
+# exploratory analysis on seeds -------------------------------------------
+
+seed_summary <- tourney_simple[, .(
+  games = .N,
+  avg_point_diff = mean(PointDiff),
+  sd_point_diff = sd(PointDiff),
+  win_rate = mean(win)
+), by = .(T1_seed, men_women)]
+
+seed_summary <- seed_summary[order(men_women, T1_seed)]
+seed_summary[is.na(sd_point_diff), sd_point_diff := 0]
+
+# plot 1 - point diff by seed
+p1 <- ggplot(seed_summary, aes(x = T1_seed, y = avg_point_diff, color = factor(men_women))) +
+  geom_line() +
+  geom_ribbon(aes(ymin = avg_point_diff - sd_point_diff,
+                  ymax = avg_point_diff + sd_point_diff,
+                  fill = factor(men_women)),
+              alpha = 0.2, color = NA) +
+  scale_color_manual(values = c("0" = "blue", "1" = "red"),
+                     labels = c("Women", "Men")) +
+  scale_fill_manual(values = c("0" = "blue", "1" = "red"),
+                    labels = c("Women", "Men")) +
+  labs(title = "Average Point Differential by Team 1 Seed",
+       x = "Team 1 Seed",
+       y = "Average Point Differential",
+       color = "Division",
+       fill = "Division") +
+  theme_minimal()
+
+# seed differential summary
+seed_diff_summary <- tourney_simple[, .(
+  games = .N,
+  avg_point_diff = mean(PointDiff),
+  sd_point_diff = sd(PointDiff),
+  win_rate = mean(win)
+), by = .(Seed_diff, men_women)]
+
+seed_diff_summary <- seed_diff_summary[order(men_women, Seed_diff)]
+seed_diff_summary[is.na(sd_point_diff), sd_point_diff := 0]
+
+# plot 2 - point diff by seed differential
+p2 <- ggplot(seed_diff_summary[abs(Seed_diff) <= 15],
+             aes(x = Seed_diff, y = avg_point_diff, color = factor(men_women))) +
+  geom_line() +
+  geom_ribbon(aes(ymin = avg_point_diff - sd_point_diff,
+                  ymax = avg_point_diff + sd_point_diff,
+                  fill = factor(men_women)),
+              alpha = 0.2, color = NA) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray") +
+  scale_color_manual(values = c("0" = "blue", "1" = "red"),
+                     labels = c("Women", "Men")) +
+  scale_fill_manual(values = c("0" = "blue", "1" = "red"),
+                    labels = c("Women", "Men")) +
+  labs(title = "Average Point Differential by Seed Difference",
+       subtitle = "Positive Seed_diff means Team 1 is better seeded",
+       x = "Seed Difference (T2_seed - T1_seed)",
+       y = "Average Point Differential",
+       color = "Division",
+       fill = "Division") +
+  theme_minimal()
+
+library(gridExtra)
+print(p1)
+print(p2)
+
+
 
 # simple season stats -----------------------------------------------------
 
@@ -157,35 +224,67 @@ simple_stats <- create_simple_stats(regular_data)
 
 # elo ratings -------------------------------------------------------------
 
-calculate_elo <- function(regular_results, initial_rating = 1500, k = 64, width = 400) {
+calculate_elo <- function(regular_results, initial_rating = 1500, k = 64, width = 400, hca = 0, carry_over = 0.5) {
+  
   games <- regular_results[order(Season, DayNum)]
   seasons <- sort(unique(games$Season))
   all_ratings <- list()
   
+  # initialize empty ratings
+  team_ratings <- c()
+  
   for (s in seasons) {
     season_games <- games[Season == s]
     teams <- unique(c(season_games$WTeamID, season_games$LTeamID))
-    team_ratings <- rep(initial_rating, length(teams))
-    names(team_ratings) <- teams
     
-    for (i in seq_len(nrow(season_games))) {
-      wteam <- season_games$WTeamID[i]
-      lteam <- season_games$LTeamID[i]
-      
-      rW <- team_ratings[as.character(wteam)]
-      rL <- team_ratings[as.character(lteam)]
-      
-      eW <- 1 / (1 + 10^((rL - rW) / width))
-      eL <- 1 / (1 + 10^((rW - rL) / width))
-      
-      team_ratings[as.character(wteam)] <- rW + k * (1 - eW)
-      team_ratings[as.character(lteam)] <- rL + k * (0 - eL)
+    # between season regression toward mean
+    if (length(team_ratings) > 0) {
+      # carry over existing teams
+      for (tid in as.character(teams)) {
+        if (tid %in% names(team_ratings)) {
+          team_ratings[tid] <- carry_over * team_ratings[tid] + (1 - carry_over) * initial_rating
+        } else {
+          # new team starts at initial rating
+          team_ratings[tid] <- initial_rating
+        }
+      }
+    } else {
+      # first season - everyone starts fresh
+      team_ratings <- rep(initial_rating, length(teams))
+      names(team_ratings) <- as.character(teams)
     }
     
+    for (i in seq_len(nrow(season_games))) {
+      wteam <- as.character(season_games$WTeamID[i])
+      lteam <- as.character(season_games$LTeamID[i])
+      wloc  <- season_games$WLoc[i]
+      
+      rW <- team_ratings[wteam]
+      rL <- team_ratings[lteam]
+      
+      # home court adjustment
+      if (wloc == "H") {
+        rW_adj <- rW + hca
+      } else if (wloc == "A") {
+        rW_adj <- rW - hca
+      } else {
+        rW_adj <- rW
+      }
+      
+      # expected win probabilities using adjusted rating
+      eW <- 1 / (1 + 10^((rL - rW_adj) / width))
+      eL <- 1 - eW
+      
+      # update ratings using unadjusted ratings
+      team_ratings[wteam] <- rW + k * (1 - eW)
+      team_ratings[lteam] <- rL + k * (0 - eL)
+    }
+    
+    # store final ratings for this season
     season_elo <- data.table(
-      Season   = s,
-      TeamID   = as.integer(names(team_ratings)),
-      Elo_final = team_ratings
+      Season    = s,
+      TeamID    = as.integer(names(team_ratings)),
+      Elo_final = as.numeric(team_ratings)
     )
     all_ratings[[as.character(s)]] <- season_elo
   }
@@ -195,9 +294,63 @@ calculate_elo <- function(regular_results, initial_rating = 1500, k = 64, width 
 
 elo_ratings <- calculate_elo(regular_results)
 
-cat("Elo ratings calculated:\n")
-cat("  Seasons:", n_distinct(elo_ratings$Season), "\n")
-cat("  Teams:", n_distinct(elo_ratings$TeamID), "\n\n")
+# top elo teams plot - mens and womens separate ---------------------------
+
+latest_season <- max(elo_ratings$Season)
+
+# mens top 20
+top_elo_mens <- elo_ratings[Season == latest_season & TeamID < 3000] %>%
+  merge(all_teams, by = "TeamID") %>%
+  arrange(desc(Elo_final)) %>%
+  head(20) %>%
+  distinct(TeamName, .keep_all = TRUE)
+
+top_elo_mens$TeamName <- factor(top_elo_mens$TeamName, 
+                                levels = top_elo_mens$TeamName[order(top_elo_mens$Elo_final)])
+
+plot_mens_elo <- ggplot(top_elo_mens, aes(x = TeamName, y = Elo_final, fill = Elo_final)) +
+  geom_bar(stat = "identity") +
+  scale_fill_gradient(low = "#56B1F7", high = "#132B43") +
+  coord_flip() +
+  labs(
+    title = paste("Top 20 Men's Teams 2025", latest_season),
+    x = NULL,
+    y = "Elo Rating"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text = element_text(size = 10),
+    plot.title = element_text(size = 13, face = "bold"),
+    legend.position = "none"
+  )
+
+# womens top 20
+top_elo_womens <- elo_ratings[Season == latest_season & TeamID > 3000] %>%
+  merge(all_teams, by = "TeamID") %>%
+  arrange(desc(Elo_final)) %>%
+  head(20) %>%
+  distinct(TeamName, .keep_all = TRUE)
+
+top_elo_womens$TeamName <- factor(top_elo_womens$TeamName, 
+                                  levels = top_elo_womens$TeamName[order(top_elo_womens$Elo_final)])
+
+plot_womens_elo <- ggplot(top_elo_womens, aes(x = TeamName, y = Elo_final, fill = Elo_final)) +
+  geom_bar(stat = "identity") +
+  scale_fill_gradient(low = "#56B1F7", high = "#132B43") +
+  coord_flip() +
+  labs(
+    title = paste("Top 20 Women's Teams 2025", latest_season),
+    x = NULL,
+    y = "Elo Rating"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text = element_text(size = 10),
+    plot.title = element_text(size = 13, face = "bold"),
+    legend.position = "none"
+  )
+
+grid.arrange(plot_mens_elo, plot_womens_elo, ncol = 2)
 
 elo_T1 <- copy(elo_ratings)
 setnames(elo_T1, c("TeamID", "Elo_final"), c("T1_TeamID", "T1_Elo"))
