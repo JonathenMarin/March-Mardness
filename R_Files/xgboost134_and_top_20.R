@@ -30,6 +30,14 @@ regular_results <- rbind(M_regular, W_regular)
 tourney_results <- rbind(M_tourney, W_tourney)
 seeds <- rbind(M_seeds, W_seeds)
 
+# load team names
+m_teams <- fread(file.path(data_dir, "MTeams.csv"))
+w_teams <- fread(file.path(data_dir, "WTeams.csv"))
+all_teams <- rbind(
+  m_teams[, .(TeamID, TeamName)],
+  w_teams[, .(TeamID, TeamName)]
+)
+
 cat("\nCombined data:\n")
 cat("  Total regular season games:", nrow(regular_results), "\n")
 cat("  Total tournament games:", nrow(tourney_results), "\n")

@@ -842,8 +842,8 @@ Setting aside the 2024 anomaly, the remaining backtests reveal a consistent tren
 \usubsubsection{Model Analysis}
 With the models estimated on the 2023 and 2024 tournament data, the resulting coefficients can be examined to evaluate which of the Four Factors carry meaningful predictive weight in each division. Because separate models were trained for the men's and women's tournaments, the coefficient structures can be analyzed independently and then compared to assess whether the Four Factors operate differently across divisions. Tables \ref{tab:mens_coef} and \ref{tab:womens_coef} present the estimated coefficients, p-values, and significance levels for the men's and women's models respectively.
 
-% latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Wed Feb 25 14:38:14 2026
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Mon Mar  9 23:12:36 2026
 \begin{table}[ht]
 \centering
 \caption{Logistic Regression Coefficient Estimates (Men's 2025 Model)} 
@@ -861,8 +861,8 @@ Intercept & 0.4352 & 0.0348 & * \\
    \hline
 \end{tabular}
 \end{table}
-% latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Wed Feb 25 14:38:14 2026
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Mon Mar  9 23:12:36 2026
 \begin{table}[ht]
 \centering
 \caption{Logistic Regression Coefficient Estimates (Women's 2025 Model)} 
@@ -913,7 +913,66 @@ Despite this gap, the 2025 results validate the pipeline as a functional and rep
 While logistic regression provides an interpretable and theoretically grounded baseline, its core assumption of a linear relationship between the input differentials and the log-odds of winning imposes meaningful constraints on its predictive ceiling. In reality, the relationship between team efficiency metrics and tournament success may be nonlinear and subject to complex interactions. For instance, a team with a dominant offensive rebounding advantage may only convert that advantage into wins when paired with a sufficient shooting efficiency threshold, a conditional relationship that a linear model cannot capture without explicit feature engineering. To address this limitation, the analysis extends the modeling framework to include XGBoost, an ensemble method that constructs predictions through the sequential combination of decision trees and is capable of learning these nonlinear patterns directly from the data.
 
 XGBoost is a natural candidate for this problem for several reasons beyond its flexibility. Unlike parametric models, it does not require assumptions about the distributional form of the predictors or their relationship to the outcome. It is also robust to the scale differences between features, meaning the large coefficient magnitudes observed for Turnover Percentage and Offensive Rebound Percentage in the logistic regression output do not require normalization before fitting. Furthermore, XGBoost includes built-in regularization parameters that directly penalize model complexity, which is particularly valuable given the small training sample introduced by the two-year rolling window. The following subsections detail the variable selection, data cleaning, and implementation decisions made for the boosting framework, mirroring the structure of the logistic regression analysis to facilitate a direct comparison between the two approaches.
-\newpage
+
+\usubsubsection{Variable Selection}
+A key motivation for the breadth of this feature set is that XGBoost's internal regularization framework absorbs the cost of including additional variables in a way that ordinary regression cannot. In logistic regression, adding correlated or weakly predictive features inflates standard errors, destabilizes coefficient estimates, and risks overfitting, which is why the Four Factors model was deliberately restricted to five predictors. XGBoost does not share this vulnerability. At each boosting round the algorithm selects only the features and split points that produce the greatest reduction in the loss function, effectively ignoring features that contribute no signal. Features that are redundant or noisy are simply passed over during tree construction rather than distorting the model as they would in a linear framework. This property is reinforced by the \texttt{colsample\_bytree} hyperparameter, which randomly samples a subset of features at each tree, further reducing the influence of any single uninformative predictor. As a result, the XGBoost feature set can be expanded aggressively without the same penalty that would apply in a parametric setting, and the cost of including a feature that turns out to be irrelevant is negligible compared to the cost of omitting one that carries genuine signal.
+
+The feature set for the XGBoost model is organized into three tiers of increasing complexity: seeding features, simple season statistics, and strength of schedule adjusted box score profiles. Together these tiers provide the model with information about committee evaluation, raw performance, and opponent-adjusted efficiency. The first tier consists of tournament seeding. Each team's seed number is included individually as \texttt{T1\_seed} and \texttt{T2\_seed}, along with their difference \texttt{Seed\_diff}, defined as the opponent's seed minus the team's seed such that a positive value indicates a favorable matchup. Including all three seed features rather than the differential alone allows the model to learn nonlinear effects of absolute seeding. A seed differential of one means something very different when it separates a 1 seed from a 2 seed than when it separates an 8 seed from a 9 seed. The lower seeded teams in the tournament are generally far more dominant over their opponents than the differential alone would suggest, and a model that only sees the difference cannot distinguish between these cases. Figure \ref{fig:seed_pointdiff} confirms this, showing that average point differential declines monotonically as seed number increases across both divisions. Figure \ref{fig:seed_diffdiff} further shows that as the seed differential between two teams widens, the better seeded team wins by larger margins on average, validating seed differential as a strong predictive signal in its own right.
+
+\begin{figure}[H]
+\centering
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-1-1} 
+\end{knitrout}
+\hfill
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-2-1} 
+\end{knitrout}
+\caption{Left: Average point differential by Team 1 seed. Right: Average point differential by seed differential.}
+\label{fig:seed_pointdiff}
+\end{figure}
+
+The second tier consists of simple season statistics computed from regular season game logs. For each team these include season win percentage, average points scored, average points allowed, and average point differential. Pairwise differentials between Team 1 and Team 2 are also computed for each of these statistics, providing the model with both absolute team quality signals and direct matchup comparison signals. These features capture overall team strength but do not account for the quality of opposition faced. A team that averaged 85 points per game against a weak conference schedule is not necessarily more dangerous than a team that averaged 75 points against a gauntlet of top 25 opponents, and the raw averages alone cannot make that distinction. This limitation motivates the third tier.
+
+The third tier introduces strength of schedule adjusted box score profiles. For each of the fourteen raw box score statistics available in the Kaggle data, including field goals made and attempted, three point attempts, free throw attempts, offensive and defensive rebounds, assists, turnovers, steals, blocks, and personal fouls, seasonal averages are computed from two perspectives. The first perspective captures a team's own offensive and defensive production, prefixed as \texttt{Off\_} and \texttt{Def\_} respectively. The second perspective captures the quality of opposition faced by averaging the seasonal profiles of every opponent a team played during the regular season, producing a set of \texttt{SOS\_} prefixed features. A team whose offensive statistics were produced against consistently strong defensive opponents is credited more heavily than a team whose statistics were inflated by a weak schedule. All box score statistics are adjusted for overtime prior to averaging using the formula $\texttt{adjOT} = \frac{40 + 5 \times \texttt{NumOT}}{40}$, which scales each game's statistics back to a standard 40 minute equivalent. This ensures that high scoring overtime games do not artificially inflate a team's seasonal averages.
+
+The final component of the feature set is a custom Elo rating system developed to capture dynamic team strength across the full regular season. Unlike the static season averages described in the previous tiers, Elo ratings are updated after every game and reflect the cumulative result of a team's performance relative to its opponents throughout the season. This means a team that starts slowly but peaks heading into the tournament will have a higher Elo rating than its season averages alone would suggest, and conversely a team that fades late in the season will have a deflated rating relative to its win percentage.
+
+The Elo system used here is adapted from the rating system originally developed for chess by Arpad Elo \cite{chess}. Each team begins the first season with an initial rating of 1500. After each regular season game the winner gains rating points and the loser loses an equal number, preserving the total rating mass in the system. The magnitude of the exchange depends on how surprising the result was relative to the pre-game expectations implied by the two teams' current ratings. The expected win probability for Team 1 is computed as:
+
+\begin{equation}
+E_1 = \frac{1}{1 + 10^{(R_2 - R_1) / 400}}
+\end{equation}
+
+where $R_1$ and $R_2$ are the current ratings of Team 1 and Team 2 respectively. The denominator of $400$ is the width parameter that controls how sensitive the expected probability is to rating differences. After the game resolves, ratings are updated as:
+
+\begin{align}
+R_1 &= R_1 + k(1 - E_1) \\
+R_2 &= R_2 + k(0 - E_2) \\
+\end{align}
+where $k=64$ is the K-factor controlling the maximum possible rating change per game and $E_2 = 1 - E_1$. When a heavy favorite wins, $E_1$ is close to $1$ and the rating change is small since the result was expected. When a heavy underdog wins, $E_1$ is close to $0$ and the rating change is large. This property makes Elo particularly well suited for tournament prediction because late season upsets and dominant runs cause large rating movements that static averages cannot capture. A key design decision in this implementation is the between-season carry over. Rather than resetting every team to 1500 at the start of each new season, the end of season rating is partially carried forward according to:
+\begin{equation}
+R_{\texttt{new}} = 0.5 \times R_{\texttt{final}} + 0.5 \times 1500.
+\end{equation}
+
+This means 50\$ of a team's historical rating is preserved into the next season while the other 50\% regresses toward the mean. The motivation is that program quality is not purely year to year. A program like Duke or Connecticut that has been consistently elite for two decades should not start each season at the same rating as a mid-major program making its first tournament appearance. The carry over allows the Elo system to accumulate this historical signal while the regression toward the mean prevents ratings from drifting arbitrarily far from the initial value over many seasons.Figures \ref{fig:elo_mens} and \ref{fig:elo_womens} illustrate the end of season Elo ratings for the top 20 men's and women's programs in 2025, reflecting both current season performance and accumulated historical quality. Each team's final end of season Elo rating is included in the feature set as \texttt{T1\_Elo} and \texttt{T2\_Elo}, along with their difference \texttt{Elo\_diff}. Including all three again allows the model to learn both absolute and relative rating effects simultaneously.
+
+\begin{figure}[H]
+\centering
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-3-1} 
+\end{knitrout}
+\hfill
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-4-1} 
+\end{knitrout}
+\caption{Left: Top 20 men's programs by end of season Elo rating in 2025. Right: Top 20 women's programs by end of season Elo rating in 2025.}
+\label{fig:elo_mens}
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
