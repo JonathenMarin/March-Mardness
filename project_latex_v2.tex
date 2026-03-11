@@ -76,6 +76,13 @@
 \usepackage{thmtools}
 \usepackage{float}
 \usepackage{array,multirow,hhline}%for tricky things with tables
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks = red,
+  linkcolor = black,
+  filecolor = black,
+  urlcolor = blue,
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -295,11 +302,8 @@ Predicting NCAA March Madness Outcomes
 \end{center}
 
 \doublespacing
-The aim of this project is to develop a machine learning framework to predict outcomes for the NCAA Division I Mens Basketball Tournament. The purpose is to build upon traditional statistical rankings by implementing an automated pipeline that generates precise win probabilities for every possible tournament matchup. Extensive research into historical sports forecasting and modern machine learning techniques was conducted to establish a baseline for predictive accuracy and model calibration.
-
-Following a comprehensive review of existing literature, the models were constructed using R. The primary dataset includes historical game results and Massey Ordinals, supplemented by custom feature engineering designed to capture team momentum and efficiency metrics. Four different modeling techniques were evaluated on the training data: Logistic Regression, Linear Regression, Random Forest, and XGBoost.
- 
-Unlike standard classification tasks, the final model was evaluated based on its ability to minimize the Brier Score, ensuring that the predicted probabilities were well calibrated against actual tournament results. The findings indicate that the integration of ensemble methods and strength of schedule adjustments provides a competitive edge in forecasting the high variance environment of the tournament. The complete codebase and dataset configurations are hosted on GitHub for further research and reproducibility. (do i put the link here or somewhere else)
+This project investigates predictive modeling of NCAA Division I basketball tournament outcomes through statistical and machine learning approaches. The goal is to build upon traditional statistical rankings by developing models that generate well calibrated win probabilities for every possible tournament matchup. Following a comprehensive review of existing literature, three modeling frameworks were constructed using R: logistic regression trained on Dean Oliver's Four Factors of Basketball Success, an XGBoost ensemble model incorporating tournament seeding, strength of schedule adjusted box score statistics, and a custom Elo rating system, and a Monte Carlo simulation framework that derives win probabilities from KenPom efficiency based point predictions.
+All models are evaluated using the Brier Score, which penalizes both incorrect and overconfident probability estimates. The findings indicate that ensemble methods incorporating dynamic rating systems provide a competitive edge in forecasting the high variance environment of single elimination tournament play. The complete codebase is hosted on GitHub for further research and reproducibility: \url{https://github.com/JonathenMarin/March-Mardness}.
 
 %The abstract should fit on one page. A blank guard sheet should follow. Neither of these pages receives a page number, and neither is considered part of the project proper. 
 
@@ -753,43 +757,6 @@ To resolve the target leakage inherent in the raw dataset, the first phase of da
 
 Rather than maintaining the winner and loser statistics in a single row, the function separates the victors and the defeated into two distinct dataframes. A binary \texttt{Win} variable is appended, assigning a value of $1$ to the winning dataframe and $0$ to the losing dataframe. These two structures are then vertically concatenated using a row-bind operation. Finally, the data is grouped by \texttt{Season} and \texttt{TeamID} to calculate the mean of all numeric variables. This yields a single, stable efficiency profile and an aggregate regular season win percentage for every program in a given year.
 
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{prepare_model_data} \hlkwb{<-} \hlkwa{function}\hldef{(}\hlkwc{tourney_results_df}\hldef{,}
-                               \hlkwc{four_factors_df}\hldef{) \{}
-
-\hldef{training_data} \hlkwb{<-} \hldef{tourney_results_df} \hlopt{%>%}
-\hlkwd{mutate}\hldef{(}
-\hlkwc{Team1} \hldef{=} \hlkwd{pmin}\hldef{(WTeamID, LTeamID),}
-\hlkwc{Team2} \hldef{=} \hlkwd{pmax}\hldef{(WTeamID, LTeamID),}
-\hlkwc{Team1_win} \hldef{=} \hlkwd{if_else}\hldef{(Team1} \hlopt{==} \hldef{WTeamID,} \hlnum{1}\hldef{,} \hlnum{0}\hldef{)}
-\hldef{)} \hlopt{%>%}
-\hlkwd{select}\hldef{(Season, Team1, Team2, Team1_win)}
-
-\hldef{model_data} \hlkwb{<-} \hldef{training_data} \hlopt{%>%}
-\hlkwd{left_join}\hldef{(four_factors_df,}
-          \hlkwc{by} \hldef{=} \hlkwd{c}\hldef{(}\hlsng{"Season"}\hldef{,} \hlsng{"Team1"} \hldef{=} \hlsng{"TeamID"}\hldef{))} \hlopt{%>%}
-\hlkwd{rename_with}\hldef{(}\hlopt{~}\hlkwd{paste0}\hldef{(.,} \hlsng{"_T1"}\hldef{),}
-\hlkwc{.cols} \hldef{=} \hlopt{-}\hlkwd{c}\hldef{(Season, Team1, Team2, Team1_win))} \hlopt{%>%}
-\hlkwd{left_join}\hldef{(four_factors_df,}
-          \hlkwc{by} \hldef{=} \hlkwd{c}\hldef{(}\hlsng{"Season"}\hldef{,} \hlsng{"Team2"} \hldef{=} \hlsng{"TeamID"}\hldef{))} \hlopt{%>%}
-\hlkwd{rename_with}\hldef{(}\hlopt{~}\hlkwd{paste0}\hldef{(.,} \hlsng{"_T2"}\hldef{),}
-\hlkwc{.cols} \hldef{=} \hlopt{-}\hlkwd{c}\hldef{(Season, Team1, Team2, Team1_win,} \hlkwd{ends_with}\hldef{(}\hlsng{"_T1"}\hldef{)))} \hlopt{%>%}
-\hlkwd{mutate}\hldef{(}
-\hlkwc{eFG_diff}     \hldef{= eFG_T1} \hlopt{-} \hldef{eFG_T2,}
-\hlkwc{TOV_Pct_diff} \hldef{= TOV_Pct_T1} \hlopt{-} \hldef{TOV_Pct_T2,}
-\hlkwc{ORB_Pct_diff} \hldef{= ORB_Pct_T1} \hlopt{-} \hldef{ORB_Pct_T2,}
-\hlkwc{FTR_diff}     \hldef{= FTR_T1} \hlopt{-} \hldef{FTR_T2,}
-\hlkwc{Win_diff}     \hldef{= Win_T1} \hlopt{-} \hldef{Win_T2}
-\hldef{)} \hlopt{%>%}
-\hlkwd{na.omit}\hldef{()}
-
-\hlkwd{return}\hldef{(model_data)}
-\hldef{\}}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
 
 \usubsubsection{Model Implementation}
 
@@ -842,8 +809,8 @@ Setting aside the 2024 anomaly, the remaining backtests reveal a consistent tren
 \usubsubsection{Model Analysis}
 With the models estimated on the 2023 and 2024 tournament data, the resulting coefficients can be examined to evaluate which of the Four Factors carry meaningful predictive weight in each division. Because separate models were trained for the men's and women's tournaments, the coefficient structures can be analyzed independently and then compared to assess whether the Four Factors operate differently across divisions. Tables \ref{tab:mens_coef} and \ref{tab:womens_coef} present the estimated coefficients, p-values, and significance levels for the men's and women's models respectively.
 
-% latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Tue Mar 10 22:46:30 2026
+% latex table generated in R 4.5.1 by xtable 1.8-4 package
+% Wed Mar 11 10:51:13 2026
 \begin{table}[ht]
 \centering
 \caption{Logistic Regression Coefficient Estimates (Men's 2025 Model)} 
@@ -861,8 +828,8 @@ Intercept & 0.4352 & 0.0348 & * \\
    \hline
 \end{tabular}
 \end{table}
-% latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Tue Mar 10 22:46:30 2026
+% latex table generated in R 4.5.1 by xtable 1.8-4 package
+% Wed Mar 11 10:51:13 2026
 \begin{table}[ht]
 \centering
 \caption{Logistic Regression Coefficient Estimates (Women's 2025 Model)} 

@@ -926,6 +926,13 @@ if (file.exists(file_path)) {
 \usepackage{thmtools}
 \usepackage{float}
 \usepackage{array,multirow,hhline}%for tricky things with tables
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks = red,
+  linkcolor = black,
+  filecolor = black,
+  urlcolor = blue,
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1143,11 +1150,8 @@ Predicting NCAA March Madness Outcomes
 \end{center}
 
 \doublespacing
-The aim of this project is to develop a machine learning framework to predict outcomes for the NCAA Division I Mens Basketball Tournament. The purpose is to build upon traditional statistical rankings by implementing an automated pipeline that generates precise win probabilities for every possible tournament matchup. Extensive research into historical sports forecasting and modern machine learning techniques was conducted to establish a baseline for predictive accuracy and model calibration.
-
-Following a comprehensive review of existing literature, the models were constructed using R. The primary dataset includes historical game results and Massey Ordinals, supplemented by custom feature engineering designed to capture team momentum and efficiency metrics. Four different modeling techniques were evaluated on the training data: Logistic Regression, Linear Regression, Random Forest, and XGBoost.
- 
-Unlike standard classification tasks, the final model was evaluated based on its ability to minimize the Brier Score, ensuring that the predicted probabilities were well calibrated against actual tournament results. The findings indicate that the integration of ensemble methods and strength of schedule adjustments provides a competitive edge in forecasting the high variance environment of the tournament. The complete codebase and dataset configurations are hosted on GitHub for further research and reproducibility. (do i put the link here or somewhere else)
+This project investigates predictive modeling of NCAA Division I basketball tournament outcomes through statistical and machine learning approaches. The goal is to build upon traditional statistical rankings by developing models that generate well calibrated win probabilities for every possible tournament matchup. Following a comprehensive review of existing literature, three modeling frameworks were constructed using R: logistic regression trained on Dean Oliver's Four Factors of Basketball Success, an XGBoost ensemble model incorporating tournament seeding, strength of schedule adjusted box score statistics, and a custom Elo rating system, and a Monte Carlo simulation framework that derives win probabilities from KenPom efficiency based point predictions.
+All models are evaluated using the Brier Score, which penalizes both incorrect and overconfident probability estimates. The findings indicate that ensemble methods incorporating dynamic rating systems provide a competitive edge in forecasting the high variance environment of single elimination tournament play. The complete codebase is hosted on GitHub for further research and reproducibility: \url{https://github.com/JonathenMarin/March-Mardness}.
 
 %The abstract should fit on one page. A blank guard sheet should follow. Neither of these pages receives a page number, and neither is considered part of the project proper. 
 
@@ -1589,39 +1593,6 @@ To resolve the target leakage inherent in the raw dataset, the first phase of da
 
 Rather than maintaining the winner and loser statistics in a single row, the function separates the victors and the defeated into two distinct dataframes. A binary \texttt{Win} variable is appended, assigning a value of $1$ to the winning dataframe and $0$ to the losing dataframe. These two structures are then vertically concatenated using a row-bind operation. Finally, the data is grouped by \texttt{Season} and \texttt{TeamID} to calculate the mean of all numeric variables. This yields a single, stable efficiency profile and an aggregate regular season win percentage for every program in a given year.
 
-<<prepare_data_code, echo=TRUE, eval=FALSE>>=
-prepare_model_data <- function(tourney_results_df, 
-                               four_factors_df) {
-
-training_data <- tourney_results_df %>%
-mutate(
-Team1 = pmin(WTeamID, LTeamID),
-Team2 = pmax(WTeamID, LTeamID),
-Team1_win = if_else(Team1 == WTeamID, 1, 0)
-) %>%
-select(Season, Team1, Team2, Team1_win)
-
-model_data <- training_data %>%
-left_join(four_factors_df, 
-          by = c("Season", "Team1" = "TeamID")) %>%
-rename_with(~paste0(., "_T1"),
-.cols = -c(Season, Team1, Team2, Team1_win)) %>%
-left_join(four_factors_df, 
-          by = c("Season", "Team2" = "TeamID")) %>%
-rename_with(~paste0(., "_T2"),
-.cols = -c(Season, Team1, Team2, Team1_win, ends_with("_T1"))) %>%
-mutate(
-eFG_diff     = eFG_T1 - eFG_T2,
-TOV_Pct_diff = TOV_Pct_T1 - TOV_Pct_T2,
-ORB_Pct_diff = ORB_Pct_T1 - ORB_Pct_T2,
-FTR_diff     = FTR_T1 - FTR_T2,
-Win_diff     = Win_T1 - Win_T2
-) %>%
-na.omit()
-
-return(model_data)
-}
-@
 
 \usubsubsection{Model Implementation}
 
