@@ -614,7 +614,7 @@ plot_mens_elo <- ggplot(top_elo_mens, aes(x = TeamName, y = Elo_final, fill = El
   scale_fill_gradient(low = "#56B1F7", high = "#132B43") +
   coord_flip() +
   labs(
-    title = paste("Top 20 Men's Teams 2025", latest_season),
+    title = paste("Top 20 Men's Teams ", latest_season),
     x = NULL,
     y = "Elo Rating"
   ) +
@@ -640,7 +640,7 @@ plot_womens_elo <- ggplot(top_elo_womens, aes(x = TeamName, y = Elo_final, fill 
   scale_fill_gradient(low = "#56B1F7", high = "#132B43") +
   coord_flip() +
   labs(
-    title = paste("Top 20 Women's Teams 2025", latest_season),
+    title = paste("Top 20 Women's Teams ", latest_season),
     x = NULL,
     y = "Elo Rating"
   ) +
@@ -1757,7 +1757,7 @@ Despite this gap, the 2025 results validate the pipeline as a functional and rep
 %%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \usubsection{Boosting}
-While logistic regression provides an interpretable and theoretically grounded baseline, its core assumption of a linear relationship between the input differentials and the log-odds of winning imposes meaningful constraints on its predictive ceiling. In reality, the relationship between team efficiency metrics and tournament success may be nonlinear and subject to complex interactions. For instance, a team with a dominant offensive rebounding advantage may only convert that advantage into wins when paired with a sufficient shooting efficiency threshold, a conditional relationship that a linear model cannot capture without explicit feature engineering. To address this limitation, the analysis extends the modeling framework to include XGBoost, an ensemble method that constructs predictions through the sequential combination of decision trees and is capable of learning these nonlinear patterns directly from the data.
+While logistic regression provides an interpretable and theoretically grounded baseline, its core assumption of a linear relationship between the input differentials and the log-odds of winning imposes meaningful constraints on its predictive ceiling. In reality, the relationship between team efficiency metrics and tournament success may be nonlinear and subject to complex interactions. For instance, a team with a dominant offensive rebounding advantage may only convert that advantage into wins when paired with a sufficient shooting efficiency threshold, a conditional relationship that a linear model cannot capture without explicit feature engineering. To address this limitation, the analysis extends the modeling framework to include XGBoost.
 
 XGBoost is a natural candidate for this problem for several reasons beyond its flexibility. Unlike parametric models, it does not require assumptions about the distributional form of the predictors or their relationship to the outcome. It is also robust to the scale differences between features, meaning the large coefficient magnitudes observed for Turnover Percentage and Offensive Rebound Percentage in the logistic regression output do not require normalization before fitting. Furthermore, XGBoost includes built-in regularization parameters that directly penalize model complexity, which is particularly valuable given the small training sample introduced by the two-year rolling window. The following subsections detail the variable selection, data cleaning, and implementation decisions made for the boosting framework, mirroring the structure of the logistic regression analysis to facilitate a direct comparison between the two approaches.
 
@@ -1793,13 +1793,13 @@ E_1 = \frac{1}{1 + 10^{(R_2 - R_1) / 400}}
 
 where $R_1$ and $R_2$ are the current ratings of Team 1 and Team 2 respectively. The denominator of $400$ is the width parameter that controls how sensitive the expected probability is to rating differences. After the game resolves, ratings are updated as:
 
-\begin{align}
+\begin{align*}
 R_1 &= R_1 + k(1 - E_1) \\
-R_2 &= R_2 + k(0 - E_2) \\
-\end{align}
+R_2 &= R_2 + k(0 - E_2) 
+\end{align*}
 where $k=64$ is the K-factor controlling the maximum possible rating change per game and $E_2 = 1 - E_1$. When a heavy favorite wins, $E_1$ is close to $1$ and the rating change is small since the result was expected. When a heavy underdog wins, $E_1$ is close to $0$ and the rating change is large. This property makes Elo particularly well suited for tournament prediction because late season upsets and dominant runs cause large rating movements that static averages cannot capture. A key design decision in this implementation is the between-season carry over. Rather than resetting every team to 1500 at the start of each new season, the end of season rating is partially carried forward according to:
 \begin{equation}
-R_{\texttt{new}} = 0.5 \times R_{\texttt{final}} + 0.5 \times 1500.
+R_{\texttt{new}} = 0.5 \times R_{\texttt{final}} + 750.
 \end{equation}
 
 This means 50\$ of a team's historical rating is preserved into the next season while the other 50\% regresses toward the mean. The motivation is that program quality is not purely year to year. A program like Duke or Connecticut that has been consistently elite for two decades should not start each season at the same rating as a mid-major program making its first tournament appearance. The carry over allows the Elo system to accumulate this historical signal while the regression toward the mean prevents ratings from drifting arbitrarily far from the initial value over many seasons.Figures \ref{fig:elo_mens} and \ref{fig:elo_womens} illustrate the end of season Elo ratings for the top 20 men's and women's programs in 2025, reflecting both current season performance and accumulated historical quality. Each team's final end of season Elo rating is included in the feature set as \texttt{T1\_Elo} and \texttt{T2\_Elo}, along with their difference \texttt{Elo\_diff}. Including all three again allows the model to learn both absolute and relative rating effects simultaneously.
@@ -1816,6 +1816,37 @@ print(plot_womens_elo)
 \caption{Left: Top 20 men's programs by end of season Elo rating in 2025. Right: Top 20 women's programs by end of season Elo rating in 2025.}
 \label{fig:elo_mens}
 \end{figure}
+
+\usubsubsection{Data Preparation}
+
+The training data for the XGBoost model is constructed from all NCAA tournament games between 2003 and 2024, combining both the men's and women's divisions into a single dataset. The choice of 2003 as the starting point reflects the availability of detailed box score statistics in the Kaggle data, as earlier seasons contain only compact results without the possession level statistics needed to compute the strength of schedule adjusted features. 
+
+A critical design decision in the data construction is the symmetric duplication of each tournament game. For every game in the dataset, two rows are created: one where the winning team is assigned to the T1 position and one where the losing team is assigned to the T1 position. The binary outcome variable is set to 1 when T1 wins and 0 when T1 loses. This duplication serves two purposes. First, it allows the model to learn from both the winner's and loser's perspective in every matchup, meaning the model sees what a strong team's feature profile looks like when it wins and what a weak team's feature profile looks like when it loses. Second, it ensures that the model does not develop a positional bias toward the T1 slot, since every game appears from both orientations the model cannot exploit any systematic advantage of being labeled T1. This doubles the effective size of the training data, which is particularly valuable given that the total number of tournament games across all seasons is modest relative to the complexity of the feature set.
+
+Once all features are computed, the training matrix is filtered to retain only rows where every feature is present using \texttt{complete.cases}. This step is included as a safeguard against missing values that could arise if a team appeared in the tournament without sufficient regular season history to compute stable averages, or if the Elo system had not yet accumulated enough games to generate a meaningful rating. In practice no rows were removed, indicating that every tournament team in the dataset had sufficient regular season history to produce a complete feature profile across all seasons from 2003 to 2024. This is partly a consequence of the 2003 cutoff, which ensures that every season in the training data has a full year of regular season results available before the tournament begins.
+
+The 2025 test set is constructed to exactly mirror the training data pipeline. Every feature engineering step, merge, and column ordering applied during training is repeated identically for the test set. This is a critical requirement for tree based models since XGBoost maps each input column to a specific feature index at prediction time and any mismatch between the training and test feature matrices will produce incorrect predictions. Season identifiers, team identifiers, and games played counts are excluded from both the training and test matrices for the same reason they are excluded from the logistic regression: they carry no generalizable predictive signal and would cause the model to memorize season specific patterns rather than learn relationships that transfer to future tournaments.
+
+\subsubsection{Model Implementation}
+With the training matrix assembled and the feature set finalized, the focus shifts to training the XGBoost model and selecting the configuration that produces the best out of sample performance. Two key decisions must be made before training can begin: the number of boosting rounds, which determines how many sequential trees are added to the ensemble, and the hyperparameter values that control the complexity and regularization of each individual tree. Both decisions have a meaningful impact on model performance and neither can be determined from the training data alone without risking overfitting. To address this, the model uses five fold cross validation to guide both the round selection and the hyperparameter tuning process.
+
+Cross validation is a resampling technique used to evaluate model performance on data that was not used during training. The core motivation is that evaluating a model on the same data it was trained on produces an overly optimistic estimate of performance, since the model has already seen and fit to that data. A naive solution is to hold out a fixed portion of the data as a test set, but with a small dataset this sacrifices training observations that could meaningfully improve the model. Cross validation addresses this trade off by rotating which portion of the data is held out across multiple iterations, allowing every observation to serve as both a training example and a validation example at different points. In $k-$fold cross validation the dataset is partitioned into $k$ equally sized subsets called folds. The model is trained $k$ times, each time using $k-1$ folds as the training set and the last fold as the validation set \cite{cv}. The performance metric is recorded for each fold and the final cross validated score is the average across all $k$ folds. This produces a more reliable estimate of out of sample performance than a single train test split because the result is averaged over multiple different held out subsets rather than depending on one particular partition of the data. Extensive research has gone into cross validation and general cross validation. For more information, we refer the reader to \cite{book}.
+
+In this analysis five fold cross validation is applied to the full tournament training dataset to determine the optimal number of boosting rounds. At each fold the model is trained on 80\% of the tournament games and evaluated on the held out 20\%, with the average Brier Score across all five folds used as the selection criterion. Early stopping is applied with a patience of 50 rounds, meaning training halts automatically if the cross validated Brier Score does not improve for 50 consecutive rounds, preventing the model from overfitting by adding trees that contribute no meaningful reduction in error. The optimal number of rounds identified by cross validation is then used to train the final model on the complete training dataset. Five folds was chosen as a balance between bias and variance in the performance estimate. Using fewer folds, such as three, means each validation set is larger but the training set is smaller, which can underestimate the model's true performance on a full dataset. Using more folds, such as ten, produces a training set that more closely resembles the full dataset but increases computational cost and can produce high variance estimates when the dataset is small. 
+
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=.1]{paper_photos/Cross_Validation_Ferrer_2-scaled.png}
+\caption{Example of Cross Validation and Regular Test/Train Split \cite{cvart}}
+\label{crossvalidationpicture}
+\end{center}
+\end{figure}
+
+
+In addition to the number of boosting rounds, five hyperparameters were tuned to control the complexity and regularization of the model. Each parameter was tuned independently by fixing all others at their current best value and testing candidate values one at a time, selecting the value that produced the lowest cross validated Brier Score before moving to the next parameter. The learning rate $\texttt{eta}$ controls how much each new tree contributes to the ensemble. A lower value of $\texttt{eta}$ requires more boosting rounds to converge but produces a smoother and more regularized model. A value of $\texttt{eta = 0.01}$ was selected after testing values of $0.02$ and $0.005$, with $0.01$ producing the lowest cross validated Brier Score. The $\texttt{max\_depth}$ parameter controls the maximum depth of each individual tree, limiting how many sequential splits a tree can make and therefore how complex the interactions it can capture. A value of $\texttt{max\_depth = 5}$ was selected after testing values of $4$ and $6$. The $\texttt{subsample}$ parameter controls the fraction of training rows randomly sampled when building each tree, introducing stochasticity that reduces overfitting. A value of $\texttt{subsample = 0.8}$ was selected, meaning each tree is built on a random $80\%$ of the training data. Similarly, $\texttt{colsample\_bytree = 0.7}$ means each tree randomly samples 70\% of the available features, further reducing the influence of any single predictor and encouraging the model to find robust signals across the full feature set. Finally, \texttt{min\_child\_weight = 4} sets the minimum number of training observations required in a leaf node before a split is made, preventing the model from creating highly specific splits that apply to only a handful of games. Together these five parameters define a model that is expressive enough to capture nonlinear tournament dynamics while remaining sufficiently regularized to generalize to unseen data.
+
+Once the optimal hyperparameters and number of boosting rounds are determined through cross validation, the final model is trained on the complete training dataset using those configurations. Training on the full dataset rather than a held out split is justified here because the total number of tournament games across all seasons is relatively small, and withholding a portion of that data for a final validation set would meaningfully reduce the signal available during training. The cross validated Brier Score already provides a reliable estimate of out of sample performance, so a separate held out test set is not necessary to evaluate the model before deployment. The final model is then applied to the $2025$ tournament games to generate win probabilities for each matchup, which are evaluated against the actual outcomes using the Brier Score.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1914,7 +1945,13 @@ As a preliminary assessment...
 
 \bibitem{occam} Tavhare, Avadhoot. “Occam’s Razor in Machine Learning: The Principle of Parsimony.” Medium, 21 May 2024, medium.com/@qjbqvwzmg/occams-razor-in-machine-learning-the-principle-of-parsimony-de110ce7fe13.
 
+\bibitem{cvart}  Josep Ferrer. “What Is Cross-Validation? A Plain English Guide with Diagrams - KDnuggets.” KDnuggets, 1 Oct. 2025, www.kdnuggets.com/what-is-cross-validation-a-plain-english-guide-with-diagrams.
+
 \bibitem{regularization} “XGBoost Regularization Techniques | XGBoosting.” Xgboosting.com, 2024, xgboosting.com/xgboost-regularization-techniques/.
+
+\bibitem{book} Aster, R. C., Borchers, B.,  Thurber, C. H. (2018). Parameter Estimation and Inverse Problems (2nd edition). Academic Press.
+
+\bibitem{cv} Rudin, Cynthia. Cross Validation Duke Course Notes.
 
 \end{thebibliography}
 
