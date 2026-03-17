@@ -323,7 +323,7 @@ make_kenpom_prediction_model <- function(kenpom_data,
 }
 
 prediction_model_kenpom <- make_kenpom_prediction_model(
-  kenpom_data = kenpom_final,
+  kenpom_data = kenpom_final, 
   model       = model,
   sigma       = sigma,
   mode        = "stochastic"   # or "deterministic"
