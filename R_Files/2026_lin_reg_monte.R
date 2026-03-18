@@ -199,7 +199,7 @@ check_model(model, check = "vif")
 
 # 5. GAME SIMULATOR FUNCTIONS ---------------------------------------------
 
-simulate_game <- function(team_a_mean, team_b_mean, sigma, n_sims = 500) {
+simulate_game <- function(team_a_mean, team_b_mean, sigma, n_sims = 50000) {
   team_a_scores <- rnorm(n_sims, mean = team_a_mean, sd = sigma)
   team_b_scores <- rnorm(n_sims, mean = team_b_mean, sd = sigma)
   team_a_wins   <- sum(team_a_scores > team_b_scores)
@@ -241,7 +241,7 @@ predict_matchup <- function(team_a_id, team_b_id, kenpom_data, elo_data, model, 
     Diff_Elo    = elo_b - elo_a
   ))
   
-  result <- simulate_game(team_a_pred, team_b_pred, sigma, n_sims = 500)
+  result <- simulate_game(team_a_pred, team_b_pred, sigma, n_sims = 50000)
   return(result)
 }
 
@@ -356,7 +356,7 @@ make_kenpom_prediction_model <- function(kenpom_data, elo_data, model, sigma,
       Diff_Elo    = elo_b - elo_a
     ))
     
-    result    <- simulate_game(team_a_pred, team_b_pred, sigma, n_sims = 500)
+    result    <- simulate_game(team_a_pred, team_b_pred, sigma, n_sims = 50000)
     p1        <- result$team_a_win_prob
     p2        <- 1 - p1
     

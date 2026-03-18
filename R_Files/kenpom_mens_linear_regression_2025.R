@@ -151,7 +151,7 @@ ggplot(train_data, aes(x = Diff_NetRtg, y = Points)) +
 
 # 4. GAME SIMULATOR FUNCTIONS ---------------------------------------------
 
-simulate_game <- function(team_a_mean, team_b_mean, sigma, n_sims = 500) {
+simulate_game <- function(team_a_mean, team_b_mean, sigma, n_sims = 50000) {
   team_a_scores <- rnorm(n_sims, mean = team_a_mean, sd = sigma)
   team_b_scores <- rnorm(n_sims, mean = team_b_mean, sd = sigma)
   
@@ -198,7 +198,7 @@ predict_matchup <- function(team_a_id, team_b_id, kenpom_data, model, sigma) {
   ))
   
   # Simulate
-  result <- simulate_game(team_a_pred, team_b_pred, sigma, n_sims = 500)
+  result <- simulate_game(team_a_pred, team_b_pred, sigma, n_sims = 50000)
   return(result)
 }
 
@@ -293,7 +293,7 @@ make_kenpom_prediction_model <- function(kenpom_data,
                                          model,
                                          sigma,
                                          mode = c("stochastic", "deterministic"),
-                                         n_sims = 500) {
+                                         n_sims = 50000) {
   mode <- match.arg(mode)
   
   function(team1_id, team2_id) {
