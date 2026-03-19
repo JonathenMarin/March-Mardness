@@ -466,7 +466,7 @@ xgb.plot.importance(importance_matrix[1:20], main = "Feature Importance")
 
 # ── Generate 2026 Predictions ─────────────────────────────────────────────────
 
-stats_season <- 2025
+stats_season <- 2026
 
 mens_team_ids_2026   <- M_seeds[Season == 2026, TeamID]
 womens_team_ids_2026 <- W_seeds[Season == 2026, TeamID]
@@ -489,14 +489,14 @@ test_set <- copy(all_matchups)
 
 # ── Simple stats — drop Season to avoid mismatch, merge on TeamID only ────────
 
-simple_stats_2025 <- simple_stats[Season == stats_season][, Season := NULL]
+simple_stats_2026 <- simple_stats[Season == stats_season][, Season := NULL]
 
-test_set <- merge(test_set, simple_stats_2025, by.x = "T1_TeamID", by.y = "TeamID", all.x = TRUE)
+test_set <- merge(test_set, simple_stats_2026, by.x = "T1_TeamID", by.y = "TeamID", all.x = TRUE)
 setnames(test_set,
          c("games_played", "win_pct", "avg_score", "avg_opp_score", "avg_point_diff"),
          c("T1_games", "T1_win_pct", "T1_avg_score", "T1_avg_opp_score", "T1_avg_point_diff"))
 
-test_set <- merge(test_set, simple_stats_2025, by.x = "T2_TeamID", by.y = "TeamID", all.x = TRUE)
+test_set <- merge(test_set, simple_stats_2026, by.x = "T2_TeamID", by.y = "TeamID", all.x = TRUE)
 setnames(test_set,
          c("games_played", "win_pct", "avg_score", "avg_opp_score", "avg_point_diff"),
          c("T2_games", "T2_win_pct", "T2_avg_score", "T2_avg_opp_score", "T2_avg_point_diff"))
@@ -517,24 +517,24 @@ test_set[, Seed_diff := T2_seed - T1_seed]
 
 # ── Elo — drop Season, merge on TeamID only ───────────────────────────────────
 
-elo_2025_T1 <- elo_ratings[Season == stats_season, .(T1_TeamID = TeamID, T1_Elo = Elo_final)]
-elo_2025_T2 <- elo_ratings[Season == stats_season, .(T2_TeamID = TeamID, T2_Elo = Elo_final)]
+elo_2026_T1 <- elo_ratings[Season == stats_season, .(T1_TeamID = TeamID, T1_Elo = Elo_final)]
+elo_2026_T2 <- elo_ratings[Season == stats_season, .(T2_TeamID = TeamID, T2_Elo = Elo_final)]
 
-test_set <- merge(test_set, elo_2025_T1, by = "T1_TeamID", all.x = TRUE)
-test_set <- merge(test_set, elo_2025_T2, by = "T2_TeamID", all.x = TRUE)
+test_set <- merge(test_set, elo_2026_T1, by = "T1_TeamID", all.x = TRUE)
+test_set <- merge(test_set, elo_2026_T2, by = "T2_TeamID", all.x = TRUE)
 test_set[, Elo_diff := T1_Elo - T2_Elo]
 
 # ── Medium features — drop Season, merge on TeamID only ──────────────────────
 
-profiles_2025 <- final_profiles[Season == stats_season]
+profiles_2026 <- final_profiles[Season == stats_season]
 
-t1_prof_test <- copy(profiles_2025)
+t1_prof_test <- copy(profiles_2026)
 t1_prof_test[, Season := NULL]
 setnames(t1_prof_test, setdiff(names(t1_prof_test), "TeamID"),
          paste0("T1_", setdiff(names(t1_prof_test), "TeamID")))
 test_set <- merge(test_set, t1_prof_test, by.x = "T1_TeamID", by.y = "TeamID", all.x = TRUE)
 
-t2_prof_test <- copy(profiles_2025)
+t2_prof_test <- copy(profiles_2026)
 t2_prof_test[, Season := NULL]
 setnames(t2_prof_test, setdiff(names(t2_prof_test), "TeamID"),
          paste0("T2_", setdiff(names(t2_prof_test), "TeamID")))

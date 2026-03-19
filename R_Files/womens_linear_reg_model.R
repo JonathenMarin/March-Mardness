@@ -119,15 +119,15 @@ calculate_elo <- function(regular_results, initial_rating = 1500, k = 64,
 }
 
 elo_ratings_womens <- calculate_elo(womens_results_all)
-elo_2025_womens    <- elo_ratings_womens[Season == 2025, .(TeamID, Elo_final)]
+elo_2026_womens    <- elo_ratings_womens[Season == 2026, .(TeamID, Elo_final)]
 
-cat("Women's teams with 2025 Elo ratings:", nrow(elo_2025_womens), "\n")
+cat("Women's teams with 2026 Elo ratings:", nrow(elo_2026_womens), "\n")
 
 
 # 3. PREPARE TRAINING DATA ------------------------------------------------
 
-womens_results <- womens_results_all %>% filter(Season == 2025)
-cat("Total women's 2025 games:", nrow(womens_results), "\n")
+womens_results <- womens_results_all %>% filter(Season == 2026)
+cat("Total women's 2026 games:", nrow(womens_results), "\n")
 
 womens_results_with_wteam <- womens_results %>%
   left_join(
@@ -135,7 +135,7 @@ womens_results_with_wteam <- womens_results %>%
     by = c("WTeamID" = "TeamID")
   ) %>%
   rename(WTeam_ORtg = AdjOE, WTeam_DRtg = AdjDE, WTeam_AdjT = `Adj T.`) %>%
-  left_join(elo_2025_womens, by = c("WTeamID" = "TeamID")) %>%
+  left_join(elo_2026_womens, by = c("WTeamID" = "TeamID")) %>%
   rename(WTeam_Elo = Elo_final)
 
 womens_results_with_both <- womens_results_with_wteam %>%
@@ -144,7 +144,7 @@ womens_results_with_both <- womens_results_with_wteam %>%
     by = c("LTeamID" = "TeamID")
   ) %>%
   rename(LTeam_ORtg = AdjOE, LTeam_DRtg = AdjDE, LTeam_AdjT = `Adj T.`) %>%
-  left_join(elo_2025_womens, by = c("LTeamID" = "TeamID")) %>%
+  left_join(elo_2026_womens, by = c("LTeamID" = "TeamID")) %>%
   rename(LTeam_Elo = Elo_final)
 
 womens_results_clean <- womens_results_with_both %>%
@@ -252,7 +252,7 @@ womens_team_ids_2026 <- seeds_2026_w$TeamID
 
 cat("Teams in 2026 seed file:", length(womens_team_ids_2026), "\n")
 cat("Seed teams with ranking data:", sum(womens_team_ids_2026 %in% womens_ranks_final$TeamID), "\n")
-cat("Seed teams with Elo data:", sum(womens_team_ids_2026 %in% elo_2025_womens$TeamID), "\n")
+cat("Seed teams with Elo data:", sum(womens_team_ids_2026 %in% elo_2026_womens$TeamID), "\n")
 
 matchups_2026_w <- expand.grid(Team1 = womens_team_ids_2026, Team2 = womens_team_ids_2026) %>%
   filter(Team1 < Team2)
@@ -270,7 +270,7 @@ for (i in 1:nrow(matchups_2026_w)) {
     team_a_id   = team_a_id,
     team_b_id   = team_b_id,
     kenpom_data = womens_ranks_final,
-    elo_data    = elo_2025_womens,
+    elo_data    = elo_2026_womens,
     model       = womens_model,
     sigma       = womens_sigma
   )
@@ -316,9 +316,7 @@ make_womens_prediction_model <- function(kenpom_data, elo_data, model, sigma,
                                          mode = c("stochastic", "deterministic"),
                                          k = 64, width = 400) {
   mode <- match.arg(mode)
-  
-  # Copy Elo into a mutable environment — live updates during bracket only
-  # Does NOT affect elo_2025_womens used in the Kaggle submission above
+
   elo_env <- new.env(parent = emptyenv())
   elo_env$ratings <- setNames(elo_data$Elo_final, as.character(elo_data$TeamID))
   
@@ -378,7 +376,7 @@ make_womens_prediction_model <- function(kenpom_data, elo_data, model, sigma,
 
 prediction_model_womens <- make_womens_prediction_model(
   kenpom_data = womens_ranks_final,
-  elo_data    = elo_2025_womens,
+  elo_data    = elo_2026_womens,
   model       = womens_model,
   sigma       = womens_sigma,
   mode        = "stochastic"

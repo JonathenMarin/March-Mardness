@@ -116,22 +116,22 @@ calculate_elo <- function(regular_results, initial_rating = 1500, k = 64,
 
 elo_ratings <- calculate_elo(results)
 
-# Pull 2025 end-of-season Elo for each team
-elo_2025 <- elo_ratings[Season == 2025, .(TeamID, Elo_final)]
+# Pull 2026 end-of-season Elo for each team
+elo_2026 <- elo_ratings[Season == 2026, .(TeamID, Elo_final)]
 
-cat("Teams with 2025 Elo ratings:", nrow(elo_2025), "\n")
+cat("Teams with 2026 Elo ratings:", nrow(elo_2026), "\n")
 
 
 # 3. PREPARE TRAINING DATA ------------------------------------------------
 
-results_2025 <- results %>% filter(Season == 2025)
+results_2026 <- results %>% filter(Season == 2026)
 
-results_with_wteam <- results_2025 %>%
+results_with_wteam <- results_2026 %>%
   left_join(kenpom_final %>% select(TeamID, ORtg, DRtg, AdjT, NetRtg),
             by = c("WTeamID" = "TeamID")) %>%
   dplyr::rename(WTeam_ORtg = ORtg, WTeam_DRtg = DRtg,
                 WTeam_AdjT = AdjT, WTeam_NetRtg = NetRtg) %>%
-  left_join(elo_2025, by = c("WTeamID" = "TeamID")) %>%
+  left_join(elo_2026, by = c("WTeamID" = "TeamID")) %>%
   dplyr::rename(WTeam_Elo = Elo_final)
 
 results_with_both <- results_with_wteam %>%
@@ -139,7 +139,7 @@ results_with_both <- results_with_wteam %>%
             by = c("LTeamID" = "TeamID")) %>%
   dplyr::rename(LTeam_ORtg = ORtg, LTeam_DRtg = DRtg,
                 LTeam_AdjT = AdjT, LTeam_NetRtg = NetRtg) %>%
-  left_join(elo_2025, by = c("LTeamID" = "TeamID")) %>%
+  left_join(elo_2026, by = c("LTeamID" = "TeamID")) %>%
   dplyr::rename(LTeam_Elo = Elo_final)
 
 results_clean <- results_with_both %>%
@@ -199,7 +199,7 @@ check_model(model, check = "vif")
 
 # 5. GAME SIMULATOR FUNCTIONS ---------------------------------------------
 
-simulate_game <- function(team_a_mean, team_b_mean, sigma, n_sims = 50000) {
+simulate_game <- function(team_a_mean, team_b_mean, sigma, n_sims = 100000) {
   team_a_scores <- rnorm(n_sims, mean = team_a_mean, sd = sigma)
   team_b_scores <- rnorm(n_sims, mean = team_b_mean, sd = sigma)
   team_a_wins   <- sum(team_a_scores > team_b_scores)
@@ -241,7 +241,7 @@ predict_matchup <- function(team_a_id, team_b_id, kenpom_data, elo_data, model, 
     Diff_Elo    = elo_b - elo_a
   ))
   
-  result <- simulate_game(team_a_pred, team_b_pred, sigma, n_sims = 50000)
+  result <- simulate_game(team_a_pred, team_b_pred, sigma, n_sims = 100000)
   return(result)
 }
 
@@ -269,7 +269,7 @@ for (i in 1:nrow(matchups_2026)) {
     team_a_id   = team_a_id,
     team_b_id   = team_b_id,
     kenpom_data = kenpom_final,
-    elo_data    = elo_2025,
+    elo_data    = elo_2026,
     model       = model,
     sigma       = sigma
   )
@@ -316,8 +316,6 @@ make_kenpom_prediction_model <- function(kenpom_data, elo_data, model, sigma,
                                          k = 64, width = 400) {
   mode <- match.arg(mode)
   
-  # Copy Elo into a mutable environment so updates persist across game calls
-  # This does NOT affect elo_2025 used in the Kaggle submission above
   elo_env <- new.env(parent = emptyenv())
   elo_env$ratings <- setNames(elo_data$Elo_final, as.character(elo_data$TeamID))
   
@@ -356,7 +354,7 @@ make_kenpom_prediction_model <- function(kenpom_data, elo_data, model, sigma,
       Diff_Elo    = elo_b - elo_a
     ))
     
-    result    <- simulate_game(team_a_pred, team_b_pred, sigma, n_sims = 50000)
+    result    <- simulate_game(team_a_pred, team_b_pred, sigma, n_sims = 100000)
     p1        <- result$team_a_win_prob
     p2        <- 1 - p1
     
@@ -381,7 +379,7 @@ make_kenpom_prediction_model <- function(kenpom_data, elo_data, model, sigma,
 
 prediction_model_kenpom <- make_kenpom_prediction_model(
   kenpom_data = kenpom_final,
-  elo_data    = elo_2025,       # starting point only — updates live during bracket
+  elo_data    = elo_2026,       # starting point only — updates live during bracket
   model       = model,
   sigma       = sigma,
   mode        = "stochastic"

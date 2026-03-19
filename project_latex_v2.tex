@@ -809,8 +809,8 @@ Setting aside the 2024 anomaly, the remaining backtests reveal a consistent tren
 \usubsubsection{Model Analysis}
 With the models estimated on the 2023 and 2024 tournament data, the resulting coefficients can be examined to evaluate which of the Four Factors carry meaningful predictive weight in each division. Because separate models were trained for the men's and women's tournaments, the coefficient structures can be analyzed independently and then compared to assess whether the Four Factors operate differently across divisions. Tables \ref{tab:mens_coef} and \ref{tab:womens_coef} present the estimated coefficients, p-values, and significance levels for the men's and women's models respectively.
 
-% latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Wed Mar 11 10:51:13 2026
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Mon Mar 16 21:16:09 2026
 \begin{table}[ht]
 \centering
 \caption{Logistic Regression Coefficient Estimates (Men's 2025 Model)} 
@@ -828,8 +828,8 @@ Intercept & 0.4352 & 0.0348 & * \\
    \hline
 \end{tabular}
 \end{table}
-% latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Wed Mar 11 10:51:13 2026
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Mon Mar 16 21:16:09 2026
 \begin{table}[ht]
 \centering
 \caption{Logistic Regression Coefficient Estimates (Women's 2025 Model)} 
@@ -971,14 +971,27 @@ In this analysis five fold cross validation is applied to the full tournament tr
 In addition to the number of boosting rounds, five hyperparameters were tuned to control the complexity and regularization of the model. Each parameter was tuned independently by fixing all others at their current best value and testing candidate values one at a time, selecting the value that produced the lowest cross validated Brier Score before moving to the next parameter. The learning rate $\texttt{eta}$ controls how much each new tree contributes to the ensemble. A lower value of $\texttt{eta}$ requires more boosting rounds to converge but produces a smoother and more regularized model. A value of $\texttt{eta = 0.01}$ was selected after testing values of $0.02$ and $0.005$, with $0.01$ producing the lowest cross validated Brier Score. The $\texttt{max\_depth}$ parameter controls the maximum depth of each individual tree, limiting how many sequential splits a tree can make and therefore how complex the interactions it can capture. A value of $\texttt{max\_depth = 5}$ was selected after testing values of $4$ and $6$. The $\texttt{subsample}$ parameter controls the fraction of training rows randomly sampled when building each tree, introducing stochasticity that reduces overfitting. A value of $\texttt{subsample = 0.8}$ was selected, meaning each tree is built on a random $80\%$ of the training data. Similarly, $\texttt{colsample\_bytree = 0.7}$ means each tree randomly samples 70\% of the available features, further reducing the influence of any single predictor and encouraging the model to find robust signals across the full feature set. Finally, \texttt{min\_child\_weight = 4} sets the minimum number of training observations required in a leaf node before a split is made, preventing the model from creating highly specific splits that apply to only a handful of games. Together these five parameters define a model that is expressive enough to capture nonlinear tournament dynamics while remaining sufficiently regularized to generalize to unseen data.
 
 Once the optimal hyperparameters and number of boosting rounds are determined through cross validation, the final model is trained on the complete training dataset using those configurations. Training on the full dataset rather than a held out split is justified here because the total number of tournament games across all seasons is relatively small, and withholding a portion of that data for a final validation set would meaningfully reduce the signal available during training. The cross validated Brier Score already provides a reliable estimate of out of sample performance, so a separate held out test set is not necessary to evaluate the model before deployment. The final model is then applied to the $2025$ tournament games to generate win probabilities for each matchup, which are evaluated against the actual outcomes using the Brier Score.
+(still writing this section)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 \begin{center}
 \section{Point Spread Models}
 \end{center}
 \thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
-same as above
+This part is the last section. It will be mirrored more or less the same as the previous two, but the idea is different.
+
+
+instead of creating a model that produces a probability at the end of team A beating team B. we instead uses linear regression to try and model the median points scored for each individual team. The model for the median is taken specifically from kenpom and bartorvik rankings and stats which had to be data scrapped TODAY 3/16/26. I had to wait to get the rankings and numbers of each team going into the tournament, before the tournament. 
+
+
+We model a median for each team in the tournament, then simulate 500 times for each team. The standard deviation is constant among the league. Most models use a $\sigma$ between $7$ and $9$. There's a theory behind it. We create pairs of simulations for each Team. For example if its Duke vs Oregon we would simulate Duke and Oregon 500 times as a couple. Whoever scored the most points for that pair was deemed a winner. We do that 500 times, and then how many games Team A beat Team B is the probability that we use for the prediction. This simulation is done for men and women separately. 
+
+Using this idea I also created a bracket simulation which I might include into the other two models for prediction purposes. We use makrov chain ideas to predict probabilities going into tournaments. That way we can see an actual outcome of the bracket, instead of it being just every possible matchup between every possible team. All the predictions must be submitted by Wednesday night.  
+
+
 %%%%%%%%%%%%%%%%%%%%%%
 \usubsection{s}
 Here are my insights...
@@ -991,9 +1004,9 @@ Here are my insights...
 \section{Comparison of models}
 \end{center}
 \thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
-
 %%%%%%%%%%%%%%%%%%%%%%
 
+pros and cons of each model. going into detail why we pick the model we do for the tournament
 \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1003,6 +1016,7 @@ Here are my insights...
 \end{center}
 \thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
 
+talking about the results of each model in the competition, as well as our submission.
 %%%%%%%%%%%%%%%%%%%%%%
 \usubsection{Strategies}
 Here are my insights...
@@ -1016,11 +1030,10 @@ Here are my insights...
 \section{CONCLUSIONS}
 \end{center}
 \thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
-
+i am free
 %%%%%%%%%%%%%%%%%%%%%%
 \usubsection{Summary}
 
-As a preliminary assessment...
 
 \clearpage
 

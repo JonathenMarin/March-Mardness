@@ -1525,11 +1525,7 @@ Here, $f_k(x_i)$ is the prediction of the $k^{\text{th}}$ tree for the $i^{\text
 \end{equation}
 where $l$ is the loss function which simply computes the difference between the true and predicted, and $\Omega$ is the regularization term, discouraging overly complex trees. The optimization process then proceeds via gradient descent on the residuals. For more information regarding gradient descent we refer the reader to \cite{GD}. XGBoost is widely adopted in competitive machine learning for its performance on structured data and ability to capture complex interactions and relationships between features. 
 
-\begin{equation}
-h^{(\ell)} = \sigma\left(W^{(\ell)} h^{(\ell-1)} + b^{(\ell)}\right)
-\end{equation}
-if i do neural nets i will keep going with this. 
-\newpage
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{center}
