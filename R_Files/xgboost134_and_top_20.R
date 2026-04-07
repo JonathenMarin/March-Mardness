@@ -610,5 +610,64 @@ if (file.exists(file_path)) {
     cat("  Accuracy:    ", round(acc_2025 * 100, 2), "%\n")
     cat("  Brier Score: ", round(brier_2025, 5), "\n")
     cat("  Winning Score:", 0.10411, "\n")
+    
+    # confusion matrix plot
+    conf_matrix <- table(Predicted = predictions_2025, Actual = valid_test$Actual_Result)
+    
+    conf_df <- as.data.frame(conf_matrix)
+    conf_df$Predicted <- factor(conf_df$Predicted, levels = c(0,1))
+    conf_df$Actual <- factor(conf_df$Actual, levels = c(1,0))
+    
+    plot_conf_xgb <- ggplot(conf_df, aes(x = Actual, y = Predicted, fill = Freq)) +
+      geom_tile(color = "white") +
+      geom_text(aes(label = Freq), size = 6) +
+      scale_fill_gradient(low = "white", high = "steelblue") +
+      scale_x_discrete(labels = c("0" = "Loss", "1" = "Win")) +
+      scale_y_discrete(labels = c("0" = "Loss", "1" = "Win")) +
+      labs(title = "XGBoost 2025",
+           x = "Actual",
+           y = "Predicted") +
+      theme_minimal() +
+      theme(legend.position = "none",
+            plot.title = element_text(hjust = 0.5))
+
+    # mens confusion matrix
+    conf_df_mens <- conf_df[valid_test$men_women == 1, ]
+    conf_matrix_mens <- table(Predicted = predictions_2025[valid_test$men_women == 1], 
+                              Actual = valid_test$Actual_Result[valid_test$men_women == 1])
+    conf_df_mens <- as.data.frame(conf_matrix_mens)
+    conf_df_mens$Predicted <- factor(conf_df_mens$Predicted, levels = c(0, 1), labels = c("Loss", "Win"))
+    conf_df_mens$Actual <- factor(conf_df_mens$Actual, levels = c(0, 1), labels = c("Loss", "Win"))
+    
+    plot_conf_xgb_mens <- ggplot(conf_df_mens, aes(x = Actual, y = Predicted, fill = Freq)) +
+      geom_tile(color = "white") +
+      geom_text(aes(label = Freq), size = 6) +
+      scale_fill_gradient(low = "white", high = "steelblue") +
+      scale_y_discrete(limits = rev) +
+      labs(title = "XGBoost 2025 Men's", x = "Actual", y = "Predicted") +
+      theme_minimal() +
+      theme(legend.position = "none", plot.title = element_text(hjust = 0.5))
+    
+    # womens confusion matrix
+    conf_matrix_womens <- table(Predicted = predictions_2025[valid_test$men_women == 0], 
+                                Actual = valid_test$Actual_Result[valid_test$men_women == 0])
+    conf_df_womens <- as.data.frame(conf_matrix_womens)
+    conf_df_womens$Predicted <- factor(conf_df_womens$Predicted, levels = c(0, 1), labels = c("Loss", "Win"))
+    conf_df_womens$Actual <- factor(conf_df_womens$Actual, levels = c(0, 1), labels = c("Loss", "Win"))
+    
+    plot_conf_xgb_womens <- ggplot(conf_df_womens, aes(x = Actual, y = Predicted, fill = Freq)) +
+      geom_tile(color = "white") +
+      geom_text(aes(label = Freq), size = 6) +
+      scale_fill_gradient(low = "white", high = "steelblue") +
+      scale_y_discrete(limits = rev) +
+      labs(title = "XGBoost 2025 Women's", x = "Actual", y = "Predicted") +
+      theme_minimal() +
+      theme(legend.position = "none", plot.title = element_text(hjust = 0.5))
+    
+    print(plot_conf_xgb_mens)
+    print(plot_conf_xgb_womens)
+    print(plot_conf_xgb)
   }
 }
+
+
