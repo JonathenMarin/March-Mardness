@@ -1547,11 +1547,13 @@ where $l$ is the loss function which simply computes the difference between the 
 \section{PROBABILITY PREDICTION MODELS}
 \end{center}
 \thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
-This section details the development and evaluation of models designed to predict a continuous win probability $P \in (0, 1)$ for any given matchup.  While the tournament results are ultimately binary, the Brier Score evaluation metric heavily penalizes overconfidence in incorrect predictions and rewards well-calibrated probabilities. Consequently, this research moves beyond simple classification to focus on models that quantify the uncertainty inherent in the March Madness environment. By establishing a framework where a value $P > 0.5$ denotes a predicted victory for Team A, a baseline is created for performance that accounts for the high variance of single-elimination play. This probabilistic approach serves as the engine of the project and bridges the gap between theoretical literature and the empirical application of machine learning.
 
-To expand further on these concepts, the methodology begins with a rigorous data processing phase where historical box scores are transformed into a symmetric training set.  This ensures that the models learn to evaluate the relative strength between two competitors rather than relying on arbitrary formatting artifacts. This section details the complete machine learning pipeline implemented for the $2026$ tournament prediction. We first examine the data cleaning procedures required to tailor the feature sets to the specific statistical assumptions of each algorithm. Following this, we explore the variable selection process used to identify high signal metrics such as KenPom and Massey data. Finally, we implement and compare two distinct modeling architectures, specifically Logistic Regression and XGBoost, to determine which approach best minimizes the Brier Score in a high variance environment.
+This section details the development and evaluation of models designed to predict a continuous win probability $P \in (0, 1)$ for any given matchup. While the tournament results are ultimately binary, the Brier Score evaluation metric heavily penalizes overconfidence in incorrect predictions and rewards well-calibrated probabilities. Consequently, this research moves beyond simple classification to focus on models that quantify the uncertainty inherent in the March Madness environment. By establishing a framework where a value $P > 0.5$ denotes a predicted victory for Team $1$, a baseline is created for performance that accounts for the high variance of single-elimination play. This probabilistic approach serves as the engine of the project and bridges the gap between theoretical literature and the empirical application of machine learning.
+
+To expand further on these concepts, the methodology begins with a rigorous data processing phase where historical box scores are transformed into a symmetric training set. This ensures that the models learn to evaluate the relative strength between two competitors rather than relying on arbitrary formatting artifacts. This section details the complete machine learning pipeline implemented for the $2025$ tournament prediction. We first examine the data cleaning procedures required to tailor the feature sets to the specific statistical assumptions of each algorithm. Following this, we explore the variable selection process used to identify high signal metrics, including tournament seeding, opponent-adjusted box score statistics, strength of schedule, and Elo ratings derived from historical game results. Finally, we implement and compare three distinct modeling architectures—logistic regression, XGBoost, and a Monte Carlo simulated linear regression model—to determine which approach best minimizes the Brier Score in a high-variance, single-elimination environment.
 
 \usubsection{Logistic Regression}
+Logistic regression serves as the natural starting point for this analysis due to its direct alignment with the structure of the prediction problem. The outcome variable is binary, a team either wins or loses, and logistic regression models the log-odds of this outcome as a linear combination of input features, producing a well-calibrated probability as output without requiring additional transformation. Its interpretability is also a key advantage at this stage: the estimated coefficients provide direct insight into which features drive the predicted probability, establishing a transparent and theoretically grounded baseline against which the more complex models can be compared.
 \usubsubsection{Variable Selection}
 To accurately model basketball outcomes, one must first deconstruct the sport into its atomic statistical events. A standard game is composed of a finite sequence of possessions. Within these possessions, specific discrete actions determine the flow of the contest. The primary events recorded in the raw dataset include Field Goals, Free Throws, Rebounds, Turnovers, and Personal Fouls. A Field Goal (FGM) represents the primary method of scoring and is worth either two or three points. A Free Throw (FTM) is an unopposed attempt worth one point awarded after a foul. A Rebound is recorded when a player retrieves the ball after a missed shot; this is further categorized into Offensive Rebounds (OR), which grant the shooting team a second opportunity, and Defensive Rebounds (DR), which terminate the opponent’s possession. Finally, a Turnover (TO) is a loss of possession due to a violation or steal, resulting in zero points. Analyzing these events using raw totals is statistically flawed due to the confounding variable of pace. A team that plays at a high tempo may record high totals for points and rebounds simply because they generate more possessions, not because they are efficient. To resolve this, this model utilizes the ''Four Factors of Basketball Success.” Developed by Dean Oliver \cite{Dean}, which isolates the four components that correlate most strongly with winning: shooting efficiency, turnover avoidance, rebounding dominance, and free throw frequency.
 
@@ -1728,14 +1730,14 @@ Free Throw Rate fails to reach significance in either model, which is consistent
 
 \usubsubsection{Results}
 
-The performance of the 2025 logistic regression models is evaluated along two dimensions: classification accuracy via the confusion matrices and probability calibration via the Brier Score. Figure \ref{fig:conf_matrices_2025} presents the confusion matrices for the men's, women's, and combined models.
+The performance of the $2025$ logistic regression models is evaluated along two dimensions: classification accuracy via the confusion matrices and probability calibration via the Brier Score. Figure \ref{fig:conf_matrices_2025} presents the confusion matrices for the men's, women's, and combined models.
 
 <<conf_matrices_2025, message=FALSE,echo=FALSE, fig.cap="Confusion Matrices for the 2025 Logistic Regression Models", fig.width=10, fig.height=4, out.width="\\textwidth">>=
 library(gridExtra)
 grid.arrange(plot_mens_25, plot_womens_25, plot_combined_25, ncol = 3)
 @
 
-The women's model achieves the strongest classification performance at 77.6\% accuracy, followed by the combined model at $73.9\%$ and the men's model at $70.1\%$. This ordering is consistent with the coefficient analysis in the prior section. The women's model benefits from three statistically significant predictors, Offensive Rebound Percentage, Effective Field Goal Percentage, and Turnover Percentage, providing a richer signal for binary classification. The men's model, where only Offensive Rebound Percentage reaches conventional significance, has a narrower basis for discrimination and consequently misclassifies a greater proportion of games. All three accuracy figures comfortably exceed the $50\%$ baseline that would be expected from random prediction, indicating that the Four Factors carry genuine discriminatory power in both divisions.
+The women's model achieves the strongest classification performance at $77.6\%$ accuracy, followed by the combined model at $73.9\%$ and the men's model at $70.1\%$. This ordering is consistent with the coefficient analysis in the prior section. The women's model benefits from three statistically significant predictors, Offensive Rebound Percentage, Effective Field Goal Percentage, and Turnover Percentage, providing a richer signal for binary classification. The men's model, where only Offensive Rebound Percentage reaches conventional significance, has a narrower basis for discrimination and consequently misclassifies a greater proportion of games. All three accuracy figures comfortably exceed the $50\%$ baseline that would be expected from random prediction, indicating that the Four Factors carry genuine discriminatory power in both divisions.
 
 However, classification accuracy alone is an incomplete measure of model quality in this context. The Brier Score evaluation framework penalizes not just incorrect predictions but overconfident ones, meaning a model that correctly identifies the winner but assigns a probability of 0.95 rather than $0.65$ is still penalized heavily when upsets occur. The combined 2025 Brier Score of $0.18401$ reflects this tension. While the model demonstrates solid directional accuracy, the gap between its Brier Score and the competition winning score of $0.10411$ suggests that the predicted probabilities are not as well calibrated as those produced by the top competitors. This is an expected limitation of a parsimonious four factor framework. Models that incorporate additional signals such as KenPom efficiency ratings, seed differentials, or market-derived probabilities are better positioned to assign more conservative probabilities to matchups involving significant uncertainty, which is precisely where the Brier Score penalizes most heavily.
 
@@ -1780,7 +1782,7 @@ The third tier introduces strength of schedule adjusted box score profiles. For 
 
 The final component of the feature set is a custom Elo rating system developed to capture dynamic team strength across the full regular season. Unlike the static season averages described in the previous tiers, Elo ratings are updated after every game and reflect the cumulative result of a team's performance relative to its opponents throughout the season. This means a team that starts slowly but peaks heading into the tournament will have a higher Elo rating than its season averages alone would suggest, and conversely a team that fades late in the season will have a deflated rating relative to its win percentage.
 
-The Elo system used here is adapted from the rating system originally developed for chess by Arpad Elo \cite{chess}. Each team begins the first season with an initial rating of 1500. After each regular season game the winner gains rating points and the loser loses an equal number, preserving the total rating mass in the system. The magnitude of the exchange depends on how surprising the result was relative to the pre-game expectations implied by the two teams' current ratings. The expected win probability for Team 1 is computed as:
+The Elo system used here is adapted from the rating system originally developed for chess by Arpad Elo \cite{chess}, with the implementation structure inspired by \cite{haupts_elo}, originally written in Python and reimplemented in R for this analysis. Each team begins the first season with an initial rating of 1500. After each regular season game the winner gains rating points and the loser loses an equal number, preserving the total rating mass in the system. The magnitude of the exchange depends on how surprising the result was relative to the pre-game expectations implied by the two teams' current ratings. The expected win probability for Team 1 is computed as:
 
 \begin{equation}
 E_1 = \frac{1}{1 + 10^{(R_2 - R_1) / 400}}
@@ -1821,7 +1823,7 @@ print(plot_womens_elo)
 \usubsubsection{Data Preparation}
 A critical design decision in the data construction is the symmetric duplication of each tournament game. For every game in the dataset, two rows are created: one where the winning team is assigned to the T1 position and one where the losing team is assigned to the T1 position. The binary outcome variable is set to $1$ when T1 wins and $0$ when T1 loses. This duplication serves three purposes. First, it allows the model to learn from both the winner's and loser's perspective in every matchup, meaning the model sees what a strong team's feature profile looks like when it wins and what a weak team's feature profile looks like when it loses. Second, it ensures that the model does not develop a positional bias toward the T1 slot; since every game appears from both orientations, the model cannot exploit any systematic advantage of being labeled T1. Finally, it guarantees an exactly balanced target distribution ($50\%$ wins, $50\%$ losses), preventing the model from developing a bias toward a majority class. This duplication doubles the effective size of the training data, which is particularly valuable given that the total number of tournament games across all seasons is modest relative to the complexity of the feature set. Prior to feature computation, all box score statistics are scaled to a standard $40$ minute equivalent using the overtime adjustment defined in the Variable Selection section, ensuring that high scoring overtime games do not artificially inflate seasonal averages.
 
-Once all features are computed, the training matrix is filtered to retain only rows where every feature is present using \texttt{complete.cases}. This step is included as a safeguard against missing values that could arise if a team appeared in the tournament without sufficient regular season history to compute stable averages, or if the Elo system had not yet accumulated enough games to generate a meaningful rating. In practice no rows were removed, indicating that every tournament team in the dataset had sufficient regular season history to produce a complete feature profile across all seasons from $2003$ to $2024$. This is partly a consequence of the $2003$ cutoff, which ensures that every season in the training data has a full year of regular season results available before the tournament begins. The final curated training matrix consisted of $4,552$ rows and $139$ features.
+Once all features are computed, the training matrix is filtered to retain only rows where every feature is present using \texttt{complete.cases}. This step is included as a safeguard against missing values that could arise if a team appeared in the tournament without sufficient regular season history to compute stable averages, or if the Elo system had not yet accumulated enough games to generate a meaningful rating. In practice no rows were removed, indicating that every tournament team in the dataset had sufficient regular season history to produce a complete feature profile across all seasons from $2003$ to $2024$. This is partly a consequence of the $2003$ cutoff, which ensures that every season in the training data has a full year of regular season results available before the tournament begins. The Elo ratings included as features are computed from the full regular season history spanning $2003$ to $2025$, with between-season carry-over applied at each transition, meaning the $2025$ end-of-season ratings reflect accumulated performance across all seasons in the training window rather than the current season alone. The final curated training matrix consisted of $4,552$ rows and $139$ features.
 
 The $2025$ test set is constructed to exactly mirror the training data pipeline. Every feature engineering step, merge, and column ordering applied during training is repeated identically for the test set. This is a critical requirement for tree-based models since XGBoost maps each input column to a specific feature index at prediction time, and any mismatch between the training and test feature matrices will produce incorrect predictions. Once the test matrix is verified to match the training structure, the model generates a win probability for each $2025$ tournament matchup, which is then evaluated against the actual outcomes.
 
@@ -1830,7 +1832,7 @@ With the training matrix assembled and the feature set finalized, the focus shif
 
 Cross validation is a resampling technique used to evaluate model performance on data that was not used during training. The core motivation is that evaluating a model on the same data it was trained on produces an overly optimistic estimate of performance, since the model has already seen and fit to that data. A naive solution is to hold out a fixed portion of the data as a test set, but with a small dataset this sacrifices training observations that could meaningfully improve the model. Cross validation addresses this trade off by rotating which portion of the data is held out across multiple iterations, allowing every observation to serve as both a training example and a validation example at different points. In $k-$fold cross validation the dataset is partitioned into $k$ equally sized subsets called folds. The model is trained $k$ times, each time using $k-1$ folds as the training set and the last fold as the validation set \cite{cv}. The performance metric is recorded for each fold and the final cross validated score is the average across all $k$ folds. This produces a more reliable estimate of out of sample performance than a single train test split because the result is averaged over multiple different held out subsets rather than depending on one particular partition of the data. For more comprehensive information on cross validation methodology, we refer the reader to \cite{book}.
 
-In this analysis five fold cross validation is applied to the full tournament training dataset to determine the optimal number of boosting rounds. At each fold the model is trained on 80\% of the tournament games and evaluated on the held out 20\%, with the average Brier Score across all five folds used as the selection criterion. Early stopping is applied with a patience of 50 rounds, meaning training halts automatically if the cross validated Brier Score does not improve for 50 consecutive rounds, preventing the model from overfitting by adding trees that contribute no meaningful reduction in error. Cross validation identified $415$ as the optimal number of boosting rounds, at which point the model achieved its lowest average cross validated Brier Score across the five folds. Five folds was chosen as a balance between bias and variance in the performance estimate. Using fewer folds, such as three, means each validation set is larger but the training set is smaller, which can underestimate the model's true performance on a full dataset. Using more folds, such as ten, produces a training set that more closely resembles the full dataset but increases computational cost and can produce high variance estimates when the dataset is small. 
+In this analysis five fold cross validation is applied to the full tournament training dataset to determine the optimal number of boosting rounds. At each fold the model is trained on $80\%$ of the tournament games and evaluated on the held out $20\%$, with the average Brier Score across all five folds used as the selection criterion. Early stopping is applied with a patience of $50$ rounds, meaning training halts automatically if the cross validated Brier Score does not improve for 50 consecutive rounds, preventing the model from overfitting by adding trees that contribute no meaningful reduction in error. Cross validation identified $415$ as the optimal number of boosting rounds, at which point the model achieved its lowest average cross validated Brier Score across the five folds. Five folds was chosen as a balance between bias and variance in the performance estimate. Using fewer folds, such as three, means each validation set is larger but the training set is smaller, which can underestimate the model's true performance on a full dataset. Using more folds, such as ten, produces a training set that more closely resembles the full dataset but increases computational cost and can produce high variance estimates when the dataset is small. 
 
 
 \begin{figure}[H]
@@ -1846,7 +1848,7 @@ The model was trained utilizing a logistic regression objective function for bin
 
 The learning rate $\texttt{eta}$ controls how much each new tree contributes to the ensemble. A lower value of $\texttt{eta}$ requires more boosting rounds to converge but produces a smoother and more regularized model. A value of $\texttt{eta = 0.01}$ was selected after testing values of $0.02$ and $0.005$, with $0.01$ producing the lowest cross validated Brier Score. The $\texttt{max\_depth}$ parameter controls the maximum depth of each individual tree, limiting how many sequential splits a tree can make and therefore how complex the interactions it can capture. A value of $\texttt{max\_depth = 5}$ was selected after testing values of $4$ and $6$. The $\texttt{subsample}$ parameter controls the fraction of training rows randomly sampled when building each tree, introducing stochasticity that reduces overfitting. A value of $\texttt{subsample = 0.8}$ was selected, meaning each tree is built on a random $80\%$ of the training data. Similarly, $\texttt{colsample\_bytree = 0.7}$ means each tree randomly samples 70\% of the available features, further reducing the influence of any single predictor and encouraging the model to find robust signals across the full feature set. Finally, \texttt{min\_child\_weight = 4} sets the minimum number of training observations required in a leaf node before a split is made, preventing the model from creating highly specific splits that apply to only a handful of games. Together these five parameters define a model that is expressive enough to capture nonlinear tournament dynamics while remaining sufficiently regularized to generalize to unseen data.
 
-The feature importance output from the final model ranks each predictor by its average gain across all splits, where gain measures the reduction in the Brier Score attributable to each feature. As shown in Figure \ref{fig:feature_importance}, \texttt{Seed\_diff} is the most influential predictor by a wide margin, accounting for 32.2\% of the total gain. This is consistent with the exploratory analysis, which showed a strong relationship between seed differential and point differential, and confirms that tournament seeding remains the single strongest signal for predicting matchup outcomes. \texttt{Elo\_diff} ranks second with 11.5\% of the total gain, capturing cumulative season long performance in a way that seeds alone cannot. Together these two features account for roughly 44\% of the model's predictive power. \texttt{avg\_point\_diff\_diff} contributes an additional 5.5\%, reflecting the margin by which each team outperformed its opponents during the regular season. Beyond these three features, the remaining predictors each contribute less than 3\% individually, with strength of schedule variables such as \texttt{T1\_SOS\_PointDiff}, \texttt{T2\_SOS\_win}, and \texttt{T2\_SOS\_Off\_Blk} making up the next tier, followed by a long tail of box score statistics. The concentration of predictive power in seeding and Elo suggests that broad measures of team quality drive tournament outcomes more than any specific box score metric.
+The feature importance output from the final model ranks each predictor by its average gain across all splits, where gain measures the reduction in the Brier Score attributable to each feature. As shown in Figure \ref{fig:feature_importance}, \texttt{Seed\_diff} is the most influential predictor by a wide margin, accounting for $32.2\%$ of the total gain. This is consistent with the exploratory analysis, which showed a strong relationship between seed differential and point differential, and confirms that tournament seeding remains the single strongest signal for predicting matchup outcomes. \texttt{Elo\_diff} ranks second with $11.5\%$ of the total gain, capturing cumulative season long performance in a way that seeds alone cannot. Together these two features account for roughly $44\%$ of the model's predictive power. \texttt{avg\_point\_diff\_diff} contributes an additional $5.5\%$, reflecting the margin by which each team outperformed its opponents during the regular season. Beyond these three features, the remaining predictors each contribute less than $3\%$ individually, with strength of schedule variables such as \texttt{T1\_SOS\_PointDiff}, \texttt{T2\_SOS\_win}, and \texttt{T2\_SOS\_Off\_Blk} making up the next tier, followed by a long tail of box score statistics. The concentration of predictive power in seeding and Elo suggests that broad measures of team quality drive tournament outcomes more than any specific box score metric.
 
 <<feature_importance, echo=FALSE, fig.align='center', fig.pos='H', fig.cap='Feature Importance for the XGBoost Model.'>>=
 library(xgboost)
@@ -1854,11 +1856,9 @@ xgb.plot.importance(importance_matrix[1:20], main = "Feature Importance")
 @
 
 \usubsubsection{Results}
-The performance of the XGBoost model on the 2025 NCAA tournament is evaluated along two dimensions: classification accuracy via the confusion matrix and probability calibration via the Brier Score. Figure \ref{fig:conf_matrix_xgb} presents the confusion matrices for the men's, women's, and combined results.
+The performance of the XGBoost model on the $2025$ NCAA tournament is evaluated along two dimensions: classification accuracy via the confusion matrix and probability calibration via the Brier Score. Figure \ref{fig:conf_matrix_xgb} presents the confusion matrices for the men's, women's, and combined results.
 
-The women's model achieves the strongest classification performance at 80.6\% accuracy, followed by the combined model at 79.1\% and the men's model at 77.6\%. This ordering is consistent with the feature importance analysis, where broad measures of team quality such as seeding and Elo drive predictions, and the women's tournament historically exhibits stronger seed correlation with outcomes than the men's. All three accuracy figures comfortably exceed the 50\% baseline expected from random prediction and improve upon the logistic regression accuracies of 77.6\%, 73.9\%, and 70.1\% respectively, confirming that the expanded feature set and nonlinear modeling framework contribute meaningful predictive gains.
-
-The combined 2025 Brier Score of 0.12761 reflects solid probability calibration but falls short of the competition-winning score of 0.10411. While the model correctly identifies the winner in the majority of matchups, the gap in Brier Score suggests that the predicted probabilities are not as sharply calibrated as those produced by the top Kaggle submissions, which typically incorporate additional data sources and more extensive tuning. Nevertheless, the XGBoost model represents a meaningful improvement over the logistic regression Brier Score of 0.18401, demonstrating that the richer feature set and ensemble framework produce better-calibrated win probabilities in addition to higher classification accuracy.
+The women's model achieves the strongest classification performance at $80.6\%$ accuracy, followed by the combined model at $79.1\%$ and the men's model at $77.6\%$. This ordering is consistent with the feature importance analysis, where broad measures of team quality such as seeding and Elo drive predictions, and the women's tournament historically exhibits stronger seed correlation with outcomes than the men's. All three accuracy figures comfortably exceed the $50\%$ baseline expected from random prediction and improve upon the logistic regression accuracies of $77.6\%$, $73.9\%$, and $70.1\%$ respectively, confirming that the expanded feature set and nonlinear modeling framework contribute meaningful predictive gains.
 
 <<conf_matrix_xgb, echo=FALSE, fig.cap="Confusion Matrices for the 2025 XGBoost Model", fig.width=10, fig.height=4, out.width="\\textwidth", fig.pos='H'>>=
 library(dplyr)
@@ -1908,11 +1908,13 @@ plot_conf_xgb_split <- ggplot(conf_summary, aes(x = Actual, y = Predicted, fill 
 print(plot_conf_xgb_split)
 @
 
+The combined $2025$ Brier Score of $0.12761$ reflects solid probability calibration but falls short of the competition-winning score of $0.10411$. While the model correctly identifies the winner in the majority of matchups, the gap in Brier Score suggests that the predicted probabilities are not as sharply calibrated as those produced by the top Kaggle submissions, which typically incorporate additional data sources and more extensive tuning. Nevertheless, the XGBoost model represents a meaningful improvement over the logistic regression Brier Score of $0.18401$, demonstrating that the richer feature set and ensemble framework produce better-calibrated win probabilities in addition to higher classification accuracy.
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<<lin_code_2025_men, include=FALSE, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE>>=
+\begin{center}
+\section{Point Spread Models}
+\end{center}
+\thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
+<<2025_lin_reg_monte_mens, include=FALSE, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE>>=
 library(tidyr)
 library(dplyr)
 library(data.table)
@@ -1922,30 +1924,26 @@ library(performance)
 
 # 1. DATA LOAD AND CLEANING -----------------------------------------------
 
-Mteams <- fread("march-machine-learning-mania-2025/MTeams_2025.csv")
-kenpom <- fread("Excel_Files/kenpom-ncaa-2025.csv")
+Mteams    <- fread("march-machine-learning-mania-2025/MTeams_2025.csv")
+kenpom    <- fread("Excel_Files/kenpom-ncaa-2025.csv")
 spellings <- fread("march-machine-learning-mania-2025/MTeamSpellings.csv")
+results   <- fread("march-machine-learning-mania-2025/MRegularSeasonDetailedResults.csv")
 
-# Create normalized versions for matching
 kenpom_norm <- kenpom %>%
   mutate(Team_normalized = tolower(Team))
 
 spellings_norm <- spellings %>%
   mutate(TeamNameSpelling_normalized = tolower(TeamNameSpelling))
 
-# First try exact match on normalized names
 kenpom_matched <- kenpom_norm %>%
   left_join(
     spellings_norm %>% select(TeamNameSpelling_normalized, TeamID) %>% distinct(),
     by = c("Team_normalized" = "TeamNameSpelling_normalized")
   )
 
-# For remaining unmatched, use fuzzy matching
-unmatched <- kenpom_matched %>%
-  filter(is.na(TeamID))
+unmatched <- kenpom_matched %>% filter(is.na(TeamID))
 
-if(nrow(unmatched) > 0) {
-  # Perform fuzzy matching
+if (nrow(unmatched) > 0) {
   fuzzy_matches <- stringdist_left_join(
     unmatched %>% select(-TeamID),
     spellings_norm,
@@ -1958,12 +1956,9 @@ if(nrow(unmatched) > 0) {
     slice_min(dist, n = 1, with_ties = FALSE) %>%
     ungroup()
   
-  # IMPORTANT: Ensure fuzzy_matches has the same columns as kenpom_matched
-  # We select only the columns that exist in kenpom_matched to avoid errors
-  cols_to_keep <- names(kenpom_matched)
+  cols_to_keep        <- names(kenpom_matched)
   fuzzy_matches_clean <- fuzzy_matches %>% select(all_of(cols_to_keep))
   
-  # Combine
   kenpom_final <- kenpom_matched %>%
     filter(!is.na(TeamID)) %>%
     bind_rows(fuzzy_matches_clean)
@@ -1971,90 +1966,139 @@ if(nrow(unmatched) > 0) {
   kenpom_final <- kenpom_matched
 }
 
-# Clean up
 kenpom_final <- kenpom_final %>% select(-Team_normalized)
 
 cat("Matched teams:", sum(!is.na(kenpom_final$TeamID)), "out of", nrow(kenpom), "\n")
 
-# 2. PREPARE TRAINING DATA ------------------------------------------------
 
-# Read regular season results
-results <- fread("march-machine-learning-mania-2025/MRegularSeasonDetailedResults.csv") 
-results <- results %>% filter(results$Season == 2025)
+# 2. ELO RATINGS ----------------------------------------------------------
 
-# Join for WTeam - SELECTING NetRtg
-results_with_wteam <- results %>%
-  left_join(
-    kenpom_final %>% select(TeamID, ORtg, DRtg, AdjT, NetRtg),
-    by = c("WTeamID" = "TeamID")
-  ) %>%
-  dplyr::rename(
-    WTeam_ORtg = ORtg,
-    WTeam_DRtg = DRtg,
-    WTeam_AdjT = AdjT,
-    WTeam_NetRtg = NetRtg
-  )
+calculate_elo <- function(regular_results, initial_rating = 1500, k = 64,
+                          width = 400, hca = 0, carry_over = 0.5) {
+  games        <- regular_results[order(Season, DayNum)]
+  seasons      <- sort(unique(games$Season))
+  all_ratings  <- list()
+  team_ratings <- c()
+  
+  for (s in seasons) {
+    season_games <- games[Season == s]
+    teams <- unique(c(season_games$WTeamID, season_games$LTeamID))
+    
+    if (length(team_ratings) > 0) {
+      for (tid in as.character(teams)) {
+        if (tid %in% names(team_ratings)) {
+          team_ratings[tid] <- carry_over * team_ratings[tid] + (1 - carry_over) * initial_rating
+        } else {
+          team_ratings[tid] <- initial_rating
+        }
+      }
+    } else {
+      team_ratings <- rep(initial_rating, length(teams))
+      names(team_ratings) <- as.character(teams)
+    }
+    
+    for (i in seq_len(nrow(season_games))) {
+      wteam <- as.character(season_games$WTeamID[i])
+      lteam <- as.character(season_games$LTeamID[i])
+      wloc  <- season_games$WLoc[i]
+      
+      rW <- team_ratings[wteam]
+      rL <- team_ratings[lteam]
+      
+      if (wloc == "H") {
+        rW_adj <- rW + hca
+      } else if (wloc == "A") {
+        rW_adj <- rW - hca
+      } else {
+        rW_adj <- rW
+      }
+      
+      eW <- 1 / (1 + 10^((rL - rW_adj) / width))
+      eL <- 1 - eW
+      
+      team_ratings[wteam] <- rW + k * (1 - eW)
+      team_ratings[lteam] <- rL + k * (0 - eL)
+    }
+    
+    all_ratings[[as.character(s)]] <- data.table(
+      Season    = s,
+      TeamID    = as.integer(names(team_ratings)),
+      Elo_final = as.numeric(team_ratings)
+    )
+  }
+  
+  return(rbindlist(all_ratings))
+}
 
-# Join for LTeam - SELECTING NetRtg
+elo_ratings <- calculate_elo(results)
+elo_2025    <- elo_ratings[Season == 2025, .(TeamID, Elo_final)]
+
+cat("Teams with 2025 Elo ratings:", nrow(elo_2025), "\n")
+
+
+# 3. PREPARE TRAINING DATA ------------------------------------------------
+
+results_2025 <- results %>% filter(Season == 2025)
+
+results_with_wteam <- results_2025 %>%
+  left_join(kenpom_final %>% select(TeamID, ORtg, DRtg, AdjT, NetRtg),
+            by = c("WTeamID" = "TeamID")) %>%
+  dplyr::rename(WTeam_ORtg = ORtg, WTeam_DRtg = DRtg,
+                WTeam_AdjT = AdjT, WTeam_NetRtg = NetRtg) %>%
+  left_join(elo_2025, by = c("WTeamID" = "TeamID")) %>%
+  dplyr::rename(WTeam_Elo = Elo_final)
+
 results_with_both <- results_with_wteam %>%
-  left_join(
-    kenpom_final %>% select(TeamID, ORtg, DRtg, AdjT, NetRtg),
-    by = c("LTeamID" = "TeamID")
-  ) %>%
-  dplyr::rename(
-    LTeam_ORtg = ORtg,
-    LTeam_DRtg = DRtg,
-    LTeam_AdjT = AdjT,
-    LTeam_NetRtg = NetRtg
-  )
+  left_join(kenpom_final %>% select(TeamID, ORtg, DRtg, AdjT, NetRtg),
+            by = c("LTeamID" = "TeamID")) %>%
+  dplyr::rename(LTeam_ORtg = ORtg, LTeam_DRtg = DRtg,
+                LTeam_AdjT = AdjT, LTeam_NetRtg = NetRtg) %>%
+  left_join(elo_2025, by = c("LTeamID" = "TeamID")) %>%
+  dplyr::rename(LTeam_Elo = Elo_final)
 
-# Drop games with missing KenPom data
 results_clean <- results_with_both %>%
-  filter(!is.na(WTeam_ORtg) & !is.na(LTeam_ORtg))
+  filter(!is.na(WTeam_ORtg) & !is.na(LTeam_ORtg) &
+           !is.na(WTeam_Elo)  & !is.na(LTeam_Elo))
 
-# Create training data - Row 1: WTeam scoring
 train_wteam <- results_clean %>%
   transmute(
-    Points = WScore,
-    OffRating = WTeam_ORtg,
-    DefRating = LTeam_DRtg,
-    AdjT_team = WTeam_AdjT,
-    AdjT_opp = LTeam_AdjT,
-    Diff_NetRtg = WTeam_NetRtg - LTeam_NetRtg 
+    Points      = WScore,
+    OffRating   = WTeam_ORtg,
+    DefRating   = LTeam_DRtg,
+    AdjT_team   = WTeam_AdjT,
+    AdjT_opp    = LTeam_AdjT,
+    Diff_NetRtg = WTeam_NetRtg - LTeam_NetRtg,
+    Diff_Elo    = WTeam_Elo    - LTeam_Elo
   )
 
-# Create training data - Row 2: LTeam scoring
 train_lteam <- results_clean %>%
   transmute(
-    Points = LScore,
-    OffRating = LTeam_ORtg,
-    DefRating = WTeam_DRtg,
-    AdjT_team = LTeam_AdjT,
-    AdjT_opp = WTeam_AdjT,
-    Diff_NetRtg = LTeam_NetRtg - WTeam_NetRtg
+    Points      = LScore,
+    OffRating   = LTeam_ORtg,
+    DefRating   = WTeam_DRtg,
+    AdjT_team   = LTeam_AdjT,
+    AdjT_opp    = WTeam_AdjT,
+    Diff_NetRtg = LTeam_NetRtg - WTeam_NetRtg,
+    Diff_Elo    = LTeam_Elo    - WTeam_Elo
   )
 
-# Combine into full training set
 train_data <- bind_rows(train_wteam, train_lteam)
 
 cat("Total training samples:", nrow(train_data), "\n")
 
 
-# 3. MODEL CREATION -------------------------------------------------------
+# 4. MODEL CREATION -------------------------------------------------------
 
-
-model <- lm(Points ~ OffRating + DefRating + AdjT_team + AdjT_opp + 
-             Diff_NetRtg, 
+model <- lm(Points ~ OffRating + DefRating + AdjT_team + AdjT_opp +
+              Diff_NetRtg + Diff_Elo,
             data = train_data)
 
 summary(model)
 sigma <- summary(model)$sigma
 cat("Standard deviation (sigma):", sigma, "\n")
 
-# Store predictions for diagnostics
 train_data$Predicted <- predict(model, train_data)
 
-#Visual Check of the Difference Feature 
 ggplot(train_data, aes(x = Diff_NetRtg, y = Points)) +
   geom_point(alpha = 0.1, color = "blue") +
   geom_smooth(method = "lm", color = "red") +
@@ -2063,117 +2107,115 @@ ggplot(train_data, aes(x = Diff_NetRtg, y = Points)) +
        y = "Points Scored") +
   theme_minimal()
 
+plot(model)
+check_model(model, check = "vif")
 
-# 4. GAME SIMULATOR FUNCTIONS ---------------------------------------------
 
-simulate_game <- function(team_a_mean, team_b_mean, sigma, n_sims = 500) {
+# 5. GAME SIMULATOR FUNCTIONS ---------------------------------------------
+
+simulate_game <- function(team_a_mean, team_b_mean, sigma, n_sims = 100000) {
   team_a_scores <- rnorm(n_sims, mean = team_a_mean, sd = sigma)
   team_b_scores <- rnorm(n_sims, mean = team_b_mean, sd = sigma)
-  
-  team_a_wins <- sum(team_a_scores > team_b_scores)
+  team_a_wins   <- sum(team_a_scores > team_b_scores)
   
   return(list(
     team_a_win_prob = team_a_wins / n_sims,
     team_b_win_prob = 1 - (team_a_wins / n_sims),
-    avg_margin = mean(team_a_scores - team_b_scores)
+    avg_margin      = mean(team_a_scores - team_b_scores)
   ))
 }
 
-# Updated Predict Function to calculate the Difference
-predict_matchup <- function(team_a_id, team_b_id, kenpom_data, model, sigma) {
-  
-  # Get team stats
+predict_matchup <- function(team_a_id, team_b_id, kenpom_data, elo_data, model, sigma) {
   team_a <- kenpom_data %>% filter(TeamID == team_a_id)
   team_b <- kenpom_data %>% filter(TeamID == team_b_id)
+  elo_a  <- elo_data    %>% filter(TeamID == team_a_id) %>% pull(Elo_final)
+  elo_b  <- elo_data    %>% filter(TeamID == team_b_id) %>% pull(Elo_final)
   
-  if(nrow(team_a) == 0 | nrow(team_b) == 0) {
+  if (nrow(team_a) == 0 | nrow(team_b) == 0 |
+      length(elo_a) == 0 | length(elo_b) == 0) {
     return(list(team_a_win_prob = 0.5))
   }
   
-  # Calculate Difference for Prediction
-  diff_a <- team_a$NetRtg - team_b$NetRtg
-  diff_b <- team_b$NetRtg - team_a$NetRtg
-  
-  # Predict Team A
   team_a_pred <- predict(model, newdata = data.frame(
-    OffRating = team_a$ORtg,
-    DefRating = team_b$DRtg,
-    AdjT_team = team_a$AdjT,
-    AdjT_opp = team_b$AdjT,
-    Diff_NetRtg = diff_a # Pass the difference
+    OffRating   = team_a$ORtg,
+    DefRating   = team_b$DRtg,
+    AdjT_team   = team_a$AdjT,
+    AdjT_opp    = team_b$AdjT,
+    Diff_NetRtg = team_a$NetRtg - team_b$NetRtg,
+    Diff_Elo    = elo_a - elo_b
   ))
   
-  # Predict Team B
   team_b_pred <- predict(model, newdata = data.frame(
-    OffRating = team_b$ORtg,
-    DefRating = team_a$DRtg,
-    AdjT_team = team_b$AdjT,
-    AdjT_opp = team_a$AdjT,
-    Diff_NetRtg = diff_b # Pass the difference
+    OffRating   = team_b$ORtg,
+    DefRating   = team_a$DRtg,
+    AdjT_team   = team_b$AdjT,
+    AdjT_opp    = team_a$AdjT,
+    Diff_NetRtg = team_b$NetRtg - team_a$NetRtg,
+    Diff_Elo    = elo_b - elo_a
   ))
   
-  # Simulate
-  result <- simulate_game(team_a_pred, team_b_pred, sigma, n_sims = 500)
+  result <- simulate_game(team_a_pred, team_b_pred, sigma, n_sims = 100000)
   return(result)
 }
 
 
-# 5. PREDICT 2025 TOURNAMENT ----------------------------------------------
+# 6. PREDICT 2025 TOURNAMENT ----------------------------------------------
 
-tournament_games <- fread("Excel_Files/2025_games_kaggle.csv")
+tournament_games        <- fread("Excel_Files/2025_games_kaggle.csv")
 tournament_games_subset <- tournament_games[1:67, ]
 
 predictions_list <- list()
 
 cat("Predicting tournament games...\n")
-for(i in 1:nrow(tournament_games_subset)) {
+for (i in 1:nrow(tournament_games_subset)) {
   game <- tournament_games_subset[i, ]
   
-  lower_id <- min(game$LTeamID, game$WTeamID)
+  lower_id  <- min(game$LTeamID, game$WTeamID)
   higher_id <- max(game$LTeamID, game$WTeamID)
-  game_id <- paste(game$Season, lower_id, higher_id, sep = "_")
+  game_id   <- paste(game$Season, lower_id, higher_id, sep = "_")
   
   result <- predict_matchup(
-    team_a_id = lower_id,
-    team_b_id = higher_id,
+    team_a_id   = lower_id,
+    team_b_id   = higher_id,
     kenpom_data = kenpom_final,
-    model = model,
-    sigma = sigma
+    elo_data    = elo_2025,
+    model       = model,
+    sigma       = sigma
   )
   
   pred_prob <- result$team_a_win_prob
-  actual <- ifelse(game$WTeamID == lower_id, 1, 0)
+  actual    <- ifelse(game$WTeamID == lower_id, 1, 0)
   
   predictions_list[[i]] <- data.frame(
-    ID = game_id,
-    Pred = pred_prob,
-    Actual = actual,
+    ID          = game_id,
+    Pred        = pred_prob,
+    Actual      = actual,
     Brier_Score = (pred_prob - actual)^2
   )
   
-  if(i %% 10 == 0) cat(".")
+  if (i %% 10 == 0) cat(".")
 }
 
- #RESULTS --------------------------------------------------------------
-
 tournament_predictions <- bind_rows(predictions_list)
-overall_brier <- mean(tournament_predictions$Brier_Score)
-cat("Brier Score:  ", round(overall_brier, 5), "\n")
+overall_brier          <- mean(tournament_predictions$Brier_Score)
+cat("Brier Score:", round(overall_brier, 5), "\n")
 
-plot(model)
-check_model(model, check="vif")
+# accuracy
+predictions_2025 <- ifelse(tournament_predictions$Pred > 0.5, 1, 0)
+acc_2025 <- mean(predictions_2025 == tournament_predictions$Actual)
+cat("Accuracy:", round(acc_2025 * 100, 2), "%\n")
+cat("Winning Score:", 0.10411, "\n")
 
 
-
-# tournament --------------------------------------------------------------
+# 7. BRACKET SIMULATION (with live Elo updates) ---------------------------
 
 seeds <- fread("march-machine-learning-mania-2025/MNCAATourneySeeds.csv")
 
 seeds_2025 <- seeds %>%
   filter(Season == 2025) %>%
   mutate(
-    RegionCode = substr(Seed, 1, 1),                # "W","X","Y","Z"
-    SeedNum    = as.integer(substr(Seed, 2, 3)),    # 1–16
+    RegionCode = substr(Seed, 1, 1),
+    SeedNum    = as.integer(substr(Seed, 2, 3)),
     Region     = dplyr::recode(
       RegionCode,
       "W" = "East",
@@ -2183,45 +2225,55 @@ seeds_2025 <- seeds %>%
     )
   )
 
-
 teams_2025 <- seeds_2025 %>%
-  left_join(Mteams %>% select(TeamID, TeamName),
-            by = "TeamID") %>%
-  transmute(
-    TeamID,
-    TeamName,
-    Region = Region,
-    Seed   = SeedNum
-  )
+  left_join(Mteams %>% select(TeamID, TeamName), by = "TeamID") %>%
+  transmute(TeamID, TeamName, Region, Seed = SeedNum)
 
-cat("Teams in 2025 bracket ", nrow(teams_2025), "\n")
+cat("Teams in 2025 bracket:", nrow(teams_2025), "\n")
 
-
-
-
-# kenpom wrapper ----------------------------------------------------------
-
-
-
-
-make_kenpom_prediction_model <- function(kenpom_data,
-                                         model,
-                                         sigma,
+make_kenpom_prediction_model <- function(kenpom_data, elo_data, model, sigma,
                                          mode = c("stochastic", "deterministic"),
-                                         n_sims = 500) {
+                                         k = 64, width = 400) {
   mode <- match.arg(mode)
   
+  elo_env <- new.env(parent = emptyenv())
+  elo_env$ratings <- setNames(elo_data$Elo_final, as.character(elo_data$TeamID))
+  
   function(team1_id, team2_id) {
-    res <- predict_matchup(
-      team_a_id   = team1_id,
-      team_b_id   = team2_id,
-      kenpom_data = kenpom_data,
-      model       = model,
-      sigma       = sigma
-    )
+    elo_a <- elo_env$ratings[as.character(team1_id)]
+    elo_b <- elo_env$ratings[as.character(team2_id)]
     
-    p1 <- res$team_a_win_prob
-    p2 <- 1 - p1
+    if (is.na(elo_a)) elo_a <- 1500
+    if (is.na(elo_b)) elo_b <- 1500
+    
+    team_a <- kenpom_data %>% filter(TeamID == team1_id)
+    team_b <- kenpom_data %>% filter(TeamID == team2_id)
+    
+    if (nrow(team_a) == 0 | nrow(team_b) == 0) {
+      return(list(winner_id = team1_id, p_team1 = 0.5, p_team2 = 0.5))
+    }
+    
+    team_a_pred <- predict(model, newdata = data.frame(
+      OffRating   = team_a$ORtg,
+      DefRating   = team_b$DRtg,
+      AdjT_team   = team_a$AdjT,
+      AdjT_opp    = team_b$AdjT,
+      Diff_NetRtg = team_a$NetRtg - team_b$NetRtg,
+      Diff_Elo    = elo_a - elo_b
+    ))
+    
+    team_b_pred <- predict(model, newdata = data.frame(
+      OffRating   = team_b$ORtg,
+      DefRating   = team_a$DRtg,
+      AdjT_team   = team_b$AdjT,
+      AdjT_opp    = team_a$AdjT,
+      Diff_NetRtg = team_b$NetRtg - team_a$NetRtg,
+      Diff_Elo    = elo_b - elo_a
+    ))
+    
+    result    <- simulate_game(team_a_pred, team_b_pred, sigma, n_sims = 100000)
+    p1        <- result$team_a_win_prob
+    p2        <- 1 - p1
     
     winner_id <- if (mode == "stochastic") {
       ifelse(runif(1) < p1, team1_id, team2_id)
@@ -2229,31 +2281,35 @@ make_kenpom_prediction_model <- function(kenpom_data,
       ifelse(p1 >= 0.5, team1_id, team2_id)
     }
     
-    list(
-      winner_id = winner_id,
-      p_team1   = p1,
-      p_team2   = p2
-    )
+    loser_id   <- ifelse(winner_id == team1_id, team2_id, team1_id)
+    winner_elo <- elo_env$ratings[as.character(winner_id)]
+    loser_elo  <- elo_env$ratings[as.character(loser_id)]
+    
+    eW <- 1 / (1 + 10^((loser_elo - winner_elo) / width))
+    elo_env$ratings[as.character(winner_id)] <- winner_elo + k * (1 - eW)
+    elo_env$ratings[as.character(loser_id)]  <- loser_elo  + k * (0 - (1 - eW))
+    
+    list(winner_id = winner_id, p_team1 = p1, p_team2 = p2)
   }
 }
 
 prediction_model_kenpom <- make_kenpom_prediction_model(
-  kenpom_data = kenpom_final, 
+  kenpom_data = kenpom_final,
+  elo_data    = elo_2025,
   model       = model,
   sigma       = sigma,
-  mode        = "stochastic"   # or "deterministic"
+  mode        = "stochastic"
 )
 
-
-
 source("R_Files/bracket_placement.R")
+
+set.seed(12)
 
 bracket_results_2025 <- run_full_tournament(
   teams_df         = teams_2025,
   prediction_model = prediction_model_kenpom
 )
 
-# Example: view full tournament nicely ordered
 bracket_results_2025 %>%
   arrange(round, region, slot) %>%
   select(round, region, game_id,
@@ -2263,50 +2319,516 @@ bracket_results_2025 %>%
          p_team_high, p_team_low) %>%
   print(n = 100)
 
-# Example: see just the championship game
-champion_row <- bracket_results_2025 %>%
-  filter(round == 6)
-
+champion_row <- bracket_results_2025 %>% filter(round == 6)
 cat("\nPredicted championship matchup:\n")
 print(champion_row)
 
-
 View(bracket_results_2025)
+@
+
+<<2025_lin_reg_monte_womens, include=FALSE, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE>>=
+library(tidyr)
+library(dplyr)
+library(data.table)
+library(fuzzyjoin)
+library(ggplot2)
+library(performance)
+
+# 1. DATA LOAD AND CLEANING -----------------------------------------------
+
+Wteams           <- fread("march-machine-learning-mania-2025/WTeams.csv")
+womens_ranks     <- fread("Excel_Files/womens_2025_reg_season_rankings.csv")
+womens_spellings <- fread("march-machine-learning-mania-2025/WTeamSpellings.csv")
+
+womens_ranks_norm <- womens_ranks %>%
+  mutate(Team_normalized = tolower(Team))
+
+womens_spellings_norm <- womens_spellings %>%
+  mutate(TeamNameSpelling_normalized = tolower(TeamNameSpelling))
+
+womens_ranks_matched <- womens_ranks_norm %>%
+  left_join(
+    womens_spellings_norm %>% select(TeamNameSpelling_normalized, TeamID) %>% distinct(),
+    by = c("Team_normalized" = "TeamNameSpelling_normalized")
+  )
+
+womens_unmatched <- womens_ranks_matched %>% filter(is.na(TeamID))
+
+if (nrow(womens_unmatched) > 0) {
+  womens_fuzzy_matches <- stringdist_left_join(
+    womens_unmatched %>% select(-TeamID),
+    womens_spellings_norm,
+    by = c("Team_normalized" = "TeamNameSpelling_normalized"),
+    method = "jw",
+    max_dist = 0.3,
+    distance_col = "dist"
+  ) %>%
+    group_by(Team) %>%
+    slice_min(dist, n = 1, with_ties = FALSE) %>%
+    ungroup()
+  
+  womens_ranks_final <- womens_ranks_matched %>%
+    filter(!is.na(TeamID)) %>%
+    bind_rows(womens_fuzzy_matches %>% select(names(womens_ranks_matched)))
+} else {
+  womens_ranks_final <- womens_ranks_matched
+}
+
+womens_ranks_final <- womens_ranks_final %>% select(-Team_normalized)
+
+cat("Matched women's teams:", sum(!is.na(womens_ranks_final$TeamID)), "out of", nrow(womens_ranks), "\n")
+
+womens_still_unmatched <- womens_ranks_final %>% filter(is.na(TeamID))
+if (nrow(womens_still_unmatched) > 0) {
+  cat("\nStill unmatched women's teams:\n")
+  print(womens_still_unmatched$Team)
+}
+
+
+# 2. ELO RATINGS ----------------------------------------------------------
+
+womens_results_all <- fread("march-machine-learning-mania-2025/WRegularSeasonDetailedResults.csv")
+
+calculate_elo <- function(regular_results, initial_rating = 1500, k = 64,
+                          width = 400, hca = 0, carry_over = 0.5) {
+  games        <- regular_results[order(Season, DayNum)]
+  seasons      <- sort(unique(games$Season))
+  all_ratings  <- list()
+  team_ratings <- c()
+  
+  for (s in seasons) {
+    season_games <- games[Season == s]
+    teams <- unique(c(season_games$WTeamID, season_games$LTeamID))
+    
+    if (length(team_ratings) > 0) {
+      for (tid in as.character(teams)) {
+        if (tid %in% names(team_ratings)) {
+          team_ratings[tid] <- carry_over * team_ratings[tid] + (1 - carry_over) * initial_rating
+        } else {
+          team_ratings[tid] <- initial_rating
+        }
+      }
+    } else {
+      team_ratings <- rep(initial_rating, length(teams))
+      names(team_ratings) <- as.character(teams)
+    }
+    
+    for (i in seq_len(nrow(season_games))) {
+      wteam <- as.character(season_games$WTeamID[i])
+      lteam <- as.character(season_games$LTeamID[i])
+      wloc  <- season_games$WLoc[i]
+      
+      rW <- team_ratings[wteam]
+      rL <- team_ratings[lteam]
+      
+      if (wloc == "H") {
+        rW_adj <- rW + hca
+      } else if (wloc == "A") {
+        rW_adj <- rW - hca
+      } else {
+        rW_adj <- rW
+      }
+      
+      eW <- 1 / (1 + 10^((rL - rW_adj) / width))
+      eL <- 1 - eW
+      
+      team_ratings[wteam] <- rW + k * (1 - eW)
+      team_ratings[lteam] <- rL + k * (0 - eL)
+    }
+    
+    all_ratings[[as.character(s)]] <- data.table(
+      Season    = s,
+      TeamID    = as.integer(names(team_ratings)),
+      Elo_final = as.numeric(team_ratings)
+    )
+  }
+  
+  return(rbindlist(all_ratings))
+}
+
+elo_ratings_womens <- calculate_elo(womens_results_all)
+elo_2025_womens    <- elo_ratings_womens[Season == 2025, .(TeamID, Elo_final)]
+
+cat("Women's teams with 2025 Elo ratings:", nrow(elo_2025_womens), "\n")
+
+
+# 3. PREPARE TRAINING DATA ------------------------------------------------
+
+womens_results <- womens_results_all %>% filter(Season == 2025)
+cat("Total women's 2025 games:", nrow(womens_results), "\n")
+
+womens_results_with_wteam <- womens_results %>%
+  left_join(
+    womens_ranks_final %>% select(TeamID, AdjOE, AdjDE, `Adj T.`),
+    by = c("WTeamID" = "TeamID")
+  ) %>%
+  rename(WTeam_ORtg = AdjOE, WTeam_DRtg = AdjDE, WTeam_AdjT = `Adj T.`) %>%
+  left_join(elo_2025_womens, by = c("WTeamID" = "TeamID")) %>%
+  rename(WTeam_Elo = Elo_final)
+
+womens_results_with_both <- womens_results_with_wteam %>%
+  left_join(
+    womens_ranks_final %>% select(TeamID, AdjOE, AdjDE, `Adj T.`),
+    by = c("LTeamID" = "TeamID")
+  ) %>%
+  rename(LTeam_ORtg = AdjOE, LTeam_DRtg = AdjDE, LTeam_AdjT = `Adj T.`) %>%
+  left_join(elo_2025_womens, by = c("LTeamID" = "TeamID")) %>%
+  rename(LTeam_Elo = Elo_final)
+
+womens_results_clean <- womens_results_with_both %>%
+  filter(!is.na(WTeam_ORtg) & !is.na(LTeam_ORtg) &
+           !is.na(WTeam_Elo)  & !is.na(LTeam_Elo))
+
+cat("Women's games remaining:", nrow(womens_results_clean), "out of", nrow(womens_results), "\n")
+
+womens_train_wteam <- womens_results_clean %>%
+  transmute(
+    Points    = WScore,
+    OffRating = WTeam_ORtg,
+    DefRating = LTeam_DRtg,
+    AdjT_team = WTeam_AdjT,
+    AdjT_opp  = LTeam_AdjT,
+    Diff_Elo  = WTeam_Elo - LTeam_Elo
+  )
+
+womens_train_lteam <- womens_results_clean %>%
+  transmute(
+    Points    = LScore,
+    OffRating = LTeam_ORtg,
+    DefRating = WTeam_DRtg,
+    AdjT_team = LTeam_AdjT,
+    AdjT_opp  = WTeam_AdjT,
+    Diff_Elo  = LTeam_Elo - WTeam_Elo
+  )
+
+womens_train_data <- bind_rows(womens_train_wteam, womens_train_lteam)
+cat("Total women's training samples:", nrow(womens_train_data), "\n")
+summary(womens_train_data)
+
+
+# 4. MODEL CREATION -------------------------------------------------------
+
+womens_model <- lm(Points ~ OffRating + DefRating + AdjT_team + AdjT_opp + Diff_Elo,
+                   data = womens_train_data)
+
+summary(womens_model)
+cat("\nWomen's Model Coefficients:\n")
+print(coef(womens_model))
+
+womens_sigma <- summary(womens_model)$sigma
+cat("Women's model standard deviation (sigma):", womens_sigma, "\n")
+
+womens_train_data$Predicted <- predict(womens_model, womens_train_data)
+
+plot(womens_model)
+check_model(womens_model, check = "vif")
+
+
+# 5. GAME SIMULATOR FUNCTIONS ---------------------------------------------
+
+set.seed(42)
+
+simulate_game <- function(team_a_mean, team_b_mean, sigma, n_sims = 100000) {
+  team_a_scores <- rnorm(n_sims, mean = team_a_mean, sd = sigma)
+  team_b_scores <- rnorm(n_sims, mean = team_b_mean, sd = sigma)
+  team_a_wins   <- sum(team_a_scores > team_b_scores)
+  
+  return(list(
+    team_a_win_prob = team_a_wins / n_sims,
+    team_b_win_prob = 1 - (team_a_wins / n_sims),
+    avg_margin      = mean(team_a_scores - team_b_scores)
+  ))
+}
+
+predict_matchup <- function(team_a_id, team_b_id, kenpom_data, elo_data, model, sigma) {
+  team_a <- kenpom_data %>% filter(TeamID == team_a_id)
+  team_b <- kenpom_data %>% filter(TeamID == team_b_id)
+  elo_a  <- elo_data    %>% filter(TeamID == team_a_id) %>% pull(Elo_final)
+  elo_b  <- elo_data    %>% filter(TeamID == team_b_id) %>% pull(Elo_final)
+  
+  if (nrow(team_a) == 0 | nrow(team_b) == 0 |
+      length(elo_a) == 0 | length(elo_b) == 0) {
+    warning(paste("Missing data for team", team_a_id, "or", team_b_id))
+    return(list(team_a_win_prob = 0.5, team_b_win_prob = 0.5, avg_margin = 0))
+  }
+  
+  team_a_pred <- predict(model, newdata = data.frame(
+    OffRating = team_a$AdjOE,
+    DefRating = team_b$AdjDE,
+    AdjT_team = team_a$`Adj T.`,
+    AdjT_opp  = team_b$`Adj T.`,
+    Diff_Elo  = elo_a - elo_b
+  ))
+  
+  team_b_pred <- predict(model, newdata = data.frame(
+    OffRating = team_b$AdjOE,
+    DefRating = team_a$AdjDE,
+    AdjT_team = team_b$`Adj T.`,
+    AdjT_opp  = team_a$`Adj T.`,
+    Diff_Elo  = elo_b - elo_a
+  ))
+  
+  result <- simulate_game(team_a_pred, team_b_pred, sigma, n_sims = 100000)
+  return(result)
+}
+
+
+# 6. PREDICT 2025 TOURNAMENT ----------------------------------------------
+
+womens_tournament_games        <- fread("Excel_Files/2025_games_kaggle.csv")
+womens_tournament_games_subset <- womens_tournament_games[68:135, ] %>%
+  filter(!is.na(LTeamID) & !is.na(WTeamID))
+
+cat("Women's tournament games to predict:", nrow(womens_tournament_games_subset), "\n")
+
+womens_predictions_list <- list()
+
+cat("Predicting tournament games...\n")
+for (i in 1:nrow(womens_tournament_games_subset)) {
+  game <- womens_tournament_games_subset[i, ]
+  
+  lower_id  <- min(game$LTeamID, game$WTeamID)
+  higher_id <- max(game$LTeamID, game$WTeamID)
+  game_id   <- paste(game$Season, lower_id, higher_id, sep = "_")
+  
+  result <- predict_matchup(
+    team_a_id   = lower_id,
+    team_b_id   = higher_id,
+    kenpom_data = womens_ranks_final,
+    elo_data    = elo_2025_womens,
+    model       = womens_model,
+    sigma       = womens_sigma
+  )
+  
+  pred_prob <- result$team_a_win_prob
+  actual    <- ifelse(game$WTeamID == lower_id, 1, 0)
+  
+  womens_predictions_list[[i]] <- data.frame(
+    ID          = game_id,
+    Pred        = pred_prob,
+    Actual      = actual,
+    Brier_Score = (pred_prob - actual)^2
+  )
+  
+  if (i %% 10 == 0) cat(".")
+}
+
+womens_tournament_predictions <- bind_rows(womens_predictions_list)
+womens_overall_brier          <- mean(womens_tournament_predictions$Brier_Score)
+womens_accuracy               <- mean((womens_tournament_predictions$Pred > 0.5) == womens_tournament_predictions$Actual)
+
+cat("Brier Score:", round(womens_overall_brier, 5), "\n")
+cat("Accuracy:",    round(womens_accuracy * 100, 2), "%\n")
+cat("Winning Score:", 0.10411, "\n")
+
+
+# 7. BRACKET SIMULATION (with live Elo updates) ---------------------------
+
+seeds_w    <- fread("march-machine-learning-mania-2025/WNCAATourneySeeds.csv")
+seeds_2025_w <- seeds_w %>%
+  filter(Season == 2025) %>%
+  mutate(
+    RegionCode = substr(Seed, 1, 1),
+    SeedNum    = as.integer(substr(Seed, 2, 3)),
+    Region     = dplyr::recode(
+      RegionCode,
+      "W" = "East",
+      "X" = "Midwest",
+      "Y" = "South",
+      "Z" = "West"
+    )
+  )
+
+teams_2025_w <- seeds_2025_w %>%
+  left_join(Wteams %>% select(TeamID, TeamName), by = "TeamID") %>%
+  transmute(TeamID, TeamName, Region, Seed = SeedNum)
+
+cat("Teams in 2025 women's bracket:", nrow(teams_2025_w), "\n")
+
+make_womens_prediction_model <- function(kenpom_data, elo_data, model, sigma,
+                                         mode = c("stochastic", "deterministic"),
+                                         k = 64, width = 400) {
+  mode <- match.arg(mode)
+  
+  elo_env <- new.env(parent = emptyenv())
+  elo_env$ratings <- setNames(elo_data$Elo_final, as.character(elo_data$TeamID))
+  
+  function(team1_id, team2_id) {
+    elo_a <- elo_env$ratings[as.character(team1_id)]
+    elo_b <- elo_env$ratings[as.character(team2_id)]
+    
+    if (is.na(elo_a)) elo_a <- 1500
+    if (is.na(elo_b)) elo_b <- 1500
+    
+    team_a <- kenpom_data %>% filter(TeamID == team1_id)
+    team_b <- kenpom_data %>% filter(TeamID == team2_id)
+    
+    if (nrow(team_a) == 0 | nrow(team_b) == 0) {
+      return(list(winner_id = team1_id, p_team1 = 0.5, p_team2 = 0.5))
+    }
+    
+    team_a_pred <- predict(model, newdata = data.frame(
+      OffRating = team_a$AdjOE,
+      DefRating = team_b$AdjDE,
+      AdjT_team = team_a$`Adj T.`,
+      AdjT_opp  = team_b$`Adj T.`,
+      Diff_Elo  = elo_a - elo_b
+    ))
+    
+    team_b_pred <- predict(model, newdata = data.frame(
+      OffRating = team_b$AdjOE,
+      DefRating = team_a$AdjDE,
+      AdjT_team = team_b$`Adj T.`,
+      AdjT_opp  = team_a$`Adj T.`,
+      Diff_Elo  = elo_b - elo_a
+    ))
+    
+    result    <- simulate_game(team_a_pred, team_b_pred, sigma, n_sims = 100000)
+    p1        <- result$team_a_win_prob
+    p2        <- 1 - p1
+    
+    winner_id <- if (mode == "stochastic") {
+      ifelse(runif(1) < p1, team1_id, team2_id)
+    } else {
+      ifelse(p1 >= 0.5, team1_id, team2_id)
+    }
+    
+    loser_id   <- ifelse(winner_id == team1_id, team2_id, team1_id)
+    winner_elo <- elo_env$ratings[as.character(winner_id)]
+    loser_elo  <- elo_env$ratings[as.character(loser_id)]
+    
+    eW <- 1 / (1 + 10^((loser_elo - winner_elo) / width))
+    elo_env$ratings[as.character(winner_id)] <- winner_elo + k * (1 - eW)
+    elo_env$ratings[as.character(loser_id)]  <- loser_elo  + k * (0 - (1 - eW))
+    
+    list(winner_id = winner_id, p_team1 = p1, p_team2 = p2)
+  }
+}
+
+set.seed(42)
+
+prediction_model_womens <- make_womens_prediction_model(
+  kenpom_data = womens_ranks_final,
+  elo_data    = elo_2025_womens,
+  model       = womens_model,
+  sigma       = womens_sigma,
+  mode        = "stochastic"
+)
+
+source("R_Files/bracket_placement.R")
+
+bracket_results_2025_w <- run_full_tournament(
+  teams_df         = teams_2025_w,
+  prediction_model = prediction_model_womens
+)
+
+bracket_results_2025_w %>%
+  arrange(round, region, slot) %>%
+  select(round, region, game_id,
+         TeamName_High, seed_high,
+         TeamName_Low,  seed_low,
+         winner_id,
+         p_team_high, p_team_low) %>%
+  print(n = 100)
+
+champion_row_w <- bracket_results_2025_w %>% filter(round == 6)
+cat("\nPredicted women's championship matchup:\n")
+print(champion_row_w)
+
+View(bracket_results_2025_w)
+
+
 
 @
 
+The logistic regression and XGBoost models developed in the preceding sections predict win probabilities directly from features derived entirely from the Kaggle competition dataset. While both models demonstrated meaningful predictive performance, they share a fundamental limitation: the outcome variable is modeled as a function of aggregated season statistics without any explicit representation of how many points each team is expected to score in a given matchup. The Linear Regression Monte Carlo model takes a different approach by decomposing the prediction problem into two stages. In the first stage, a linear regression model is trained to predict the number of points a team will score given its own offensive efficiency, its opponent's defensive efficiency, and the pace at which both teams play. In the second stage, the predicted scores and their associated uncertainty are used to simulate each game thousands of times, with the win probability derived as the proportion of simulations in which the team of interest outscores its opponent. This simulation-based framework incorporates external efficiency ratings from two sources: KenPom for the men's division and Bart Torvik for the women's division. Both sources provide opponent-adjusted offensive and defensive efficiency metrics that are not available in the raw Kaggle box score data, allowing the model to draw on a richer and more carefully constructed measure of team quality than the previous two models.
+\usubsection{Linear Regression Monte Carlo}
+The Linear Regression Monte Carlo model is motivated by the observation that predicting a final score is a more tractable regression problem than directly estimating a win probability. Rather than asking the model to learn a complex nonlinear boundary between wins and losses, the linear regression stage asks a simpler question: given two teams' efficiency profiles, how many points should each team score? The residual standard deviation from this regression, denoted $\sigma$, captures the inherent unpredictability of college basketball scoring and serves as the engine of the simulation stage. By drawing repeated samples from the implied score distributions and counting the proportion of simulated games in which each team wins, the model converts a point estimate into a well-calibrated probability that naturally reflects the uncertainty in the underlying score prediction.
+\usubsubsection{Variable Selection}
+The feature set for the Linear Regression Monte Carlo model is built around opponent-adjusted efficiency ratings sourced externally rather than computed from raw box score totals. For the men's division, KenPom provides adjusted offensive efficiency (\texttt{ORtg}), adjusted defensive efficiency (\texttt{DRtg}), and adjusted tempo (\texttt{AdjT}), all of which account for the strength of opposition faced and the pace at which games were played \cite{KenPom}. For the women's division, equivalent metrics are sourced from Bart Torvik, providing adjusted offensive efficiency (\texttt{AdjOE}), adjusted defensive efficiency (\texttt{AdjDE}), and adjusted tempo (\texttt{AdjT}) \cite{Torvik}. These opponent-adjusted metrics are preferred over the raw box score averages available in the Kaggle dataset because they isolate a team's true efficiency from the confounding influence of schedule strength, providing a cleaner signal for predicting how many points a team will score against a given opponent.
+
+A key design decision in the feature construction is how the efficiency ratings are paired for each prediction. Rather than inputting each team's statistics in isolation, the model explicitly pits each team's offensive profile against the opponent's defensive profile. To predict Team A's score, the model uses Team A's adjusted offensive efficiency as \texttt{OffRating} and Team B's adjusted defensive efficiency as \texttt{DefRating}, along with both teams' tempo values. The same logic applies symmetrically to predict Team B's score. This pairing structure mirrors how scoring actually occurs in basketball — a team's expected output is not simply a function of how well it attacks, but how well it attacks against a specific opponent's defense. A team with an elite offense facing an elite defense should be expected to score fewer points than the same team facing a weak defense, and the feature pairing ensures the model captures this interaction directly rather than leaving it to be inferred from aggregate statistics alone.
+
+Two additional differential features are included to capture relative team quality beyond the efficiency ratings alone. The Elo differential (\texttt{Diff\_Elo}), computed as the difference between each team's end-of-season Elo rating, reflects the cumulative outcome of each team's season relative to its opponents. The Elo rating system used here follows the implementation described in \cite{haupts_elo}, originally written in Python and reimplemented in R for this analysis.
+
+For the men's division, an additional net rating differential (\texttt{Diff\_NetRtg}) is also included, defined as the difference between each team's KenPom net rating, which is the margin between adjusted offensive and defensive efficiency. This feature is not included in the women's model because the Bart Torvik data source does not provide a precomputed net rating, and computing it manually from \texttt{AdjOE} and \texttt{AdjDE} was not performed during implementation. This represents a known limitation of the women's model relative to the men's, and future iterations should compute and include this feature to fully align the two frameworks. Season identifiers and team identifiers are excluded from the feature matrix as they carry no generalizable predictive signal.
+
+\usubsubsection{Data Preparation}
+The data preparation pipeline for the Linear Regression Monte Carlo model differs from the previous two models in two important ways. First, the training data is drawn exclusively from the current regular season rather than historical tournament games. The men's model is trained on all $2025$ regular season games and the women's model is trained on all $2025$ regular season games, meaning the linear regression learns to predict points scored from efficiency ratings and pace as observed in that season's regular season play. This is appropriate because the external efficiency ratings from KenPom and Bart Torvik are also season-specific, reflecting the adjusted efficiencies accumulated over the $2025$ regular season only. Second, the model requires an additional data integration step not present in the previous models: team name matching between the external ratings sources and the Kaggle team identifier system.
+
+KenPom and Bart Torvik use their own team name conventions which do not always align with the spellings used in the Kaggle dataset. To resolve this, a two-stage matching pipeline is applied. In the first stage, team names from the external source are normalized to lowercase and matched exactly against the Kaggle team spellings lookup file. Teams that match exactly are assigned their Kaggle \texttt{TeamID} directly. In the second stage, teams that remain unmatched after exact matching are passed through a fuzzy matching procedure using the Jaro-Winkler string distance metric with a maximum distance threshold of $0.3$ \cite{JW}. For each unmatched team the closest spelling in the Kaggle lookup file is selected, allowing minor variations in punctuation, abbreviation, and spacing to be resolved automatically. This two-stage approach ensures that the efficiency ratings can be reliably joined to the Kaggle game results without manual intervention. In practice all teams in both the men's and women's divisions were successfully matched, with no teams remaining unmatched after the two stage pipeline.
+
+Each regular season game is duplicated symmetrically in the same manner as the XGBoost training data, generating one row from the scoring team's perspective and one from the opponent's perspective. This ensures the model learns to predict points from both orientations and does not develop a directional bias. The Elo ratings used as a differential feature are computed from the full historical regular season results available in the Kaggle dataset, spanning multiple decades of game results. At the start of the first available season every team is initialized at $1500$. Ratings are then updated after every regular season game and carried over between seasons according to $R_{\text{new}} = 0.5 \times R_{\text{final}} + 750$, meaning each team's end-of-season rating partially persists into the following year rather than resetting. By the time the $2025$ end-of-season ratings are extracted, they reflect the cumulative outcome of over two decades of regular season results, giving historically dominant programs a meaningfully higher baseline than programs with limited historical success. Following symmetric duplication, the training matrix is filtered using \texttt{complete.cases} to retain only rows where every feature is present. In practice no rows were removed, indicating that every team in the $2025$ regular season had sufficient data across all feature sources to produce a complete profile. The final men's training matrix consisted of $10,326$ rows and $6$ features, while the women's training matrix consisted of $10,828$ rows and $5$ features, with the women's model excluding \texttt{Diff\_NetRtg} as discussed in the Variable Selection section.
+
+\usubsubsection{Model Implementation}
+The linear regression model is fit using ordinary least squares, which identifies the coefficient vector $\hat{\beta}$ that minimizes the sum of squared residuals between the predicted and observed scores across all training observations. Unlike the logistic regression described in the prior section, which models the log-odds of a binary outcome, the linear regression here models a continuous response, the number of points a team scores in a given game. The formal specification for the men's model is:
+\begin{equation}
+\begin{split}
+\text{Points} = \beta_0 &+ \beta_1(\texttt{OffRating}) + \beta_2(\texttt{DefRating}) + \beta_3(\texttt{AdjT\_team}) \\
+&+ \beta_4(\texttt{AdjT\_opp}) + \beta_5(\texttt{Diff\_NetRtg}) + \beta_6(\texttt{Diff\_Elo}) + \varepsilon
+\end{split}
+\end{equation}
+and for the women's model:
+\begin{equation}
+\begin{split}
+\text{Points} = \beta_0 &+ \beta_1(\texttt{OffRating}) + \beta_2(\texttt{DefRating}) + \beta_3(\texttt{AdjT\_team}) \\
+&+ \beta_4(\texttt{AdjT\_opp}) + \beta_5(\texttt{Diff\_Elo}) + \varepsilon
+\end{split}
+\end{equation}
+
+where $\varepsilon \sim \mathcal{N}(0, \sigma^2)$ is the residual error term. The residual standard deviation $\sigma$ is estimated from the training data. The values of $\sigma$ for both divisions are reported and interpreted in the Model Analysis section, where they serve as a measure of the model's predictive accuracy. Here $\sigma$ serves as the key input to the simulation stage, quantifying the uncertainty around each predicted score. The resulting coefficients reflect both the direction and magnitude of each predictor's contribution to the expected score. A positive coefficient on \texttt{OffRating} indicates that a team with a higher adjusted offensive efficiency is expected to score more points, which is consistent with basketball theory. Similarly, a positive coefficient on \texttt{DefRating} reflects the opponent's defensive efficiency, a higher opponent defensive rating means the opponent allows more points per possession, which naturally increases the scoring team's expected output. A positive coefficient on \texttt{AdjT\_team} indicates that teams playing at a faster pace are expected to score more points in absolute terms, since more possessions create more scoring opportunities, while \texttt{AdjT\_opp} captures the opponent's contribution to the pace of the game.
+
+To convert the predicted scores into win probabilities, a Monte Carlo simulation is applied to each tournament matchup. For a given matchup between Team A and Team B, the linear regression produces two point estimates $\hat{\mu}_A$ and $\hat{\mu}_B$, representing the expected scores for each team given their respective efficiency profiles and the matchup context. Score realizations are then drawn independently for each team:
+
+\begin{align}
+\text{Score}_A &\sim \mathcal{N}(\hat{\mu}_A, \sigma^2) \\
+\text{Score}_B &\sim \mathcal{N}(\hat{\mu}_B, \sigma^2).
+\end{align}
+
+The win probability for Team A is then computed as:
+
+\begin{equation}
+\hat{P}(\text{Team A wins}) = \frac{1}{n} \sum_{i=1}^{n} \mathbf{1}[\text{Score}_{A,i} > \text{Score}_{B,i}]
+\end{equation}
+
+This proportion $\hat{P}(\text{Team A wins})$ is submitted directly to Kaggle as the predicted win probability for the matchup, with the complementary probability $1 - \hat{P}(\text{Team A wins})$ implicitly assigned to Team B. The normality assumption for score distributions is motivated by the central limit theorem: a team's final score is the aggregate of many independent possession outcomes, and the distribution of these aggregates converges toward normality as the number of possessions increases. The men's model uses $n = 100,000$ simulations per matchup, and the women's $2025$ submission used $n = 50,000$ due to an implementation inconsistency discussed in the limitations section. At both sample sizes, the standard error of the proportion estimate is bounded by $\sqrt{p(1-p)/n} \leq 0.002$ at $n = 50,000$ in the worst case, confirming that the estimates have converged to stable values.
+
+As with the logistic regression, separate models are trained for the men's and women's divisions rather than a single combined model. The justification mirrors that of the prior section. The relationship between efficiency ratings, tempo, and scoring may differ structurally between divisions due to differences in pace, physicality, and playing style. Training separate models allows each set of coefficients to reflect the unique dynamics of its respective division rather than forcing shared parameter estimates that could mask meaningful differences.
+
+An important practical consideration in this implementation is the decision to train exclusively on the current regular season rather than pooling multiple years of data. A single NCAA regular season produces several thousand games per division, which is sufficient to estimate a low-dimensional model with six or seven predictors reliably. However, this also means the model is sensitive to season-specific variation in how efficiency ratings translate to scoring. A team whose KenPom ratings were inflated by a weak schedule may be overestimated by the model, and conversely, a team that peaked late in the season after an early slump may have efficiency ratings that understate their true tournament form. These limitations are inherent to any model that relies on season-aggregate statistics and are shared to varying degrees by all three modeling approaches in this analysis. For this reason, the model is deliberately kept parsimonious, relying on six predictors for the men's model and five for the women's rather than expanding the feature set further. This is consistent with the principle of Occam's Razor applied in the logistic regression section. A simpler model that generalizes reliably is preferred over a more complex one that risks overfitting to season-specific patterns in the training data \cite{occam}.
 
 
 
 
-\begin{center}
-\section{Point Spread Models}
-\end{center}
-\thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
-This part is the last section. It will be mirrored more or less the same as the previous two, but the idea is different.
 
 
-instead of creating a model that produces a probability at the end of team A beating team B. we instead uses linear regression to try and model the median points scored for each individual team. The model for the median is taken specifically from kenpom and bartorvik rankings and stats which had to be data scrapped TODAY 3/16/26. I had to wait to get the rankings and numbers of each team going into the tournament, before the tournament. 
 
 
-We model a median for each team in the tournament, then simulate 500 times for each team. The standard deviation is constant among the league. Most models use a $\sigma$ between $7$ and $9$. There's a theory behind it. We create pairs of simulations for each Team. For example if its Duke vs Oregon we would simulate Duke and Oregon 500 times as a couple. Whoever scored the most points for that pair was deemed a winner. We do that 500 times, and then how many games Team A beat Team B is the probability that we use for the prediction. This simulation is done for men and women separately. 
-
-Using this idea I also created a bracket simulation which I might include into the other two models for prediction purposes. We use makrov chain ideas to predict probabilities going into tournaments. That way we can see an actual outcome of the bracket, instead of it being just every possible matchup between every possible team. All the predictions must be submitted by Wednesday night.  
 
 
-%%%%%%%%%%%%%%%%%%%%%%
-\usubsection{s}
-Here are my insights...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \newpage
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{center}
 \section{Comparison of models}
 \end{center}
 \thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
-%%%%%%%%%%%%%%%%%%%%%%
+
 
 pros and cons of each model. going into detail why we pick the model we do for the tournament
 \newpage
@@ -2359,6 +2881,8 @@ i am free
 
 \bibitem{CBS} Boone, Kyle. “How NIL Has Changed College Basketball: Numbers Deep Dive Reveals Surprising Trends, Recipe for Success.” CBSSports.com, 2025, www.cbssports.com/college-basketball/news/how-nil-has-changed-college-basketball-numbers-deep-dive-reveals-surprising-trends-recipe-for-success/.
 
+\bibitem{haupts_elo} L. Haupts, ``Calculate Elo Ratings,'' Kaggle Notebook, 2025. [Online]. Available: \url{https://www.kaggle.com/code/lennarthaupts/calculate-elo-ratings}
+
 \bibitem{Optimization} Melis Kizildemir, et al. “A Family of Solutions Related to Shin’s Model for Probability Forecasts.” Journal of Quantitative Analysis in Sports, vol. 21, no. 2, 6 Feb. 2025, pp. 153–158, https://doi.org/10.1515/jqas-2024-0064. Accessed 20 Jan. 2026.
 
 \bibitem{EMH} Burns, William. “Efficient-Market Hypothesis (EMH) | EBSCO.” EBSCO Information Services, Inc. | Www.ebsco.com, 2024, www.ebsco.com/research-starters/social-sciences-and-humanities/efficient-market-hypothesis-emh.
@@ -2403,6 +2927,8 @@ i am free
 \bibitem{Bergen2018} Harris, Janie. “How Hard Is It to Pick a Perfect Bracket? | NCAA.com.” Www.ncaa.com, 18 Feb. 2026, www.ncaa.com/news/basketball-men/bracketiq/2018-02-15/march-madness-bracket-challenge-how-hard-it-pick-perfect. 
 
 \bibitem{Sokol2026} “Bracketology Driven by Data | News Center.” Georgia Tech News Center, 2026, news.gatech.edu/news/2026/03/18/bracketology-driven-data.
+
+\bibitem{JW} International, Journal For Innovative Research In Multidisciplinary Field, and Issn. “Jaro Winkler Fuzzy Match Algorithm to Calculate a Similarity Index between Two Strings Using Open Source Platform.” Peer-Reviewed, Refereed, Indexed Journal with IC, no. 8, 2018, pp. 2455-0620, www.ijirmf.com/wp-content/uploads/IJIRMF201808019.pdf. Accessed 7 Apr. 2026.
 
 \bibitem{Simon2024} Simon, Jay. “Inefficient Forecasts at the Sportsbook: An Analysis of Real-Time Betting Line Movement.” Management Science, vol. 70, no. 12, Dec. 2024, pp. 8583–8611, https://doi.org/10.1287/mnsc.2022.00456. Accessed 6 Jan. 2025.
 

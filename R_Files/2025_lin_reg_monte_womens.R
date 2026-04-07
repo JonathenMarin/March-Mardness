@@ -407,3 +407,8 @@ cat("\nPredicted women's championship matchup:\n")
 print(champion_row_w)
 
 View(bracket_results_2025_w)
+
+cat("Total training samples:", nrow(womens_train_data), "\n")
+cat("Total features:", ncol(womens_train_data) - 1, "\n")
+cat("Feature names:", paste(names(womens_train_data)[names(womens_train_data) != "Points"], collapse = ", "), "\n")
+

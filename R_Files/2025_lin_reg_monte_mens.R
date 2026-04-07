@@ -407,3 +407,8 @@ cat("\nPredicted championship matchup:\n")
 print(champion_row)
 
 View(bracket_results_2025)
+
+
+cat("Total training samples:", nrow(train_data), "\n")
+cat("Total features:", ncol(train_data) - 1, "\n")  # minus 1 for the target variable Points
+cat("Feature names:", paste(names(train_data)[names(train_data) != "Points"], collapse = ", "), "\n")
