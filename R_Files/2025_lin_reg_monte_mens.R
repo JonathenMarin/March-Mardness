@@ -4,7 +4,7 @@ library(data.table)
 library(fuzzyjoin)
 library(ggplot2)
 library(performance)
-
+library(pROC)
 # 1. DATA LOAD AND CLEANING -----------------------------------------------
 
 Mteams    <- fread("march-machine-learning-mania-2025/MTeams_2025.csv")
@@ -408,7 +408,35 @@ print(champion_row)
 
 View(bracket_results_2025)
 
+conf_matrix_mc_mens <- table(Predicted = predictions_2025, 
+                             Actual = tournament_predictions$Actual)
+conf_df_mc_mens <- as.data.frame(conf_matrix_mc_mens)
+conf_df_mc_mens$Predicted <- factor(conf_df_mc_mens$Predicted, 
+                                    levels = c(0, 1), labels = c("Loss", "Win"))
+conf_df_mc_mens$Actual <- factor(conf_df_mc_mens$Actual, 
+                                 levels = c(0, 1), labels = c("Loss", "Win"))
 
-cat("Total training samples:", nrow(train_data), "\n")
-cat("Total features:", ncol(train_data) - 1, "\n")  # minus 1 for the target variable Points
-cat("Feature names:", paste(names(train_data)[names(train_data) != "Points"], collapse = ", "), "\n")
+plot_conf_mc_mens <- ggplot(conf_df_mc_mens, aes(x = Actual, y = Predicted, fill = Freq)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = Freq), size = 6) +
+  scale_fill_gradient(low = "white", high = "steelblue") +
+  scale_y_discrete(limits = rev) +
+  labs(title = "Monte Carlo 2025 Men's", x = "Actual", y = "Predicted") +
+  theme_minimal() +
+  theme(legend.position = "none", plot.title = element_text(hjust = 0.5))
+
+print(plot_conf_mc_mens)
+
+roc_mens <- roc(tournament_predictions$Actual, tournament_predictions$Pred)
+cat("Men's AUC:", round(auc(roc_mens), 4), "\n")
+
+roc_mens <- roc(tournament_predictions$Actual, tournament_predictions$Pred)
+
+ggroc(roc_mens) +
+  geom_abline(slope = 1, intercept = 1, linetype = "dashed", color = "gray") +
+  labs(title = "ROC Curve - Men's Monte Carlo 2025",
+       x = "Specificity",
+       y = "Sensitivity") +
+  theme_minimal() +
+  annotate("text", x = 0.25, y = 0.1, 
+           label = paste("AUC =", round(auc(roc_mens), 4)))

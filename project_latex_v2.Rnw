@@ -2909,8 +2909,7 @@ pros and cons of each model. going into detail why we pick the model we do for t
 
 talking about the results of each model in the competition, as well as our submission.
 %%%%%%%%%%%%%%%%%%%%%%
-\usubsection{Strategies}
-Here are my insights...
+
 \usubsection{Results}
 
 \newpage

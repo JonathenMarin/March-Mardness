@@ -408,7 +408,34 @@ print(champion_row_w)
 
 View(bracket_results_2025_w)
 
-cat("Total training samples:", nrow(womens_train_data), "\n")
-cat("Total features:", ncol(womens_train_data) - 1, "\n")
-cat("Feature names:", paste(names(womens_train_data)[names(womens_train_data) != "Points"], collapse = ", "), "\n")
+womens_preds_mc <- ifelse(womens_tournament_predictions$Pred > 0.5, 1, 0)
+conf_matrix_mc_womens <- table(Predicted = womens_preds_mc,
+                               Actual = womens_tournament_predictions$Actual)
+conf_df_mc_womens <- as.data.frame(conf_matrix_mc_womens)
+conf_df_mc_womens$Predicted <- factor(conf_df_mc_womens$Predicted,
+                                      levels = c(0, 1), labels = c("Loss", "Win"))
+conf_df_mc_womens$Actual <- factor(conf_df_mc_womens$Actual,
+                                   levels = c(0, 1), labels = c("Loss", "Win"))
 
+plot_conf_mc_womens <- ggplot(conf_df_mc_womens, aes(x = Actual, y = Predicted, fill = Freq)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = Freq), size = 6) +
+  scale_fill_gradient(low = "white", high = "steelblue") +
+  scale_y_discrete(limits = rev) +
+  labs(title = "Monte Carlo 2025 Women's", x = "Actual", y = "Predicted") +
+  theme_minimal() +
+  theme(legend.position = "none", plot.title = element_text(hjust = 0.5))
+
+print(plot_conf_mc_womens)
+
+
+roc_womens <- roc(womens_tournament_predictions$Actual, womens_tournament_predictions$Pred)
+
+ggroc(roc_womens) +
+  geom_abline(slope = 1, intercept = 1, linetype = "dashed", color = "gray") +
+  labs(title = "ROC Curve - Women's Monte Carlo 2025",
+       x = "Specificity",
+       y = "Sensitivity") +
+  theme_minimal() +
+  annotate("text", x = 0.25, y = 0.1, 
+           label = paste("AUC =", round(auc(roc_womens), 4)))
