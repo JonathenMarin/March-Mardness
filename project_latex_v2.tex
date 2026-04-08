@@ -17,7 +17,7 @@
 %Thanks to Dr. Gerardo Munoz for initially creating the formatting of the title, approval, and authorization for reproduction pages.
 %Last Updated: November 2012 (GM).
 %Last Modified: Oscar Vega, August 2021.
-\documentclass[12pt,leqno]{article}\usepackage[pdftex]{graphicx}\usepackage[usenames,dvipsnames]{xcolor}
+\documentclass[12pt,leqno]{article}\usepackage[pdftex]{graphicx}\usepackage[dvipsnames]{xcolor}
 % maxwidth is the original width if it is less than linewidth
 % otherwise use linewidth (to make sure the graphics do not exceed the margin)
 \makeatletter
@@ -89,7 +89,7 @@
 %%%%%%%%%%%                                        Fresno State Formatting Requirements Begins                                  %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%y%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+\setlength{\headheight}{14.49998pt}
 \usepackage{tocloft} %For table of contents.
 \usepackage{verbatim} %Allows us to use \setcounter for manipulating pages
 \usepackage{setspace} %Lets user change line spacing of text: normal, 1.5x, and double
@@ -190,7 +190,7 @@
 % You, most probably, don't need all what follows. Comment out whatever you don't need to better run LaTeX.
 \usepackage[all]{nowidow} %this is to avoid orphan lines
 \usepackage{array}
-\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage[dvipsnames]{xcolor}
 \usepackage{tikz}
 %\usepackage{subfigure}
 
@@ -800,8 +800,8 @@ Setting aside the 2024 anomaly, the remaining backtests reveal a consistent tren
 \usubsubsection{Model Analysis}
 With the models estimated on the 2023 and 2024 tournament data, the resulting coefficients can be examined to evaluate which of the Four Factors carry meaningful predictive weight in each division. Because separate models were trained for the men's and women's tournaments, the coefficient structures can be analyzed independently and then compared to assess whether the Four Factors operate differently across divisions. Tables \ref{tab:mens_coef} and \ref{tab:womens_coef} present the estimated coefficients, p-values, and significance levels for the men's and women's models respectively.
 
-% latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Tue Apr  7 16:55:39 2026
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Wed Apr  8 01:06:32 2026
 \begin{table}[ht]
 \centering
 \caption{Logistic Regression Coefficient Estimates (Men's 2025 Model)} 
@@ -819,8 +819,8 @@ Intercept & 0.4352 & 0.0348 & * \\
    \hline
 \end{tabular}
 \end{table}
-% latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Tue Apr  7 16:55:39 2026
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Wed Apr  8 01:06:32 2026
 \begin{table}[ht]
 \centering
 \caption{Logistic Regression Coefficient Estimates (Women's 2025 Model)} 
@@ -1045,7 +1045,7 @@ and for the women's model:
 \end{split}
 \end{equation}
 
-where $\varepsilon \sim \mathcal{N}(0, \sigma^2)$ is the residual error term. The residual standard deviation $\sigma$ is estimated from the training data and extracted as \texttt{summary(model)\$sigma}. The values of $\sigma$ for both divisions are reported and interpreted in the Model Analysis section, where they serve as a measure of the model's predictive accuracy. Here $\sigma$ serves as the key input to the simulation stage, quantifying the uncertainty around each predicted score. The resulting coefficients reflect both the direction and magnitude of each predictor's contribution to the expected score. A positive coefficient on \texttt{OffRating} indicates that a team with a higher adjusted offensive efficiency is expected to score more points, which is consistent with basketball theory. Similarly, a positive coefficient on \texttt{DefRating} reflects the opponent's defensive efficiency, a higher opponent defensive rating means the opponent allows more points per possession, which naturally increases the scoring team's expected output. A positive coefficient on \texttt{AdjT\_team} indicates that teams playing at a faster pace are expected to score more points in absolute terms, since more possessions create more scoring opportunities, while \texttt{AdjT\_opp} captures the opponent's contribution to the pace of the game.
+where $\varepsilon \sim \mathcal{N}(0, \sigma^2)$ is the residual error term. The residual standard deviation $\sigma$ is estimated from the training data. The values of $\sigma$ for both divisions are reported and interpreted in the Model Analysis section, where they serve as a measure of the model's predictive accuracy. Here $\sigma$ serves as the key input to the simulation stage, quantifying the uncertainty around each predicted score. The resulting coefficients reflect both the direction and magnitude of each predictor's contribution to the expected score. A positive coefficient on \texttt{OffRating} indicates that a team with a higher adjusted offensive efficiency is expected to score more points, which is consistent with basketball theory. Similarly, a positive coefficient on \texttt{DefRating} reflects the opponent's defensive efficiency, a higher opponent defensive rating means the opponent allows more points per possession, which naturally increases the scoring team's expected output. A positive coefficient on \texttt{AdjT\_team} indicates that teams playing at a faster pace are expected to score more points in absolute terms, since more possessions create more scoring opportunities, while \texttt{AdjT\_opp} captures the opponent's contribution to the pace of the game.
 
 To convert the predicted scores into win probabilities, a Monte Carlo simulation is applied to each tournament matchup. For a given matchup between Team A and Team B, the linear regression produces two point estimates $\hat{\mu}_A$ and $\hat{\mu}_B$, representing the expected scores for each team given their respective efficiency profiles and the matchup context. Score realizations are then drawn independently for each team:
 
@@ -1065,28 +1065,98 @@ This proportion $\hat{P}(\text{Team A wins})$ is submitted directly to Kaggle as
 As with the logistic regression, separate models are trained for the men's and women's divisions rather than a single combined model. The justification mirrors that of the prior section. The relationship between efficiency ratings, tempo, and scoring may differ structurally between divisions due to differences in pace, physicality, and playing style. Training separate models allows each set of coefficients to reflect the unique dynamics of its respective division rather than forcing shared parameter estimates that could mask meaningful differences.
 
 An important practical consideration in this implementation is the decision to train exclusively on the current regular season rather than pooling multiple years of data. A single NCAA regular season produces several thousand games per division, which is sufficient to estimate a low-dimensional model with six or seven predictors reliably. However, this also means the model is sensitive to season-specific variation in how efficiency ratings translate to scoring. A team whose KenPom ratings were inflated by a weak schedule may be overestimated by the model, and conversely, a team that peaked late in the season after an early slump may have efficiency ratings that understate their true tournament form. These limitations are inherent to any model that relies on season-aggregate statistics and are shared to varying degrees by all three modeling approaches in this analysis. For this reason, the model is deliberately kept parsimonious, relying on six predictors for the men's model and five for the women's rather than expanding the feature set further. This is consistent with the principle of Occam's Razor applied in the logistic regression section. A simpler model that generalizes reliably is preferred over a more complex one that risks overfitting to season-specific patterns in the training data \cite{occam}.
+\usubsubsection{Model Analysis}
+With the models estimated on the $2025$ regular season data, the resulting coefficients can be examined to evaluate which predictors carry meaningful weight in each division and how well the linear regression captures the relationship between efficiency ratings and scoring. Because separate models were trained for the men's and women's tournaments, the coefficient structures can be analyzed independently and then compared to assess whether the efficiency and tempo features operate differently across divisions. Tables \ref{tab:mens_coef_mc} and \ref{tab:womens_coef_mc} present the estimated coefficients, p-values, and significance levels for the men's and women's models respectively.
 
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Wed Apr  8 01:06:35 2026
+\begin{table}[ht]
+\centering
+\caption{Linear Regression Coefficient Estimates (Men's 2025 Model)} 
+\label{tab:mens_coef_mc}
+\begin{tabular}{lrrl}
+  \hline
+Variable & Estimate & p-value & Sig. \\ 
+  \hline
+Intercept & -207.3986 & 0.0000 & *** \\ 
+  Off Rating & 0.6519 & 0.0000 & *** \\ 
+  Def Rating & 0.6421 & 0.0000 & *** \\ 
+  AdjT Team & 1.0826 & 0.0000 & *** \\ 
+  AdjT Opp & 1.0086 & 0.0000 & *** \\ 
+  Diff NetRtg & 0.0540 & 0.0029 & ** \\ 
+  Diff Elo & 0.0013 & 0.1229 &  \\ 
+   \hline
+\end{tabular}
+\end{table}
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Wed Apr  8 01:06:35 2026
+\begin{table}[ht]
+\centering
+\caption{Linear Regression Coefficient Estimates (Women's 2025 Model)} 
+\label{tab:womens_coef_mc}
+\begin{tabular}{lrrl}
+  \hline
+Variable & Estimate & p-value & Sig. \\ 
+  \hline
+Intercept & -202.9007 & 0.0000 & *** \\ 
+  Off Rating & 0.7309 & 0.0000 & *** \\ 
+  Def Rating & 0.7866 & 0.0000 & *** \\ 
+  AdjT Team & 0.9605 & 0.0000 & *** \\ 
+  AdjT Opp & 0.8542 & 0.0000 & *** \\ 
+  Diff Elo & 0.0024 & 0.0000 & *** \\ 
+   \hline
+\end{tabular}
+\end{table}
 
+In the men's model, four of the six predictors reach conventional statistical significance at the $0.001$ level: \texttt{OffRating}, \texttt{DefRating}, \texttt{AdjT\_team}, and \texttt{AdjT\_opp}. The positive coefficient on \texttt{OffRating} ($\hat{\beta} = 0.6519$) confirms that teams with higher adjusted offensive efficiency are expected to score more points, consistent with the feature's definition. The positive coefficient on \texttt{DefRating} ($\hat{\beta} = 0.6421$) reflects that facing a weaker defense, one that allows more points per $100$ possessions, is associated with higher expected scoring. Both tempo features carry positive and similarly sized coefficients, with \texttt{AdjT\_team} ($\hat{\beta} = 1.083$) and \texttt{AdjT\_opp} ($\hat{\beta} = 1.009$) indicating that faster pace from either team is associated with more points scored in absolute terms, consistent with the interpretation that more possessions generate more scoring opportunities. \texttt{Diff\_NetRtg} reaches significance at the $0.01$ level ($p = 0.0029$), contributing a small but meaningful positive adjustment to the expected score when a team's net rating differential over its opponent is favorable. \texttt{Diff\_Elo}, however, fails to reach significance ($p = 0.1229$), suggesting that once the KenPom efficiency ratings and net rating differential are accounted for, the Elo differential contributes no additional explanatory power in the men's model.
 
+The women's model tells a somewhat different story. All five predictors reach statistical significance, including \texttt{Diff\_Elo} ($\hat{\beta} = 0.002383$, $p < 0.001$), which was insignificant in the men's model. The efficiency and tempo coefficients are larger in magnitude for the women's model than the men's, with \texttt{OffRating} at $0.7309$ versus $0.6519$ and \texttt{DefRating} at $0.7866$ versus $0.6421$, suggesting that adjusted efficiency ratings are more predictive of actual scoring in the women's game. The significance of \texttt{Diff\_Elo} in the women's model but not the men's is directly attributable to the absence of \texttt{Diff\_NetRtg} in the women's feature set. In the men's model, \texttt{Diff\_NetRtg} and \texttt{Diff\_Elo} share variance since both capture overall team quality di fferential, and \texttt{Diff\_NetRtg} absorbs the signal that \texttt{Diff\_Elo} would otherwise contribute. In the women's model, with \texttt{Diff\_NetRtg} absent, \texttt{Diff\_Elo} becomes the primary carrier of that signal and its contribution is clearly detectable.
 
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+\includegraphics[width=\textwidth]{figure/diag_mens-1} \caption[Diagnostic Plots for the Men's Linear Regression Model]{Diagnostic Plots for the Men's Linear Regression Model}\label{fig:diag_mens}
+\end{figure}
 
+\end{knitrout}
 
+The two models also differ meaningfully in their goodness of fit. The women's model achieves an $R^2$ of $0.524$, meaning it explains $52.4\%$ of the variance in points scored, compared to $0.379$ for the men's model. This gap suggests that Bart Torvik efficiency ratings are more predictive of women's scoring outcomes than KenPom men's rankings. This is possibly because the women's game exhibits less of the high variance play that characterizes men's basketball at the tournament level \cite{parity}. The residual standard deviations are $\sigma = 9.507$ for the men's model and $\sigma = 9.300$ for the women's model, meaning the women's model's score predictions are marginally more precise. These values of $\sigma$ feed directly into the Monte Carlo simulation as the spread of the score distribution, so the women's slightly lower $\sigma$ means its win probability estimates are derived from slightly tighter score distributions.
 
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+\includegraphics[width=\textwidth]{figure/diag_womens-1} \caption[Diagnostic Plots for the Women's Linear Regression Model]{Diagnostic Plots for the Women's Linear Regression Model}\label{fig:diag_womens}
+\end{figure}
 
+\end{knitrout}
 
+Figure \ref{fig:diag_mens} presents the diagnostic plots for the men's model and Figure \ref{fig:diag_womens} presents the equivalent plots for the women's model. In both cases, the Residuals vs. Fitted plots show residuals randomly scattered around zero with approximately flat smoothing lines, confirming that the linearity assumption is reasonably satisfied across the range of predicted scores. The Q-Q plots show that the residuals follow the theoretical normal line closely through the central range in both models, with some deviation in the tails where a small number of extreme scoring observations pull away from the reference line. This tail behavior is driven by the frequency of extreme blowouts that act as outlying observations, a phenomenon well-documented in empirical sports modeling \cite{tails}. This deviation does not materially undermine the normality assumption that motivates the simulation framework, particularly given the large training sample sizes of over $10,000$ observations in each division. The Residuals vs. Leverage plots confirm that no observations exert undue influence on the model estimates in either division, as no points fall outside Cook's distance boundaries and leverage values remain uniformly small.
 
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
 
+{\centering \includegraphics[width=0.9\textwidth]{figure/vif_mens-1} 
 
+}
 
+\caption[VIF Plot for the Men's Linear Regression Model]{VIF Plot for the Men's Linear Regression Model}\label{fig:vif_mens}
+\end{figure}
 
+\end{knitrout}
 
+The VIF analysis reveals a meaningful structural difference between the two models. In the men's model, shown in Figure \ref{fig:vif_mens}, \texttt{Diff\_NetRtg} carries a moderate VIF of approximately $7.5$, the highest among all predictors, indicating that it shares substantial variance with other features in the model. This collinearity is the direct cause of \texttt{Diff\_Elo}'s insignificance in the men's model, as the two features capture overlapping information about team quality differential. In the women's model, shown in Figure \ref{fig:vif_womens}, with \texttt{Diff\_NetRtg} absent, all VIF values fall below $5$ and are classified as low, indicating a cleaner feature structure with no problematic collinearity. While the men's model's moderate collinearity does not invalidate the estimates, it inflates the standard errors of the affected coefficients and makes it more difficult to isolate the individual contributions of correlated predictors. This is an accepted consequence given that both features were included for their theoretical relevance rather than purely statistical grounds.
 
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
 
+{\centering \includegraphics[width=0.9\textwidth]{figure/vif_womens-1} 
 
+}
 
+\caption[VIF Plot for the Women's Linear Regression Model]{VIF Plot for the Women's Linear Regression Model}\label{fig:vif_womens}
+\end{figure}
 
+\end{knitrout}
 
-
+Taken together, the diagnostic analysis confirms that both models satisfy the core assumptions of linear regression sufficiently to justify their use in the simulation framework. The women's model is the stronger of the two by every measured criterion, achieving higher $R^2$, lower $\sigma$, cleaner VIF structure, and full predictor significance. The men's model is adequate but limited by the moderate collinearity between \texttt{Diff\_NetRtg} and \texttt{Diff\_Elo} and the lower overall explanatory power of the efficiency features in the men's regular season data. These findings reinforce the decision to train the models independently rather than pooling the divisions, as the structural differences in coefficient magnitudes, predictor significance, and goodness of fit confirm that the two divisions are not governed by the same scoring dynamics.
 
 
 
@@ -1201,11 +1271,21 @@ i am free
 
 \bibitem{Simon2024} Simon, Jay. “Inefficient Forecasts at the Sportsbook: An Analysis of Real-Time Betting Line Movement.” Management Science, vol. 70, no. 12, Dec. 2024, pp. 8583–8611, https://doi.org/10.1287/mnsc.2022.00456. Accessed 6 Jan. 2025.
 
+\bibitem{parity} Figueroa, Jared. “Why Does the Women’s NCAA Tournament Feature so Few Upsets?” Cronkite News, 18 Mar. 2026, cronkitenews.azpbs.org/2026/03/18/women-ncaa-tournament-features-few-upsets/. Accessed 8 Apr. 2026.
+
+
+\bibitem{tails} Harville, David A. ``The Selection or Seeding of College Basketball or Football Teams for Postseason Competition.'' \textit{Journal of the American Statistical Association}, vol. 98, no. 461, March 2003, pp. 17--27, \url{https://doi.org/10.1198/016214503388619058}.
+
+
+
+
+
+
+
+
+
+
 \end{thebibliography}
-
-
- 
-
 
 
 
