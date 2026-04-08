@@ -493,7 +493,8 @@ This paper aims to construct a predictive framework capable of meeting this stan
 
 Motivated by this challenge, substantial research has addressed the complexities of March Madness prediction. The majority of this work focuses on engineering feature sets for learning algorithms ranging from linear regression to more complex ensemble methods. While the Kaggle competition provides foundational game statistics, transforming these into effective predictors requires significant effort. The following subsection details the specific data types provided by the competition to establish this baseline. The final subsection we review existing literature with a primary focus on feature engineering. Finally, the paper details the implementation of distinct modeling techniques. This comparative analysis examines linear and logistic regression alongside additional statistical methods. These models are compared against one another and evaluated relative to the winning scores from prior competitions.
 % NOTE THAT THE TEMPLATE DOES NOT HAVE CHAPTERS, BUT SECTIONS, AND THAT THESE ARE NOT NUMBERED...
-\usubsection{Dataset}
+\newpage
+\section{DATA}
 The highly quantifiable nature of basketball ensures that statistical data is both abundant and accessible. While the Kaggle competition permits participants to incorporate any external datasets they acquire, the organizers themselves provide a comprehensive archive. This repository includes over $30$ distinct tables of historical data spanning more than three decades. All tables are separated by gender, with the exception of the public rankings table, which is compiled exclusively for the men's division. The data provided by Kaggle is split into regular season and postseason files. For the purposes of this project, the tournament phase is referred to as the playoffs. This research focuses primarily on the detailed results tables for both the regular season and the playoffs while also utilizing the essential rankings and seeding tables. Although the broader archive extends further back, the detailed game statistics required for this analysis commence in the $2003$ season. Each entry in these tables provides a comprehensive statistical breakdown for both the winning and losing teams in every recorded matchup. The schema utilizes the prefix \texttt{W} to denote statistics for the winning team and the prefix \texttt{L} for the losing team. Table \ref{tab:boxscore} summarizes the specific variables recorded for each team.
 \begin{table}[h]
 \centering
@@ -608,7 +609,7 @@ The table highlights an important property of the Brier Score: overconfident inc
 
 The first framework relies on fundamental analysis where the objective is to construct a ground-truth probability independent of public sentiment. A common implementation of this approach involves utilizing domain-specific heuristics such as the elo rating system. Originally designed for chess, elo provides a dynamic measure of team strength that updates after every game. It offers a robust baseline that accounts for strength of schedule more effectively than raw win-loss records \cite{chess}. Many strategies also incorporate expert features. These include the Nate Silver, FiveThirtyEight, and KenPom ratings which act as high-signal inputs that aggregate player health, travel distance, and roster depth into a single numeric value. By treating these expert outputs as features rather than final predictions, modelers can leverage human domain expertise while correcting for known expert biases.
 
-The second dominant framework relies on the Efficient Market Hypothesis \cite{EMH}. This approach posits that global betting markets, specifically closing lines from major bookmakers, offer a more accurate aggregate predictor of game outcomes than individual statistical models. The efficacy of this strategy is well-documented in recent Kaggle competitions where five of the top eight performing models utilized market-derived features as their primary feature. These strategies do not attempt to beat the market. Instead, they focus on mathematically disentangling the true win probability from the bookmaker's overround and inherent biases. To achieve this separation, recent state-of-the-art implementations utilize specific conversion algorithms to de-noise betting data. The standard tool in this domain is the \texttt{goto\_conversion} algorithm. Competitors employ these functions to address the favorite-longshot bias, which is the tendency for markets to overvalue underdogs and undervalue favorites. Raw Vegas odds refer to the moneyline prices posted by sportsbooks, which embed both the bookmaker's profit margin and systematic biases from public betting behavior. By applying conversion corrections to these raw figures, modelers can transform them into calibrated win probabilities that minimize Brier Score more effectively than fundamental analysis alone. This approach effectively leverages the crowd wisdom of the market while stripping away the pricing inefficiencies introduced by public betting behavior. For more information on how this strategy works, we refer the reader to \cite{goto}.
+The second dominant framework relies on the Efficient Market Hypothesis \cite{EMH}. This approach posits that global betting markets, specifically closing lines from major bookmakers, offer a more accurate aggregate predictor of game outcomes than individual statistical models. The efficacy of this strategy is well-documented in recent Kaggle competitions where five of the top eight performing models utilized market-derived features as their primary feature. These strategies do not attempt to beat the market. Instead, they focus on mathematically disentangling the true win probability from the bookmaker's overround and inherent biases. To achieve this separation, recent state-of-the-art implementations utilize specific conversion algorithms to de-noise betting data. The standard tool in this domain is the \texttt{goto\_conversion} algorithm \cite{goto}. Competitors employ these functions to address the favorite-longshot bias, which is the tendency for markets to overvalue underdogs and undervalue favorites. Raw Vegas odds refer to the moneyline prices posted by sportsbooks, which embed both the bookmaker's profit margin and systematic biases from public betting behavior. By applying conversion corrections to these raw figures, modelers can transform them into calibrated win probabilities that minimize Brier Score more effectively than fundamental analysis alone. This approach effectively leverages the crowd wisdom of the market while stripping away the pricing inefficiencies introduced by public betting behavior. For more information on how this strategy works, we refer the reader to \cite{goto}.
 
 The applicability of these methodological frameworks, however, is heavily constrained by the structural discontinuity introduced by the 2021 Name, Image, and Likeness (NIL) legislation. A comparative analysis of historical team winning percentages in the post-NIL landscape reveals a significant deviation from historical norms. This shift is characterized by a rapid consolidation of talent where the number of programs maintaining elite win percentages ($>75\%$) has nearly tripled compared to the preceding two decades \cite{CBS}. This phenomenon implies that feature weights derived from pre-2021 eras are likely subject to significant concept drift. Consequently, this literature review restricts its focus to winning strategies from recent Kaggle competitions (2022-present), as methodologies developed before the NIL era may not reflect the approaches best suited to the heightened stratification of team strength driven by current transfer portal dynamics.
  
@@ -669,7 +670,7 @@ where $l$ is the loss function which simply computes the difference between the 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{center}
-\section{PROBABILITY PREDICTION MODELS}
+\section{METHODS}
 \end{center}
 \thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
 
@@ -801,7 +802,7 @@ Setting aside the 2024 anomaly, the remaining backtests reveal a consistent tren
 With the models estimated on the 2023 and 2024 tournament data, the resulting coefficients can be examined to evaluate which of the Four Factors carry meaningful predictive weight in each division. Because separate models were trained for the men's and women's tournaments, the coefficient structures can be analyzed independently and then compared to assess whether the Four Factors operate differently across divisions. Tables \ref{tab:mens_coef} and \ref{tab:womens_coef} present the estimated coefficients, p-values, and significance levels for the men's and women's models respectively.
 
 % latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Wed Apr  8 09:44:49 2026
+% Wed Apr  8 13:41:04 2026
 \begin{table}[ht]
 \centering
 \caption{Logistic Regression Coefficient Estimates (Men's 2025 Model)} 
@@ -820,7 +821,7 @@ Intercept & 0.4352 & 0.0348 & * \\
 \end{tabular}
 \end{table}
 % latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Wed Apr  8 09:44:49 2026
+% Wed Apr  8 13:41:04 2026
 \begin{table}[ht]
 \centering
 \caption{Logistic Regression Coefficient Estimates (Women's 2025 Model)} 
@@ -1003,7 +1004,7 @@ The women's model achieves the strongest classification performance at $80.6\%$ 
 The combined $2025$ Brier Score of $0.12761$ reflects solid probability calibration but falls short of the competition-winning score of $0.10411$. While the model correctly identifies the winner in the majority of matchups, the gap in Brier Score suggests that the predicted probabilities are not as sharply calibrated as those produced by the top Kaggle submissions, which typically incorporate additional data sources and more extensive tuning. Nevertheless, the XGBoost model represents a meaningful improvement over the logistic regression Brier Score of $0.18401$, demonstrating that the richer feature set and ensemble framework produce better-calibrated win probabilities in addition to higher classification accuracy.
 
 \begin{center}
-\section{Point Spread Models}
+
 \end{center}
 \thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
 
@@ -1069,7 +1070,7 @@ An important practical consideration in this implementation is the decision to t
 With the models estimated on the $2025$ regular season data, the resulting coefficients can be examined to evaluate which predictors carry meaningful weight in each division and how well the linear regression captures the relationship between efficiency ratings and scoring. Because separate models were trained for the men's and women's tournaments, the coefficient structures can be analyzed independently and then compared to assess whether the efficiency and tempo features operate differently across divisions. Tables \ref{tab:mens_coef_mc} and \ref{tab:womens_coef_mc} present the estimated coefficients, p-values, and significance levels for the men's and women's models respectively.
 
 % latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Wed Apr  8 09:44:51 2026
+% Wed Apr  8 13:41:06 2026
 \begin{table}[ht]
 \centering
 \caption{Linear Regression Coefficient Estimates (Men's 2025 Model)} 
@@ -1089,7 +1090,7 @@ Intercept & -207.3986 & 0.0000 & *** \\
 \end{tabular}
 \end{table}
 % latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Wed Apr  8 09:44:51 2026
+% Wed Apr  8 13:41:06 2026
 \begin{table}[ht]
 \centering
 \caption{Linear Regression Coefficient Estimates (Women's 2025 Model)} 
@@ -1181,8 +1182,7 @@ pros and cons of each model. going into detail why we pick the model we do for t
 
 talking about the results of each model in the competition, as well as our submission.
 %%%%%%%%%%%%%%%%%%%%%%
-\usubsection{Strategies}
-Here are my insights...
+
 \usubsection{Results}
 
 \newpage
