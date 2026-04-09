@@ -475,31 +475,57 @@ I would like to thank my advisor, Dr. Dvisor, for her helpful advice, guidance, 
 \setcounter{page}{1}%THIS IS TO RESET PAGE NUMBERING SO THAT THE FIRST SECTION IS PAGE 1. NO ROMAN NUMERALS ANYMORE. 
 \pagenumbering{arabic}%WE DON'T WANT ROMAN NUMERALS, SO WE SWITCH TO ARABIC.
 \thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
-The National Collegiate Athletic Association (NCAA) serves as the premier developmental system for the National Basketball Association (NBA) and the Women's National Basketball Association (WNBA). With thousands of athletes across both divisions arriving from around the world, the influence of the NCAA is extensive. As the basketball world has evolved into a multibillion dollar industry \cite{Berkowitz2025}, the value of a competitive edge has become substantial. Teams historically relied on live scouting and film study to gain these advantages. However, the last decade has seen a major shift toward statistical findings. Inspired largely by the movie \textit{Moneyball}, teams now look to analytics to uncover value that the naked eye might miss. 
 
-The focal point of this competitive landscape is March Madness. At the conclusion of the regular season, the selection committee invites $68$ teams to participate in this tournament. The field includes the champions from all $32$ Division I conferences alongside the best remaining teams chosen at large. The committee seeds these participants into four distinct regions with rankings ranging from $1$ to 16. The four teams judged to be the strongest are awarded the number $1$ seeds while the next tier receives the number $2$ seeds. Within each region, the teams compete in a single elimination format where matchups are initially determined by rank. For example, the top seed plays the sixteenth seed. The winner of each region advances to the Final Four to compete for the national championship. Crucially, these contests take place at neutral sites rather than on home courts. This structure creates a predictive challenge where volatility is the norm.
+The National Collegiate Athletic Association (NCAA) serves as the premier developmental system for the National Basketball Association (NBA) and the Women's National Basketball Association (WNBA). With thousands of athletes across both divisions arriving from around the world, the influence of the NCAA is extensive. As the basketball world has evolved into a multibillion dollar industry \cite{Berkowitz2025}, the value of a competitive edge has become substantial. Teams historically relied on live scouting and film study to gain these advantages. However, the last decade has seen a major shift toward statistical findings. Inspired largely by the movie \textit{Moneyball}, teams now look to analytics to uncover value that the naked eye might miss.
 
-This project utilizes the Kaggle March Machine Learning Mania competition as its primary experimental framework. Kaggle provides a setting in which participants submit predicted win probabilities for every possible matchup, rather than making binary bracket selections. Although game outcomes are binary, this probabilistic formulation enables a more rigorous evaluation of model performance by assessing how closely predicted probabilities align with actual results. A model is therefore considered more accurate not because it assigns higher probabilities, but because its probability estimates are well calibrated, meaning that events predicted with higher probability occur more frequently in reality, while unlikely events are assigned appropriately low probabilities. This approach allows for a more nuanced assessment of predictive performance than traditional bracket-based methods. By using this structured setting, the research leverages standardized datasets, including team efficiency ratings and historical results, to develop a reproducible and statistically sound modeling pipeline.
+The focal point of this competitive landscape is March Madness. At the conclusion of the regular season, the selection committee invites $68$ teams to participate in this tournament. The field includes the champions from all $32$ Division I conferences alongside the best remaining teams chosen at large. The committee seeds these participants into four distinct regions with rankings ranging from $1$ to $16$. The four teams judged to be the strongest are awarded the number $1$ seeds while the next tier receives the number $2$ seeds. Within each region, the teams compete in a single elimination format where matchups are initially determined by rank. For example, the top seed plays the sixteenth seed. The winner of each region advances to the Final Four to compete for the national championship. Crucially, these contests take place at neutral sites rather than on home courts. This structure creates a predictive challenge where volatility is the norm.
 
-This statistical consistency is possible because basketball is uniquely suited for machine learning applications. Both individual and collective performances are captured through a standardized set of metrics. Discrete variables such as points, steals, assists, and rebounds provide a consistent numerical foundation for analysis across different eras and levels of competition. This uniformity allows for the creation of structured datasets where team strength can be quantified and compared through objective performance indicators. By leveraging these patterns, machine learning models can identify underlying trends that govern game outcomes and team efficiency.
+The NCAA Men's Basketball Tournament is defined by its structural unpredictability. The single-elimination format means that even the most statistically dominant teams face elimination from a single off night, and the compressed six-round schedule amplifies the role of momentum, fatigue, and matchup advantages that aggregate metrics cannot fully capture. This variance is well-documented in existing literature. Extensive benchmarking of advanced ranking systems reveals that even the top-performing predictive models hit a ceiling of approximately 75\% accuracy, indicating that roughly one in four tournament games ultimately ends in an upset \cite{Sokol2026}. The consequences for bracket prediction are severe. The difficulty of bracket prediction further highlights this unpredictability. Mathematical projections place the odds of a perfect $63$-game bracket anywhere from $1$ in $9.2$ quintillion for purely random guesses to $1$ in $128$ billion for educated predictions. Consequently, there is no record of a publicly verified bracket remaining completely intact beyond the Sweet Sixteen \cite{Bergen2018}.
 
-A basic assessment often relies on a record of wins and losses to infer the overall quality of a team. While these records serve as strong indicators, they frequently fail to capture critical nuance. Furthermore, the single elimination structure of the tournament ensures that upsets remain a constant possibility regardless of historical dominance. A defining example occurred in $2018$ when the top ranked Virginia Cavaliers entered the postseason with $31$ wins and only $3$ losses. They fell to the lowest ranked UMBC Retrievers by $20$ points. Such outcomes demonstrate why simple heuristics fail in this environment. 
+This inherent volatility drives a massive secondary market focused on sports betting. As legal wagering expands globally, March Madness has evolved into one of the largest gambling events in the world, with $\$3.1$ billion wagered on tournament outcomes in 2025 \cite{AGA2025}. To manage this risk, bookmakers generate odds that serve as the industry standard for predictive accuracy. These odds represent a market consensus that attempts to price in every available variable from player injuries to historical trends. However, research demonstrates that these betting lines are not strictly driven by probability. Evidence indicates that sportsbook forecasts frequently overreact to new information, creating systematic inefficiencies that violate weak-form market efficiency. This suggests that line-setting is heavily influenced by bookmaker profit margins and public betting sentiment rather than pure statistical likelihood \cite{Simon2024}. Consequently, developing a model capable of outperforming these market-established baselines represents the gold standard for predictive success.
 
-The NCAA Men's Basketball Tournament is defined by its structural unpredictability. The single-elimination format means that even the most statistically dominant teams face elimination from a single off night, and the compressed six-round schedule amplifies the role of momentum, fatigue, and matchup-specific advantages that aggregate metrics cannot fully capture. This variance is well-documented: research by Georgia Tech professor Joel Sokol, whose Logistic Regression/Markov Chain model has been benchmarked against nearly $100$ ranking systems, finds that even the best predictive models achieve only approximately $75$\% accuracy, meaning roughly one in four tournament games results in an upset \cite{Sokol2026}. The consequences for bracket prediction are severe. DePaul mathematician Jeff Bergen calculates that the odds of a perfect $63$-game bracket range from $1$ in $9.2$ quintillion under random selection to $1$ in $128$ billion for an informed basketball observer, and in the entire history of the tournament, no publicly verified bracket has ever survived past the Sweet Sixteen \cite{Bergen2018}.
+This project utilizes the Kaggle March Machine Learning Mania competition as its primary experimental framework. Kaggle provides a setting in which participants submit predicted win probabilities for every possible matchup, rather than making binary bracket selections. The competition evaluates all submissions using the Brier Score, a proper scoring rule that measures the mean squared error between predicted probabilities and binary outcomes \cite{Brier1950}. Formally, the Brier Score is defined as:
 
-This inherent volatility drives a massive secondary market focused on sports betting. As legal wagering expands globally, March Madness has evolved into one of the largest gambling events in the world, with $3.1$ billion wagered on tournament outcomes in $2025$ \cite{AGA2025}. To manage this risk, bookmakers generate odds that serve as the industry standard for predictive accuracy. These odds represent a market consensus that attempts to price in every available variable from player injuries to historical trends. However, research demonstrates that these lines are not purely probability-based: Simon (2024) finds that sportsbook forecasts overreact to incoming information and exhibit systematic inefficiencies inconsistent with weak-form market efficiency, suggesting that profit margins and bettor sentiment influence line-setting beyond pure probability \cite{Simon2024}. Consequently, developing a model capable of outperforming these market-established baselines represents the gold standard for predictive success.
+\begin{equation}
+BS = \frac{1}{N} \sum_{t=1}^{N} (f_t - o_t)^2
+\end{equation}
 
-This paper aims to construct a predictive framework capable of meeting this standard. The primary objective is to develop and evaluate distinct statistical models that minimize the Brier Score, a proper scoring rule that measures the mean squared error between predicted probabilities and binary outcomes, making it particularly well suited for evaluating calibrated win probability estimates across tournament matchups \cite{Brier1950}. By testing various algorithms against historical data, the research seeks to identify a strategy that generates a winning score on the Kaggle March Madness competition, which adopts the Brier Score as its evaluation metric. The final analysis benchmarks these models against competitor submissions that utilized multiple strategies including Elo ratings, standard odds conversion, and analytical rankings. Ultimately, the optimal model will be deployed in the upcoming 2026 March Madness tournament to compare its projections with live results.
+where $N$ is the number of matchups, $f_t$ is the predicted win probability, and $o_t \in \{0, 1\}$ is the actual outcome. A Brier Score of $0$ reflects perfect calibration and a score of $0.25$ corresponds to the naive baseline of predicting $0.5$ for every game. Table \ref{tab:brier} illustrates how the score behaves across a range of prediction scenarios.
 
-Motivated by this challenge, substantial research has addressed the complexities of March Madness prediction. The majority of this work focuses on engineering feature sets for learning algorithms ranging from linear regression to more complex ensemble methods. While the Kaggle competition provides foundational game statistics, transforming these into effective predictors requires significant effort. The following subsection details the specific data types provided by the competition to establish this baseline. The final subsection we review existing literature with a primary focus on feature engineering. Finally, the paper details the implementation of distinct modeling techniques. This comparative analysis examines linear and logistic regression alongside additional statistical methods. These models are compared against one another and evaluated relative to the winning scores from prior competitions.
+\begin{table}[h]
+\centering
+\begin{tabular}{lllr}
+\hline
+\textbf{Predicted} & \textbf{Outcome} & \textbf{Scenario} & \textbf{Brier Score} \\
+\hline
+0.50 & Win or Loss & Baseline & 0.2500 \\
+1.00 & Win         & Perfectly confident, correct   & 0.0000 \\
+1.00 & Loss        & Perfectly confident, incorrect & 1.0000 \\
+0.70 & Win         & Moderately confident, correct  & 0.0900 \\
+0.70 & Loss        & Moderately confident, incorrect & 0.4900 \\
+0.90 & Win         & Highly confident, correct      & 0.0100 \\
+0.90 & Loss        & Highly confident, incorrect    & 0.8100 \\
+\hline
+\end{tabular}
+\caption{Brier Score Examples}
+\label{tab:brier}
+\end{table}
+
+The table highlights an important property of the Brier Score: overconfident incorrect predictions are penalized more severely than moderate ones. Predicting a $90\%$ win probability for a team that ultimately loses yields a score of $0.81$, far worse than the $0.25$ baseline. This property incentivizes well calibrated probability estimates rather than extreme predictions, and directly aligns with the objective of this research. The primary goal of this paper is not to compare models against one another but to develop the most accurately calibrated probability estimates possible for submission to the Kaggle competition. Each model is evaluated and refined with this singular objective in mind, and performance is measured exclusively by Brier Score against actual tournament outcomes.
+
+This focus on probability calibration is well suited to basketball because the sport generates a rich and consistent statistical record across all levels of competition. Both individual and collective performances are captured through a standardized set of metrics. Discrete variables such as points, steals, assists, and rebounds provide a consistent numerical foundation for analysis across different eras and levels of competition. This uniformity allows for the creation of structured datasets where team strength can be quantified and compared through objective performance indicators. By leveraging these patterns, machine learning models can identify underlying trends that govern game outcomes and team efficiency.
+
+A basic assessment often relies on a record of wins and losses to infer the overall quality of a team. While these records serve as strong indicators, they frequently fail to capture critical nuance. Furthermore, the single elimination structure of the tournament ensures that upsets remain a constant possibility regardless of historical dominance. A defining example occurred in 2018 when the top ranked Virginia Cavaliers entered the postseason with $31$ wins and only $3$ losses. They fell to the lowest ranked UMBC Retrievers by $20$ points. Such outcomes demonstrate why simple heuristics fail in this environment and why well-calibrated probability estimates are more valuable than confident binary predictions.
+
+Motivated by this challenge, substantial research has addressed the complexities of March Madness prediction. The majority of this work focuses on engineering feature sets for learning algorithms ranging from linear regression to more complex ensemble methods. While the Kaggle competition provides foundational game statistics, transforming these into effective predictors requires significant effort. The following section details the specific data types provided by the competition to establish this baseline. The subsequent section reviews past strategies and the theory behind the modeling techniques. Finally, the paper details the implementation of three distinct modeling techniques, specifically logistic regression, XGBoost, and a Linear Regression Monte Carlo simulation, each evaluated exclusively by their Brier Score performance against the 2025 tournament outcomes, with the best performing model deployed for the 2026 Kaggle submission.
+
 % NOTE THAT THE TEMPLATE DOES NOT HAVE CHAPTERS, BUT SECTIONS, AND THAT THESE ARE NOT NUMBERED...
 \newpage
 \section{DATA}
-The highly quantifiable nature of basketball ensures that statistical data is both abundant and accessible. While the Kaggle competition permits participants to incorporate any external datasets they acquire, the organizers themselves provide a comprehensive archive. This repository includes over $30$ distinct tables of historical data spanning more than three decades. All tables are separated by gender, with the exception of the public rankings table, which is compiled exclusively for the men's division. The data provided by Kaggle is split into regular season and postseason files. For the purposes of this project, the tournament phase is referred to as the playoffs. This research focuses primarily on the detailed results tables for both the regular season and the playoffs while also utilizing the essential rankings and seeding tables. Although the broader archive extends further back, the detailed game statistics required for this analysis commence in the $2003$ season. Each entry in these tables provides a comprehensive statistical breakdown for both the winning and losing teams in every recorded matchup. The schema utilizes the prefix \texttt{W} to denote statistics for the winning team and the prefix \texttt{L} for the losing team. Table \ref{tab:boxscore} summarizes the specific variables recorded for each team.
+The highly quantifiable nature of basketball ensures that statistical data is both abundant and accessible. While the Kaggle competition permits participants to incorporate any external datasets they acquire, the organizers themselves provide a comprehensive archive of $37$ distinct tables spanning more than three decades, with all tables separated by gender. The archive is divided into regular season and postseason files, with the postseason referred to throughout this project as the playoffs. This research focuses primarily on the detailed results tables for both the regular season and the playoffs, while also utilizing the tournament seeding tables. Although the broader archive extends further back in time, the detailed game statistics required for this analysis commence in the 2003 season, as earlier seasons contain only compact results without the possession-level box score data needed for feature construction. Each entry in the detailed results tables provides a comprehensive statistical breakdown for both the winning and losing teams in every recorded matchup, with the prefix \texttt{W} denoting statistics for the winning team and the prefix \texttt{L} for the losing team. Table \ref{tab:boxscore} summarizes the specific variables recorded for each team.
+
 \begin{table}[h]
 \centering
-\caption{Regular Season and Playoff Detailed Result Variables}
-\label{tab:boxscore}
 \begin{tabular}{ll}
 \hline
 \textbf{Variable} & \textbf{Description} \\
@@ -515,12 +541,14 @@ Blk         & Blocks \\
 PF          & Personal fouls \\
 \hline
 \end{tabular}
+\caption{Regular Season and Playoff Detailed Result Variables}
+\label{tab:boxscore}
 \end{table}
-While raw box scores capture the foundational events of a game, they often fail to account for nuances such as pace of play and strength of schedule. To address this limitation, this research supplements the Kaggle datasets with advanced metrics from analyst Ken Pomeroy (KenPom), who is widely accepted as the industry standard for college basketball analysis. Rather than relying on raw counting statistics, Pomeroy normalizes performance by calculating efficiency on a per possession basis. These ratings are updated daily throughout the regular season and tournament. For the purposes of this study, a snapshot of the rankings was acquired from the day prior to the start of the $2025$ tournament. Table \ref{tab:kenpom} describes the primary metrics utilized from this source \cite{KenPom}.
+
+While raw box scores capture the foundational events of a game, they often fail to account for nuances such as pace of play and strength of schedule. To address this limitation, this research supplements the Kaggle datasets with advanced metrics from analyst Ken Pomeroy (KenPom), which is incorporated into the Linear Regression Monte carlo model for the men's division. Pomeroy, who is widely accepted as the industry standard for college basketball analysis, normalizes performance by calculating efficiency on a per possession basis, where a possession is defined as the period in which a team controls the ball, ending with a shot attempt, turnover, or score. These ratings are updated daily throughout the regular season and tournament. For the purposes of this study, a snapshot of the rankings was acquired from the day prior to the start of the 2025 tournament. Table \ref{tab:kenpom} describes the primary metrics utilized from this source \cite{KenPom}.
+
 \begin{table}[h]
 \centering
-\caption{KenPom Metrics}
-\label{tab:kenpom}
 \begin{tabular}{ll}
 \hline
 \textbf{Metric} & \textbf{Description} \\
@@ -531,12 +559,13 @@ DRtg   & Points allowed per 100 possessions, adjusted for opponent \\
 AdjT   & Number of possessions per 40 minutes \\
 \hline
 \end{tabular}
+\caption{KenPom Metrics}
+\label{tab:kenpom}
 \end{table}
-A possession is defined as the period in which a team controls the ball, ending with a shot attempt, turnover, or score. Because Pomeroy's ratings are exclusively available for the men's division, this research incorporates an additional dataset from Bart Torvik for the women's division. Torvik cites Pomeroy as a significant influence, and the ratings are constructed using a comparable methodology. However, distinct algorithmic differences exist between the two systems; for further detail regarding these distinctions, the reader is referred to \cite{Torvik}. Table \ref{tab:torvik} describes the metrics utilized from this source.
+Because Pomeroy's ratings are exclusively available for the men's division, this research incorporates an additional dataset from Bart Torvik for the women's division. Torvik cites Pomeroy as a significant influence, and the ratings are constructed using a comparable methodology. However, distinct algorithmic differences exist between the two systems; for further detail regarding these distinctions, the reader is referred to \cite{Torvik}. Table \ref{tab:torvik} describes the metrics utilized from this source.
+
 \begin{table}[h]
 \centering
-\caption{Bart Torvik Metrics (Women's Division)}
-\label{tab:torvik}
 \begin{tabular}{ll}
 \hline
 \textbf{Metric} & \textbf{Description} \\
@@ -546,8 +575,15 @@ ADJDE & Adjusted defensive efficiency \\
 AdjT  & Adjusted tempo \\
 \hline
 \end{tabular}
+\caption{Bart Torvik Metrics (Women's Division)}
+\label{tab:torvik}
 \end{table}
-To complement the efficiency metrics provided by Pomeroy and Torvik, this research also incorporates the comprehensive ranking systems aggregated by Kenneth Massey. While the previously discussed datasets focus on predictive efficiency, the Massey Ordinals provide a consolidated view of team hierarchy by aggregating rankings from over 40 distinct mathematical systems, pollsters, and algorithms. Rankings are presented as ordinal integers where the top team is assigned the value of $1$. Incorporating this data allows the models to leverage a ''wisdom-of-the-crowd'' approach by drawing on the consensus of the broader analytical community. One significant challenge in aggregating these distinct sources is the inconsistency in team nomenclature. For instance, a university might be listed as St.\ Mary's'' in one dataset and Saint Mary's CA" in another. To resolve this, all external data was mapped to the unique \texttt{TeamID} integer provided by the Kaggle competition files, ensuring that advanced efficiency metrics are accurately merged with the box score data for every matchup.
+
+One important data consideration is the 2020 NCAA tournament, which was canceled due to the COVID-19 pandemic. While regular season data exists for the 2020 season, no tournament outcomes were recorded, creating a gap in the historical playoff results that spans both the men's and women's divisions. This means the 2020 season contributes no tournament training observations to any of the models in this analysis, as there are simply no playoff target variables available for that year. Models that train on regular season data may still incorporate 2020 regular season results, but no model draws on 2020 tournament outcomes since none exist.
+
+Across all data sources utilized in this analysis, including the Kaggle box score files, KenPom efficiency ratings, and Bart Torvik rankings, no missing values were encountered that required imputation or row removal prior to modeling. Every team in the dataset had a complete statistical profile across all variables required for feature construction. Any safeguards implemented within individual model pipelines to filter incomplete observations were precautionary measures rather than responses to observed data quality issues. The completeness of the dataset across all sources is partly a consequence of the 2003 cutoff, which ensures that every season in the analysis has a full year of regular season results available before the tournament begins. Additionally, season identifiers, team identifiers, and games played counts are administrative columns present in the Kaggle files that carry no predictive signal and are excluded from all model feature matrices across every modeling framework in this analysis.
+
+One significant challenge in integrating KenPom and Bart Torvik data with the Kaggle dataset is the inconsistency in team nomenclature. For instance, a university might be listed as ``St.\ Mary's'' in one dataset and ``Saint Mary's CA'' in another. To resolve this, a two stage matching pipeline is applied. In the first stage, team names from the external source are normalized to lowercase and matched exactly against the Kaggle team spellings lookup file. Teams that match exactly are assigned their Kaggle \texttt{TeamID} directly. In the second stage, teams that remain unmatched after exact matching are passed through a fuzzy matching procedure using the Jaro-Winkler string distance metric with a maximum distance threshold of $0.3$ \cite{JW}. For each unmatched team the closest spelling in the Kaggle lookup file is selected, allowing minor variations in punctuation, abbreviation, and spacing to be resolved automatically. In practice all teams in both the men's and women's divisions were successfully matched, with no teams remaining unmatched.
 \newpage
 %YOU SHOULD USE STANDARD LaTeX TO TYPESET YOUR WORK. USE \ref AND \cite, DO NOT HARDCODE YOUR REFERENCES.
 
@@ -576,46 +612,21 @@ To complement the efficiency metrics provided by Pomeroy and Torvik, this resear
 
 
 \usubsection{Past Strategies}
-The pursuit of a perfect bracket has generated a substantial body of research in predictive modeling over the last decade. While specific algorithms vary, the most successful strategies in the Kaggle Machine Learning Mania competition consistently rely on one of two distinct methodological frameworks.
+The prediction of NCAA tournament outcomes has been studied extensively in both academic and competitive machine learning contexts. Early foundational work demonstrated that tournament seeding alone is a statistically robust predictor of game outcomes, with logistic regression models using a z-score transformation of seed position producing well-calibrated win probabilities across historical tournament data \cite{Schwertman}. Subsequent work developed a combined logistic regression and Markov chain model that has since been benchmarked against nearly $100$ ranking systems, establishing logistic regression as the canonical baseline for tournament prediction \cite{Sokol2026}. This ceiling has been reinforced empirically, with comparative evaluations finding that no machine learning classifier, including decision trees, random forests, naive Bayes, or multi-layer perceptrons, was able to exceed $74\%$ to $75\%$ accuracy when trained on NCAAB match data. Critically, this line of research also established that feature construction matters more than model choice, with adjusted offensive and defensive efficiencies and Dean Oliver's Four Factors consistently ranking as the most predictive attributes regardless of the algorithm applied \cite{Zimmermann}. These insights have been applied directly to the Kaggle March Machine Learning Mania competition, with early entries constructing ensembles of regression functions trained on statistical differentials including ranking index differences, field goal percentage differences, and point differential, demonstrating that fundamental analysis approaches could finish competitively against more complex submissions \cite{Gumm}.
 
-The primary objective for this study is to minimize the Brier Score. We define the Brier Score (BS) as follows:
+The competitive strategies employed by top finishers in the Kaggle competition consistently fall into one of two methodological frameworks that build on this academic foundation. The first relies on fundamental analysis, where the objective is to construct a ground-truth probability independent of public sentiment. A common implementation involves domain-specific heuristics such as the Elo rating system, which provides a dynamic measure of team strength that updates after every game and accounts for strength of schedule more effectively than raw win-loss records \cite{chess}. Many strategies in this framework also incorporate expert efficiency ratings such as KenPom, Nate Silver's FiveThirtyEight ratings, and Massey power ratings, which aggregate opponent-adjusted performance into a single numeric value. By treating these expert outputs as features rather than final predictions, modelers can leverage domain expertise while correcting for known biases in any individual system.
 
-\begin{equation}
-    BS = \frac{1}{N} \sum_{t=1}^N (f_t - o_t)^2
-\end{equation}
+The second dominant framework relies on the Efficient Market Hypothesis \cite{EMH}. This approach posits that global betting markets, specifically closing lines from major bookmakers, offer a more accurate aggregate predictor of game outcomes than individual statistical models. These strategies do not attempt to beat the market but instead focus on mathematically disentangling the true win probability from the bookmaker's overround and inherent biases. The standard tool in this domain is the \texttt{goto\_conversion} algorithm \cite{goto}, which addresses the favorite-long shot bias, the tendency for markets to overvalue underdogs and undervalue heavy favorites, by applying correction functions to raw moneyline prices. By stripping these distortions from closing lines, competitors effectively leverage the crowd wisdom of the market while removing its pricing inefficiencies. For more information on how this strategy works, we refer the reader to \cite{goto}.
 
-where $N$ is the number of events, $f_t$ is the predicted probability, and $o_t$ is the actual outcome. For this research, a $0$ is considered a loss, and a $1$ is a win. A Brier Score of $0$ would reflect perfect accuracy, while a Brier Score of $1$ reflects perfect inaccuracy. Table \ref{tab:brier} illustrates how the score behaves across a range of prediction scenarios.
+The applicability of these frameworks is heavily constrained by the structural discontinuity introduced by the 2021 Name, Image, and Likeness (NIL) legislation. A comparative analysis of historical team winning percentages in the post-NIL landscape reveals a significant deviation from historical norms, characterized by a rapid consolidation of talent where the number of programs maintaining elite win percentages above 75\% has nearly tripled compared to the preceding two decades \cite{CBS}. This phenomenon implies that feature weights derived from pre-2021 eras are likely subject to significant concept drift. Consequently, this review restricts its focus to winning strategies from recent Kaggle competitions spanning the last two years, as methodologies developed before the NIL era may not reflect the approaches best suited to the heightened stratification of team strength driven by current transfer portal dynamics.
 
-\begin{table}[h]
-\centering
-\caption{Brier Score Examples}
-\label{tab:brier}
-\begin{tabular}{lllr}
-\hline
-\textbf{Predicted} & \textbf{Outcome} & \textbf{Scenario} & \textbf{Brier Score} \\
-\hline
-0.50 & Win or Loss & baseline & 0.2500 \\
-1.00 & Win        & Perfectly confident, correct            & 0.0000 \\
-1.00 & Loss       & Perfectly confident, incorrect          & 1.0000 \\
-0.70 & Win        & Moderately confident, correct           & 0.0900 \\
-0.70 & Loss       & Moderately confident, incorrect         & 0.4900 \\
-0.90 & Win        & Highly confident, correct               & 0.0100 \\
-0.90 & Loss       & Highly confident, incorrect             & 0.8100 \\
-\hline
-\end{tabular}
-\end{table}
+The single most influential baseline in recent competition history is a solution that placed highly in multiple competition years and was directly referenced or built upon by multiple top finishers in both 2024 and 2025 \cite{raddar}. This solution organizes its feature set into tiers of increasing complexity, beginning with tournament seeding, progressing through season-level efficiency averages, and culminating in a custom Elo rating system and a GLM-based team quality metric derived from point differential. The model is implemented using XGBoost with a fixed number of boosting rounds, and its widespread adoption as a community baseline reflects the consensus that gradient boosting on structured efficiency features produces strong and reproducible predictions in this competition. A third consistent pattern across recent competition years is the use of Monte Carlo simulation to convert win probability estimates into bracket outcomes. Rather than predicting game results once, top competitors simulate each tournament thousands to hundreds of thousands of times, drawing the winner of each game according to the estimated win probabilities. Among the most notable implementations, one approach simulated brackets using win probabilities derived from expert ratings converted through a normal distribution over predicted point margins, while another used opponent adjusted efficiency margins scaled to a standard possession count with a normal distribution and an empirically estimated standard error. This approach of predicting a continuous score or margin first and then simulating to derive a win probability directly inspired the Linear Regression Monte Carlo model developed in this paper.
 
-The table highlights an important property of the Brier Score: overconfident incorrect predictions are penalized more severely than moderate ones. For instance, predicting a 90\% win probability for a team that ultimately loses yields a score of 0.81, far worse than the 0.25 baseline. This incentivizes well-calibrated probability estimates rather than extreme predictions.
+The review of these strategies provides direct empirical motivation for the three models developed in this paper. The logistic regression model is grounded in the academic tradition of seed-based and efficiency-differential prediction, serving as an interpretable baseline consistent with the feature classes identified as most predictive in the literature \cite{Schwertman, Sokol2026, Zimmermann}. The XGBoost model is built upon the community baseline that dominated both competition years \cite{raddar}, incorporating seeding, strength of schedule adjusted box score statistics, and a custom Elo rating system with cross-validated hyperparameter tuning. The Linear Regression Monte Carlo model draws on the score prediction and simulation pipeline that proved effective among top 2024 finishers, substituting KenPom and Bart Torvik efficiency ratings for the external rating sources that top competitors relied upon. Together these three frameworks span the primary methodological strategies that have proven most effective in this competition, grounded in the fundamental analysis approach rather than market-derived probabilities, and evaluated exclusively by their Brier Score performance against actual tournament outcomes.
 
-The first framework relies on fundamental analysis where the objective is to construct a ground-truth probability independent of public sentiment. A common implementation of this approach involves utilizing domain-specific heuristics such as the elo rating system. Originally designed for chess, elo provides a dynamic measure of team strength that updates after every game. It offers a robust baseline that accounts for strength of schedule more effectively than raw win-loss records \cite{chess}. Many strategies also incorporate expert features. These include the Nate Silver, FiveThirtyEight, and KenPom ratings which act as high-signal inputs that aggregate player health, travel distance, and roster depth into a single numeric value. By treating these expert outputs as features rather than final predictions, modelers can leverage human domain expertise while correcting for known expert biases.
-
-The second dominant framework relies on the Efficient Market Hypothesis \cite{EMH}. This approach posits that global betting markets, specifically closing lines from major bookmakers, offer a more accurate aggregate predictor of game outcomes than individual statistical models. The efficacy of this strategy is well-documented in recent Kaggle competitions where five of the top eight performing models utilized market-derived features as their primary feature. These strategies do not attempt to beat the market. Instead, they focus on mathematically disentangling the true win probability from the bookmaker's overround and inherent biases. To achieve this separation, recent state-of-the-art implementations utilize specific conversion algorithms to de-noise betting data. The standard tool in this domain is the \texttt{goto\_conversion} algorithm \cite{goto}. Competitors employ these functions to address the favorite-longshot bias, which is the tendency for markets to overvalue underdogs and undervalue favorites. Raw Vegas odds refer to the moneyline prices posted by sportsbooks, which embed both the bookmaker's profit margin and systematic biases from public betting behavior. By applying conversion corrections to these raw figures, modelers can transform them into calibrated win probabilities that minimize Brier Score more effectively than fundamental analysis alone. This approach effectively leverages the crowd wisdom of the market while stripping away the pricing inefficiencies introduced by public betting behavior. For more information on how this strategy works, we refer the reader to \cite{goto}.
-
-The applicability of these methodological frameworks, however, is heavily constrained by the structural discontinuity introduced by the 2021 Name, Image, and Likeness (NIL) legislation. A comparative analysis of historical team winning percentages in the post-NIL landscape reveals a significant deviation from historical norms. This shift is characterized by a rapid consolidation of talent where the number of programs maintaining elite win percentages ($>75\%$) has nearly tripled compared to the preceding two decades \cite{CBS}. This phenomenon implies that feature weights derived from pre-2021 eras are likely subject to significant concept drift. Consequently, this literature review restricts its focus to winning strategies from recent Kaggle competitions (2022-present), as methodologies developed before the NIL era may not reflect the approaches best suited to the heightened stratification of team strength driven by current transfer portal dynamics.
- 
-\newpage
 \usubsection{Modeling Techniques}
-Recent tournament prediction methodologies employ several established modeling and computational techniques. This section provides formal definitions for the five core approaches used in this study: Logistic Regression, Linear Regression, Monte Carlo Simulation, Random Forest, and Neural Networks.
+Having established the empirical context through the review of past competition strategies, this section provides formal definitions for the four modeling techniques that underpin the approaches developed in this paper: Logistic Regression, Linear Regression, Monte Carlo Simulation, and XGBoost. Each method plays a distinct role in the modeling pipeline, with logistic regression serving as the interpretable baseline, linear regression producing continuous score predictions that feed into the Monte Carlo simulation, and XGBoost capturing nonlinear interactions across a broad feature set through sequential tree construction."
+(iffy on this intro paragraph. not sure. leave thoughts on it if you would be nice enough to do so)
 
 Logistic Regression is a binary classification model that estimates the probability of an outcome by applying the logistic (also known as sigmoid) function to a linear combination of input features. The model is defined as:
 
@@ -666,9 +677,17 @@ Here, $f_k(x_i)$ is the prediction of the $k^{\text{th}}$ tree for the $i^{\text
 \end{equation}
 where $l$ is the loss function which simply computes the difference between the true and predicted, and $\Omega$ is the regularization term, discouraging overly complex trees. The optimization process then proceeds via gradient descent on the residuals. For more information regarding gradient descent we refer the reader to \cite{GD}. XGBoost is widely adopted in competitive machine learning for its performance on structured data and ability to capture complex interactions and relationships between features. 
 
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=1.2]{paper_photos/Schematic-illustration-of-the-XGboost-model_W640.jpg}
+\caption{An XGBoost Example \cite{XGphoto}}
+\label{}
+\end{center}
+\end{figure}
+
+\newpage
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{center}
 \section{METHODS}
 \end{center}
@@ -801,8 +820,8 @@ Setting aside the 2024 anomaly, the remaining backtests reveal a consistent tren
 \usubsubsection{Model Analysis}
 With the models estimated on the 2023 and 2024 tournament data, the resulting coefficients can be examined to evaluate which of the Four Factors carry meaningful predictive weight in each division. Because separate models were trained for the men's and women's tournaments, the coefficient structures can be analyzed independently and then compared to assess whether the Four Factors operate differently across divisions. Tables \ref{tab:mens_coef} and \ref{tab:womens_coef} present the estimated coefficients, p-values, and significance levels for the men's and women's models respectively.
 
-% latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Wed Apr  8 13:41:04 2026
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Thu Apr  9 01:55:22 2026
 \begin{table}[ht]
 \centering
 \caption{Logistic Regression Coefficient Estimates (Men's 2025 Model)} 
@@ -820,8 +839,8 @@ Intercept & 0.4352 & 0.0348 & * \\
    \hline
 \end{tabular}
 \end{table}
-% latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Wed Apr  8 13:41:04 2026
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Thu Apr  9 01:55:22 2026
 \begin{table}[ht]
 \centering
 \caption{Logistic Regression Coefficient Estimates (Women's 2025 Model)} 
@@ -1026,8 +1045,6 @@ For the men's division, an additional net rating differential (\texttt{Diff\_Net
 \usubsubsection{Data Preparation}
 The data preparation pipeline for the Linear Regression Monte Carlo model differs from the previous two models in two important ways. First, the training data is drawn exclusively from the current regular season rather than historical tournament games. The men's model is trained on all $2025$ regular season games and the women's model is trained on all $2025$ regular season games, meaning the linear regression learns to predict points scored from efficiency ratings and pace as observed in that season's regular season play. This is appropriate because the external efficiency ratings from KenPom and Bart Torvik are also season-specific, reflecting the adjusted efficiencies accumulated over the $2025$ regular season only. Second, the model requires an additional data integration step not present in the previous models: team name matching between the external ratings sources and the Kaggle team identifier system.
 
-KenPom and Bart Torvik use their own team name conventions which do not always align with the spellings used in the Kaggle dataset. To resolve this, a two-stage matching pipeline is applied. In the first stage, team names from the external source are normalized to lowercase and matched exactly against the Kaggle team spellings lookup file. Teams that match exactly are assigned their Kaggle \texttt{TeamID} directly. In the second stage, teams that remain unmatched after exact matching are passed through a fuzzy matching procedure using the Jaro-Winkler string distance metric with a maximum distance threshold of $0.3$ \cite{JW}. For each unmatched team the closest spelling in the Kaggle lookup file is selected, allowing minor variations in punctuation, abbreviation, and spacing to be resolved automatically. This two-stage approach ensures that the efficiency ratings can be reliably joined to the Kaggle game results without manual intervention. In practice all teams in both the men's and women's divisions were successfully matched, with no teams remaining unmatched after the two stage pipeline.
-
 Each regular season game is duplicated symmetrically in the same manner as the XGBoost training data, generating one row from the scoring team's perspective and one from the opponent's perspective. This ensures the model learns to predict points from both orientations and does not develop a directional bias. The Elo ratings used as a differential feature are computed from the full historical regular season results available in the Kaggle dataset, spanning multiple decades of game results. At the start of the first available season every team is initialized at $1500$. Ratings are then updated after every regular season game and carried over between seasons according to $R_{\text{new}} = 0.5 \times R_{\text{final}} + 750$, meaning each team's end-of-season rating partially persists into the following year rather than resetting. By the time the $2025$ end-of-season ratings are extracted, they reflect the cumulative outcome of over two decades of regular season results, giving historically dominant programs a meaningfully higher baseline than programs with limited historical success. Following symmetric duplication, the training matrix is filtered using \texttt{complete.cases} to retain only rows where every feature is present. In practice no rows were removed, indicating that every team in the $2025$ regular season had sufficient data across all feature sources to produce a complete profile. The final men's training matrix consisted of $10,326$ rows and $6$ features, while the women's training matrix consisted of $10,828$ rows and $5$ features, with the women's model excluding \texttt{Diff\_NetRtg} as discussed in the Variable Selection section.
 
 \usubsubsection{Model Implementation}
@@ -1069,8 +1086,8 @@ An important practical consideration in this implementation is the decision to t
 \usubsubsection{Model Analysis}
 With the models estimated on the $2025$ regular season data, the resulting coefficients can be examined to evaluate which predictors carry meaningful weight in each division and how well the linear regression captures the relationship between efficiency ratings and scoring. Because separate models were trained for the men's and women's tournaments, the coefficient structures can be analyzed independently and then compared to assess whether the efficiency and tempo features operate differently across divisions. Tables \ref{tab:mens_coef_mc} and \ref{tab:womens_coef_mc} present the estimated coefficients, p-values, and significance levels for the men's and women's models respectively.
 
-% latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Wed Apr  8 13:41:06 2026
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Thu Apr  9 01:55:24 2026
 \begin{table}[ht]
 \centering
 \caption{Linear Regression Coefficient Estimates (Men's 2025 Model)} 
@@ -1089,8 +1106,8 @@ Intercept & -207.3986 & 0.0000 & *** \\
    \hline
 \end{tabular}
 \end{table}
-% latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Wed Apr  8 13:41:06 2026
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Thu Apr  9 01:55:24 2026
 \begin{table}[ht]
 \centering
 \caption{Linear Regression Coefficient Estimates (Women's 2025 Model)} 
@@ -1165,25 +1182,22 @@ Taken together, the diagnostic analysis confirms that both models satisfy the co
 
 \newpage
 \begin{center}
-\section{Comparison of models}
+\section{RESULTS}
 \end{center}
 \thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
 
-
-pros and cons of each model. going into detail why we pick the model we do for the tournament
+\usubsection{Model Comparison}
 \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{center}
-\section{2026 Competition}
+\usubsection{2026 Competition}
 \end{center}
 \thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
 
 talking about the results of each model in the competition, as well as our submission.
 %%%%%%%%%%%%%%%%%%%%%%
-
-\usubsection{Results}
 
 \newpage
 
@@ -1214,7 +1228,7 @@ i am free
 
 \bibitem{Torvik} Torvik, Bart. “T-Rank FAQ.” Blogspot.com, 2017, adamcwisports.blogspot.com/p/every-possession-counts.html.
 
-\bibitem{GD} IBM. “Gradient Descent.” Ibm.com, 7 Oct. 2021, www.ibm.com/think/topics/gradient-descent.
+\bibitem{GD} Ruder, Sebastian. ``An Overview of Gradient Descent Optimization Algorithms.'' \textit{arXiv preprint arXiv:1609.04747}, 2017, \url{https://arxiv.org/abs/1609.04747}.
 
 \bibitem{XGBoost} Kavlakoglu, Eda, and Erika Russi. “XGBoost.” Ibm.com, 9 May 2024, www.ibm.com/think/topics/xgboost.
 
@@ -1269,21 +1283,19 @@ i am free
 
 \bibitem{JW} International, Journal For Innovative Research In Multidisciplinary Field, and Issn. “Jaro Winkler Fuzzy Match Algorithm to Calculate a Similarity Index between Two Strings Using Open Source Platform.” Peer-Reviewed, Refereed, Indexed Journal with IC, no. 8, 2018, pp. 2455-0620, www.ijirmf.com/wp-content/uploads/IJIRMF201808019.pdf. Accessed 7 Apr. 2026.
 
+\bibitem{Schwertman} Schwertman, Neil C., Kathryn L. Schenk, and Brett C. Holbrook. ``More Probability Models for the NCAA Regional Basketball Tournaments.'' \textit{The American Statistician}, vol. 50, no. 1, Feb. 1996, pp. 34--38, \url{https://www.jstor.org/stable/2685041}.
+
 \bibitem{Simon2024} Simon, Jay. “Inefficient Forecasts at the Sportsbook: An Analysis of Real-Time Betting Line Movement.” Management Science, vol. 70, no. 12, Dec. 2024, pp. 8583–8611, https://doi.org/10.1287/mnsc.2022.00456. Accessed 6 Jan. 2025.
 
 \bibitem{parity} Figueroa, Jared. “Why Does the Women’s NCAA Tournament Feature so Few Upsets?” Cronkite News, 18 Mar. 2026, cronkitenews.azpbs.org/2026/03/18/women-ncaa-tournament-features-few-upsets/. Accessed 8 Apr. 2026.
 
-
 \bibitem{tails} Harville, David A. ``The Selection or Seeding of College Basketball or Football Teams for Postseason Competition.'' \textit{Journal of the American Statistical Association}, vol. 98, no. 461, March 2003, pp. 17--27, \url{https://doi.org/10.1198/016214503388619058}.
 
+\bibitem{Gumm} Gumm, J., A. Barrett, and G. Hu. ``A Machine Learning Strategy for Predicting March Madness Winners.'' \textit{2015 IEEE/ACIS 16th International Conference on Software Engineering, Artificial Intelligence, Networking and Parallel/Distributed Computing (SNPD)}, 2015, pp. 1--6, \url{https://doi.org/10.1109/SNPD.2015.7176206}.
 
+\bibitem{XGphoto} Yao, Xiaotong \& Fu, Xiaoli \& Zong, Chaofei. (2022). Short-Term Load Forecasting Method Based on Feature Preference Strategy and LightGBM-XGboost. IEEE Access. 10. 1-1. 10.1109/ACCESS.2022.3192011. 
 
-
-
-
-
-
-
+\bibitem{Zimmermann} Zimmermann, Albrecht, Sruthi Moorthy, and Zifan Shi. ``Predicting College Basketball Match Outcomes Using Machine Learning Techniques: Some Results and Lessons Learned.'' \textit{arXiv preprint arXiv:1310.3607}, 2013, \url{https://arxiv.org/abs/1310.3607}.
 
 \end{thebibliography}
 
