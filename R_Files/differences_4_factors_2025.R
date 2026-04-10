@@ -1,5 +1,9 @@
 library(dplyr)
+library(performance)
+library(see)
+library(pROC)
 library(data.table)
+library(corrplot)
 #changes
 #functions
 calculate_four_factors <- function(detailed_results_df) {
@@ -163,3 +167,52 @@ plot_womens_25 <- create_conf_matrix(predictions_2025_womens, "Team1_win", "Pred
 plot_combined_25 <- create_conf_matrix(combined_report_2025, "Team1_win", "Pred", "Combined 2025")
 
 grid.arrange(plot_mens_25, plot_womens_25, plot_combined_25, ncol = 3)
+
+# VIF - Men's
+p_vif_mens <- plot(check_model(mens_model_2025, check = "vif"))
+p_vif_mens + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+
+# VIF - Women's
+p_vif_womens <- plot(check_model(womens_model_2025, check = "vif"))
+p_vif_womens + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+
+# AUC - Men's
+mens_train_data  <- model_data_mens %>% filter(Season %in% c(2023, 2024))
+mens_train_preds <- predict(mens_model_2025, newdata = mens_train_data, type = "response")
+roc_mens <- roc(mens_train_data$Team1_win, mens_train_preds)
+cat("Men's Training AUC:", round(auc(roc_mens), 4), "\n")
+plot(roc_mens, main = "ROC Curve - Men's Logistic Regression", col = "#132B43", lwd = 2)
+
+# AUC - Women's
+womens_train_data  <- model_data_womens %>% filter(Season %in% c(2023, 2024))
+womens_train_preds <- predict(womens_model_2025, newdata = womens_train_data, type = "response")
+roc_womens <- roc(womens_train_data$Team1_win, womens_train_preds)
+cat("Women's Training AUC:", round(auc(roc_womens), 4), "\n")
+plot(roc_womens, main = "ROC Curve - Women's Logistic Regression", col = "#132B43", lwd = 2)
+#corr plot
+mens_features <- model_data_mens %>%
+  filter(Season %in% c(2023, 2024)) %>%
+  select(eFG_diff, TOV_Pct_diff, ORB_Pct_diff, FTR_diff, Win_diff)
+
+corrplot(cor(mens_features, use = "complete.obs"),
+         method      = "color",
+         type        = "upper",
+         addCoef.col = "black",
+         tl.col      = "black",
+         tl.srt      = 45,
+         title       = "Men's Feature Correlation Matrix",
+         mar         = c(0, 0, 1, 0))
+
+# Correlation Matrix - Women's
+womens_features <- model_data_womens %>%
+  filter(Season %in% c(2023, 2024)) %>%
+  select(eFG_diff, TOV_Pct_diff, ORB_Pct_diff, FTR_diff, Win_diff)
+
+corrplot(cor(womens_features, use = "complete.obs"),
+         method      = "color",
+         type        = "upper",
+         addCoef.col = "black",
+         tl.col      = "black",
+         tl.srt      = 45,
+         title       = "Women's Feature Correlation Matrix",
+         mar         = c(0, 0, 1, 0))

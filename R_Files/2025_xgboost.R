@@ -3,7 +3,7 @@ library(dplyr)
 library(xgboost)
 library(ggplot2)
 library(gridExtra)
-
+library(pROC)
 # data load ---------------------------------------------------------------
 
 data_dir <- "march-machine-learning-mania-2025"
@@ -530,6 +530,16 @@ importance_matrix <- xgb.importance(feature_names = features, model = final_mode
 print(head(importance_matrix, 20))
 xgb.plot.importance(importance_matrix[1:20], main = "Feature Importance")
 
+xgb_train_preds <- predict(final_model, dtrain)
+roc_xgb <- roc(tourney_complete$win, xgb_train_preds)
+cat("XGBoost Training AUC:", round(auc(roc_xgb), 4), "\n")
+plot(roc_xgb,
+     legacy.axes = TRUE,
+     main = paste0("XGBoost ROC Curve (AUC = ", round(auc(roc_xgb), 4), ")"),
+     col  = "#132B43",
+     lwd  = 2,
+     xlab = "False Positive Rate (FPR)",
+     ylab = "True Positive Rate (TPR)")
 
 # predict 2025 ------------------------------------------------------------
 
