@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.1) (preloaded format=pdflatex 2026.2.3)  11 APR 2026 01:56
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.1) (preloaded format=pdflatex 2026.2.3)  11 APR 2026 02:18
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -833,28 +833,29 @@ Package hyperref Info: Link coloring OFF on input line 286.
 
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: End \AtBeginDocument code.
-[1
-
-{C:/Users/marin/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}] [2] [1] [2] 
-[3] (project_latex_v2.toc
-LaTeX Font Info:    Trying to load font information for U+msa on input line 2.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 302
+.
 (C:\Users\marin\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 2.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 302
+.
 (C:\Users\marin\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-LaTeX Font Info:    Trying to load font information for U+lasy on input line 2.
-
+LaTeX Font Info:    Trying to load font information for U+lasy on input line 30
+2.
 (C:\Users\marin\AppData\Local\Programs\MiKTeX\tex/latex/base\ulasy.fd
 File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
 )
-LaTeX Font Info:    Trying to load font information for U+rsfs on input line 2.
-
+LaTeX Font Info:    Trying to load font information for U+rsfs on input line 30
+2.
 (C:\Users\marin\AppData\Local\Programs\MiKTeX\tex/latex/jknappen\ursfs.fd
 File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
-))
+) [1
+
+{C:/Users/marin/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}] [2] [1] [2] 
+[3] (project_latex_v2.toc)
 \tf@toc=\write6
 \openout6 = `project_latex_v2.toc'.
 
@@ -879,23 +880,23 @@ Overfull \hbox (4.05421pt too wide) in paragraph at lines 12--12
 \openout8 = `project_latex_v2.lof'.
 
 [7]
-<paper_photos/bracket.jpg, id=216, 897.3525pt x 617.30624pt>
+<paper_photos/bracket.jpg, id=217, 897.3525pt x 617.30624pt>
 File: paper_photos/bracket.jpg Graphic file (type jpg)
 <use paper_photos/bracket.jpg>
-Package pdftex.def Info: paper_photos/bracket.jpg  used on input line 479.
+Package pdftex.def Info: paper_photos/bracket.jpg  used on input line 478.
 (pdftex.def)             Requested size: 269.20782pt x 185.1933pt.
 
 pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has 
 been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.484 
+l.483 
        [1]
 pdfTeX warning (ext4): destination with the same identifier (name{page.2}) has 
 been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.487 T
+l.486 T
        his inherent volatility drives a massive secondary market focused on ...
 [2 <./paper_photos/bracket.jpg>] [3] [4] [5] [6]
 
@@ -903,20 +904,20 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 
 [7] [8] [9] [10] [11] [12] [13] [14]
 LaTeX Font Info:    Font shape `U/lasy/b/n' in size <8> not available
-(Font)              Font shape `U/lasy/m/n' tried instead on input line 637.
+(Font)              Font shape `U/lasy/m/n' tried instead on input line 636.
 LaTeX Font Info:    Font shape `U/lasy/b/n' in size <6> not available
-(Font)              Font shape `U/lasy/m/n' tried instead on input line 637.
+(Font)              Font shape `U/lasy/m/n' tried instead on input line 636.
 [15]
 <paper_photos/logisticreg.png, id=335, 722.7pt x 482.80376pt>
 File: paper_photos/logisticreg.png Graphic file (type png)
 <use paper_photos/logisticreg.png>
-Package pdftex.def Info: paper_photos/logisticreg.png  used on input line 651.
+Package pdftex.def Info: paper_photos/logisticreg.png  used on input line 650.
 (pdftex.def)             Requested size: 181.06937pt x 120.96585pt.
 <paper_photos/simple_regression.png, id=338, 736.7525pt x 581.17125pt>
 File: paper_photos/simple_regression.png Graphic file (type png)
 <use paper_photos/simple_regression.png>
 Package pdftex.def Info: paper_photos/simple_regression.png  used on input line
- 658.
+ 657.
 (pdftex.def)             Requested size: 181.06937pt x 142.82716pt.
 [16] [17 <./paper_photos/logisticreg.png> <./paper_photos/simple_regression.png
 >]
@@ -926,7 +927,7 @@ File: paper_photos/Schematic-illustration-of-the-XGboost-model_W640.jpg Graphic
  file (type jpg)
 <use paper_photos/Schematic-illustration-of-the-XGboost-model_W640.jpg>
 Package pdftex.def Info: paper_photos/Schematic-illustration-of-the-XGboost-mod
-el_W640.jpg  used on input line 683.
+el_W640.jpg  used on input line 682.
 (pdftex.def)             Requested size: 258.15385pt x 290.42308pt.
 [18] [19 <./paper_photos/Schematic-illustration-of-the-XGboost-model_W640.jpg>]
 <paper_photos/Cross_Validation_Ferrer_2-scaled.png, id=377, 2569.6pt x 2198.212
@@ -935,49 +936,49 @@ File: paper_photos/Cross_Validation_Ferrer_2-scaled.png Graphic file (type png)
 
 <use paper_photos/Cross_Validation_Ferrer_2-scaled.png>
 Package pdftex.def Info: paper_photos/Cross_Validation_Ferrer_2-scaled.png  use
-d on input line 693.
+d on input line 692.
 (pdftex.def)             Requested size: 256.97505pt x 219.83412pt.
 [20 <./paper_photos/Cross_Validation_Ferrer_2-scaled.png>] [21] [22] [23] [24] 
 [25] [26] [27]
 <figure/vif_log_DO-1.pdf, id=432, 867.24pt x 361.35pt>
 File: figure/vif_log_DO-1.pdf Graphic file (type pdf)
 <use figure/vif_log_DO-1.pdf>
-Package pdftex.def Info: figure/vif_log_DO-1.pdf  used on input line 766.
+Package pdftex.def Info: figure/vif_log_DO-1.pdf  used on input line 765.
 (pdftex.def)             Requested size: 402.37912pt x 167.65659pt.
 [28 <./figure/vif_log_DO-1.pdf>]
 <figure/corr_log-1.pdf, id=448, 867.24pt x 433.62pt>
 File: figure/corr_log-1.pdf Graphic file (type pdf)
 <use figure/corr_log-1.pdf>
-Package pdftex.def Info: figure/corr_log-1.pdf  used on input line 780.
+Package pdftex.def Info: figure/corr_log-1.pdf  used on input line 779.
 (pdftex.def)             Requested size: 402.37912pt x 201.18791pt.
 [29 <./figure/corr_log-1.pdf>] [30] [31] [32]
 <figure/roc_log-1.pdf, id=475, 867.24pt x 361.35pt>
 File: figure/roc_log-1.pdf Graphic file (type pdf)
 <use figure/roc_log-1.pdf>
-Package pdftex.def Info: figure/roc_log-1.pdf  used on input line 842.
+Package pdftex.def Info: figure/roc_log-1.pdf  used on input line 841.
 (pdftex.def)             Requested size: 402.37912pt x 167.65659pt.
 [33 <./figure/roc_log-1.pdf>] [34] [35] [36] [37]
 <figure/unnamed-chunk-1-1.pdf, id=505, 289.08pt x 289.08pt>
 File: figure/unnamed-chunk-1-1.pdf Graphic file (type pdf)
 <use figure/unnamed-chunk-1-1.pdf>
-Package pdftex.def Info: figure/unnamed-chunk-1-1.pdf  used on input line 877.
+Package pdftex.def Info: figure/unnamed-chunk-1-1.pdf  used on input line 876.
 (pdftex.def)             Requested size: 193.14024pt x 193.14003pt.
 <figure/unnamed-chunk-2-1.pdf, id=506, 289.08pt x 289.08pt>
 File: figure/unnamed-chunk-2-1.pdf Graphic file (type pdf)
 <use figure/unnamed-chunk-2-1.pdf>
-Package pdftex.def Info: figure/unnamed-chunk-2-1.pdf  used on input line 885.
+Package pdftex.def Info: figure/unnamed-chunk-2-1.pdf  used on input line 884.
 (pdftex.def)             Requested size: 193.14024pt x 193.14003pt.
 [38 <./figure/unnamed-chunk-1-1.pdf> <./figure/unnamed-chunk-2-1.pdf>] [39] [40
 ]
 <figure/unnamed-chunk-3-1.pdf, id=542, 289.08pt x 361.35pt>
 File: figure/unnamed-chunk-3-1.pdf Graphic file (type pdf)
 <use figure/unnamed-chunk-3-1.pdf>
-Package pdftex.def Info: figure/unnamed-chunk-3-1.pdf  used on input line 923.
+Package pdftex.def Info: figure/unnamed-chunk-3-1.pdf  used on input line 922.
 (pdftex.def)             Requested size: 193.14024pt x 241.42505pt.
 <figure/unnamed-chunk-4-1.pdf, id=543, 289.08pt x 361.35pt>
 File: figure/unnamed-chunk-4-1.pdf Graphic file (type pdf)
 <use figure/unnamed-chunk-4-1.pdf>
-Package pdftex.def Info: figure/unnamed-chunk-4-1.pdf  used on input line 931.
+Package pdftex.def Info: figure/unnamed-chunk-4-1.pdf  used on input line 930.
 (pdftex.def)             Requested size: 193.14024pt x 241.42505pt.
 [41] [42 <./figure/unnamed-chunk-3-1.pdf> <./figure/unnamed-chunk-4-1.pdf>] [43
 ] [44]
@@ -985,99 +986,99 @@ Package pdftex.def Info: figure/unnamed-chunk-4-1.pdf  used on input line 931.
 File: figure/feature_importance-1.pdf Graphic file (type pdf)
 <use figure/feature_importance-1.pdf>
 Package pdftex.def Info: figure/feature_importance-1.pdf  used on input line 95
-2.
+1.
 (pdftex.def)             Requested size: 321.90451pt x 321.90814pt.
 [45 <./figure/feature_importance-1.pdf>]
 <figure/auc_xgb-1.pdf, id=588, 433.62pt x 361.35pt>
 File: figure/auc_xgb-1.pdf Graphic file (type pdf)
 <use figure/auc_xgb-1.pdf>
-Package pdftex.def Info: figure/auc_xgb-1.pdf  used on input line 966.
+Package pdftex.def Info: figure/auc_xgb-1.pdf  used on input line 965.
 (pdftex.def)             Requested size: 281.66415pt x 234.73135pt.
 [46 <./figure/auc_xgb-1.pdf>] [47] [48] [49] [50] [51]
 <figure/hist_mens-1.pdf, id=630, 505.89pt x 361.35pt>
 File: figure/hist_mens-1.pdf Graphic file (type pdf)
 <use figure/hist_mens-1.pdf>
-Package pdftex.def Info: figure/hist_mens-1.pdf  used on input line 1021.
+Package pdftex.def Info: figure/hist_mens-1.pdf  used on input line 1020.
 (pdftex.def)             Requested size: 321.90451pt x 229.9344pt.
 [52]
 <figure/hist_womens-1.pdf, id=640, 505.89pt x 361.35pt>
 File: figure/hist_womens-1.pdf Graphic file (type pdf)
 <use figure/hist_womens-1.pdf>
-Package pdftex.def Info: figure/hist_womens-1.pdf  used on input line 1033.
+Package pdftex.def Info: figure/hist_womens-1.pdf  used on input line 1032.
 (pdftex.def)             Requested size: 321.90451pt x 229.9344pt.
 [53 <./figure/hist_mens-1.pdf> <./figure/hist_womens-1.pdf>] [54]
 <figure/diag_mens-1.pdf, id=662, 722.7pt x 722.7pt>
 File: figure/diag_mens-1.pdf Graphic file (type pdf)
 <use figure/diag_mens-1.pdf>
-Package pdftex.def Info: figure/diag_mens-1.pdf  used on input line 1052.
+Package pdftex.def Info: figure/diag_mens-1.pdf  used on input line 1051.
 (pdftex.def)             Requested size: 402.37912pt x 402.38243pt.
 [55]
 <figure/diag_womens-1.pdf, id=667, 722.7pt x 722.7pt>
 File: figure/diag_womens-1.pdf Graphic file (type pdf)
 <use figure/diag_womens-1.pdf>
-Package pdftex.def Info: figure/diag_womens-1.pdf  used on input line 1059.
+Package pdftex.def Info: figure/diag_womens-1.pdf  used on input line 1058.
 (pdftex.def)             Requested size: 402.37912pt x 402.38243pt.
 [56 <./figure/diag_mens-1.pdf>] [57 <./figure/diag_womens-1.pdf>]
 <figure/vif_log-1.pdf, id=687, 1011.78pt x 433.62pt>
 File: figure/vif_log-1.pdf Graphic file (type pdf)
 <use figure/vif_log-1.pdf>
-Package pdftex.def Info: figure/vif_log-1.pdf  used on input line 1069.
+Package pdftex.def Info: figure/vif_log-1.pdf  used on input line 1068.
 (pdftex.def)             Requested size: 402.37912pt x 172.45245pt.
 [58 <./figure/vif_log-1.pdf>]
 <figure/corr_mc-1.pdf, id=702, 867.24pt x 433.62pt>
 File: figure/corr_mc-1.pdf Graphic file (type pdf)
 <use figure/corr_mc-1.pdf>
-Package pdftex.def Info: figure/corr_mc-1.pdf  used on input line 1084.
+Package pdftex.def Info: figure/corr_mc-1.pdf  used on input line 1083.
 (pdftex.def)             Requested size: 402.37912pt x 201.18791pt.
 [59 <./figure/corr_mc-1.pdf>] [60] [61] [62] [63]
 <figure/conf_matrices_2025-1.pdf, id=734, 722.7pt x 289.08pt>
 File: figure/conf_matrices_2025-1.pdf Graphic file (type pdf)
 <use figure/conf_matrices_2025-1.pdf>
 Package pdftex.def Info: figure/conf_matrices_2025-1.pdf  used on input line 11
-57.
+56.
 (pdftex.def)             Requested size: 402.37912pt x 160.95297pt.
 [64 <./figure/conf_matrices_2025-1.pdf>]
 <figure/conf_matrix_xgb-1.pdf, id=747, 722.7pt x 289.08pt>
 File: figure/conf_matrix_xgb-1.pdf Graphic file (type pdf)
 <use figure/conf_matrix_xgb-1.pdf>
-Package pdftex.def Info: figure/conf_matrix_xgb-1.pdf  used on input line 1166.
+Package pdftex.def Info: figure/conf_matrix_xgb-1.pdf  used on input line 1165.
 
 (pdftex.def)             Requested size: 402.37912pt x 160.95297pt.
 <figure/conf_mc-1.pdf, id=749, 722.7pt x 289.08pt>
 File: figure/conf_mc-1.pdf Graphic file (type pdf)
 <use figure/conf_mc-1.pdf>
-Package pdftex.def Info: figure/conf_mc-1.pdf  used on input line 1176.
+Package pdftex.def Info: figure/conf_mc-1.pdf  used on input line 1175.
 (pdftex.def)             Requested size: 402.37912pt x 160.95297pt.
 [65 <./figure/conf_matrix_xgb-1.pdf>]
 <figure/roc_comparison-1.pdf, id=761, 867.24pt x 361.35pt>
 File: figure/roc_comparison-1.pdf Graphic file (type pdf)
 <use figure/roc_comparison-1.pdf>
-Package pdftex.def Info: figure/roc_comparison-1.pdf  used on input line 1185.
+Package pdftex.def Info: figure/roc_comparison-1.pdf  used on input line 1184.
 (pdftex.def)             Requested size: 402.37912pt x 167.65659pt.
 [66 <./figure/conf_mc-1.pdf>] [67 <./figure/roc_comparison-1.pdf>] [68]
 <figure/vif_2026-1.pdf, id=788, 1011.78pt x 433.62pt>
 File: figure/vif_2026-1.pdf Graphic file (type pdf)
 <use figure/vif_2026-1.pdf>
-Package pdftex.def Info: figure/vif_2026-1.pdf  used on input line 1225.
+Package pdftex.def Info: figure/vif_2026-1.pdf  used on input line 1224.
 (pdftex.def)             Requested size: 402.37912pt x 172.45245pt.
 [69] [70 <./figure/vif_2026-1.pdf>] [71] [72] [73]
 <figure/worst_plots_2026-1.pdf, id=819, 867.24pt x 867.24pt>
 File: figure/worst_plots_2026-1.pdf Graphic file (type pdf)
 <use figure/worst_plots_2026-1.pdf>
-Package pdftex.def Info: figure/worst_plots_2026-1.pdf  used on input line 1301
+Package pdftex.def Info: figure/worst_plots_2026-1.pdf  used on input line 1300
 .
 (pdftex.def)             Requested size: 402.37912pt x 402.37582pt.
 [74] [75 <./figure/worst_plots_2026-1.pdf>]
 <figure/conf_2026-1.pdf, id=838, 722.7pt x 289.08pt>
 File: figure/conf_2026-1.pdf Graphic file (type pdf)
 <use figure/conf_2026-1.pdf>
-Package pdftex.def Info: figure/conf_2026-1.pdf  used on input line 1316.
+Package pdftex.def Info: figure/conf_2026-1.pdf  used on input line 1315.
 (pdftex.def)             Requested size: 402.37912pt x 160.95297pt.
 [76]
 <figure/roc_2026-1.pdf, id=845, 722.7pt x 361.35pt>
 File: figure/roc_2026-1.pdf Graphic file (type pdf)
 <use figure/roc_2026-1.pdf>
-Package pdftex.def Info: figure/roc_2026-1.pdf  used on input line 1326.
+Package pdftex.def Info: figure/roc_2026-1.pdf  used on input line 1325.
 (pdftex.def)             Requested size: 402.37912pt x 201.19122pt.
 [77 <./figure/conf_2026-1.pdf>] [78 <./figure/roc_2026-1.pdf>] [79] [80] [81] [
 82] [83
@@ -1115,7 +1116,7 @@ msfonts/cm/cmsy8.pfb><C:/Users/marin/AppData/Local/Programs/MiKTeX/fonts/type1/
 public/amsfonts/cm/cmti12.pfb><C:/Users/marin/AppData/Local/Programs/MiKTeX/fon
 ts/type1/public/amsfonts/cm/cmtt12.pfb><C:/Users/marin/AppData/Local/Programs/M
 iKTeX/fonts/type1/public/amsfonts/cm/cmtt8.pfb>
-Output written on project_latex_v2.pdf (95 pages, 5881765 bytes).
+Output written on project_latex_v2.pdf (95 pages, 5881258 bytes).
 PDF statistics:
  1025 PDF objects out of 1200 (max. 8388607)
  213 named destinations out of 1000 (max. 500000)
