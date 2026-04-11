@@ -413,8 +413,7 @@ Mario Bañuelos \hfill Mathematics \hspace{2pc}   %TYPE DEPARTMENT NAME OR PROFE
 ACKNOWLEDGMENTS
 \end{center}
 \doublespacing
-
-I would like to thank my advisor, Dr. Dvisor, for her helpful advice, guidance, knowledge, and overall general brilliance. It was an honor for me to have the chance to work with such a great mind. I would also like to thank all project committee members for, hopefully, having read my work and asking easy questions at my defense. I  also thank my parents....
+(Does this page get judged by the commitee? If so I will schedule meetings with you for it. I haven't written it yet, but I will. )
 \newline\newline\newline
 
 \singlespacing
@@ -790,7 +789,7 @@ The pairwise correlation matrices for the men's and women's training data are pr
 Because separate models were trained for the men's and women's tournaments, the resulting coefficient structures can be analyzed independently to determine the relative importance of each feature. These independent estimates are then compared against one another to assess whether the Four Factors operate fundamentally differently across the two divisions. By rigorously examining the magnitude and statistical significance of each variable, it becomes possible to identify which specific phases of the game best dictate postseason success for each gender. To illustrate these comparative findings, Tables \ref{tab:mens_coef} and \ref{tab:womens_coef} present the estimated coefficients, standard errors, p-values, and significance levels for the men's and women's models, respectively.
 
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Sat Apr 11 01:53:16 2026
+% Sat Apr 11 01:56:33 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -809,7 +808,7 @@ Intercept & 0.4352 & 0.2062 & 0.0348 & * \\
 \label{tab:mens_coef}
 \end{table}
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Sat Apr 11 01:53:16 2026
+% Sat Apr 11 01:56:33 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1094,7 +1093,7 @@ The pairwise correlation matrices in Figure \ref{fig:corr_mc} confirm these find
 Because separate models were trained for the men's and women's tournaments, the coefficient structures can be analyzed independently and then compared to assess whether the efficiency and tempo features operate differently across divisions. Tables \ref{tab:mens_coef_mc} and \ref{tab:womens_coef_mc} present the estimated coefficients, standard errors, p-values, and significance levels for the men's and women's models respectively.
 
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Sat Apr 11 01:53:21 2026
+% Sat Apr 11 01:56:38 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1114,7 +1113,7 @@ Intercept & -207.3986 & 5.4365 & 0.0000 & *** \\
 \label{tab:mens_coef_mc}
 \end{table}
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Sat Apr 11 01:53:21 2026
+% Sat Apr 11 01:56:38 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1195,7 +1194,7 @@ Figure \ref{fig:roc_comparison} presents the ROC curves for all three models eva
 While the AUC results highlight the discriminative advantage of XGBoost and Monte Carlo over the logistic regression baseline, the Brier Scores tell a consistent story. Summarized in Table \ref{tab:model_comparison}, the logistic regression achieves a combined Brier Score of $0.18401$, while XGBoost achieves $0.12761$ and the Monte Carlo model achieves $0.12857$. To contextualize these values, a Brier Score of $B$ implies that the model performed on average similarly to consistently assigning a win probability of $1 - \sqrt{B}$ to the eventual winner. By this measure the logistic regression corresponds to an average assigned probability of approximately $0.571$, while XGBoost and Monte Carlo both correspond to approximately $0.643$ and $0.641$ respectively, reflecting meaningfully sharper probability estimates. The competition winning score of $0.10411$ corresponds to approximately $0.677$, indicating that top submissions are consistently more confident on clear matchups while remaining appropriately uncertain on competitive ones. The difference of less than $0.001$ between XGBoost and Monte Carlo is negligible in practical terms, confirming that both models produce comparably calibrated win probabilities on the 2025 tournament despite their fundamentally different approaches. All three models fall short of the competition winning Brier Score of $0.10411$, indicating that the best performing submissions in the Kaggle competition produce sharper and better calibrated probabilities than any of the three models developed here. 
 
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Sat Apr 11 01:53:22 2026
+% Sat Apr 11 01:56:39 2026
 \begin{table}[ht]
 \centering
 \scalebox{0.85}{
@@ -1242,7 +1241,7 @@ The 2026 women's model remained structurally consistent with its 2025 counterpar
 
 
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Sat Apr 11 01:53:23 2026
+% Sat Apr 11 01:56:40 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1264,7 +1263,7 @@ Variable & Estimate & Std. Error & p-value & Sig. \\
 
 
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Sat Apr 11 01:53:23 2026
+% Sat Apr 11 01:56:40 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}

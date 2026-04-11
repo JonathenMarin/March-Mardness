@@ -372,8 +372,7 @@ Mario Bañuelos \hfill Mathematics \hspace{2pc}   %TYPE DEPARTMENT NAME OR PROFE
 ACKNOWLEDGMENTS
 \end{center}
 \doublespacing
-
-I would like to thank my advisor, Dr. Dvisor, for her helpful advice, guidance, knowledge, and overall general brilliance. It was an honor for me to have the chance to work with such a great mind. I would also like to thank all project committee members for, hopefully, having read my work and asking easy questions at my defense. I  also thank my parents....
+(Does this page get judged by the commitee? If so I will schedule meetings with you for it. I haven't written it yet, but I will. )
 \newline\newline\newline
 
 \singlespacing
