@@ -439,3 +439,11 @@ ggroc(roc_womens) +
   theme_minimal() +
   annotate("text", x = 0.25, y = 0.1, 
            label = paste("AUC =", round(auc(roc_womens), 4)))
+# Combined Monte Carlo 2025 Test AUC
+combined_mc_predictions <- bind_rows(
+  tournament_predictions %>% select(Pred, Actual),
+  womens_tournament_predictions %>% select(Pred, Actual)
+)
+
+roc_mc_2025 <- roc(combined_mc_predictions$Actual, combined_mc_predictions$Pred)
+cat("Monte Carlo Combined 2025 Test AUC:", round(auc(roc_mc_2025), 4), "\n")

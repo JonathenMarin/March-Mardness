@@ -475,6 +475,14 @@ The National Collegiate Athletic Association (NCAA) serves as the premier develo
 
 The focal point of this competitive landscape is March Madness. At the conclusion of the regular season, the selection committee invites $68$ teams to participate in this tournament. The field includes the champions from all $32$ Division I conferences alongside the best remaining teams chosen at large. The committee seeds these participants into four distinct regions with rankings ranging from $1$ to $16$. The four teams judged to be the strongest are awarded the number $1$ seeds while the next tier receives the number $2$ seeds. Within each region, the teams compete in a single elimination format where matchups are initially determined by rank. For example, the top seed plays the sixteenth seed. The winner of each region advances to the Final Four to compete for the national championship. Crucially, these contests take place at neutral sites rather than on home courts. This structure creates a predictive challenge where volatility is the norm.
 
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale = 0.3]{paper_photos/bracket.jpg}
+\caption{An Example of a March Madness Bracket}
+\label{MMB}
+\end{center}
+\end{figure}
+
 The NCAA Men's Basketball Tournament is defined by its structural unpredictability. The single-elimination format means that even the most statistically dominant teams face elimination from a single off night, and the compressed six-round schedule amplifies the role of momentum, fatigue, and matchup advantages that aggregate metrics cannot fully capture. This variance is well-documented in existing literature. Extensive benchmarking of advanced ranking systems reveals that even the top-performing predictive models hit a ceiling of approximately 75\% accuracy, indicating that roughly one in four tournament games ultimately ends in an upset \cite{Sokol2026}. The consequences for bracket prediction are severe. The difficulty of bracket prediction further highlights this unpredictability. Mathematical projections place the odds of a perfect $63$-game bracket anywhere from $1$ in $9.2$ quintillion for purely random guesses to $1$ in $128$ billion for educated predictions. Consequently, there is no record of a publicly verified bracket remaining completely intact beyond the Sweet Sixteen \cite{Bergen2018}.
 
 This inherent volatility drives a massive secondary market focused on sports betting. As legal wagering expands globally, March Madness has evolved into one of the largest gambling events in the world, with $\$3.1$ billion wagered on tournament outcomes in 2025 \cite{AGA2025}. To manage this risk, bookmakers generate odds that serve as the industry standard for predictive accuracy. These odds represent a market consensus that attempts to price in every available variable from player injuries to historical trends. However, research demonstrates that these betting lines are not strictly driven by probability. Evidence indicates that sportsbook forecasts frequently overreact to new information, creating systematic inefficiencies that violate weak-form market efficiency. This suggests that line-setting is heavily influenced by bookmaker profit margins and public betting sentiment rather than pure statistical likelihood \cite{Simon2024}. Consequently, developing a model capable of outperforming these market-established baselines represents the gold standard for predictive success.
@@ -613,7 +621,7 @@ The competitive strategies employed by top finishers in the Kaggle competition c
 
 The second dominant framework relies on the Efficient Market Hypothesis \cite{EMH}. This approach theorizes that global betting markets, specifically closing lines from major bookmakers, offer a more accurate aggregate predictor of game outcomes than individual statistical models. These strategies do not attempt to beat the market but instead focus on mathematically disentangling the true win probability from the bookmaker's overround and inherent biases. The standard tool in this domain is the \texttt{goto\_conversion} algorithm \cite{goto}, which addresses the favorite-long shot bias, the tendency for markets to overvalue underdogs and undervalue heavy favorites, by applying correction functions to raw moneyline prices. By stripping these distortions from closing lines, competitors effectively leverage the crowd wisdom of the market while removing its pricing inefficiencies. For more information on how this strategy works, we refer the reader to \cite{goto}.
 
-The applicability of these frameworks is heavily constrained by the structural discontinuity introduced by the 2021 Name, Image, and Likeness (NIL) legislation. An analysis of historical team winning percentages in the post-NIL landscape reveals a significant deviation from historical norms, characterized by a rapid consolidation of talent where the number of programs maintaining elite win percentages above 75\% has nearly tripled compared to the preceding two decades \cite{CBS}. This phenomenon implies that feature weights derived from pre-2021 eras are likely subject to significant concept drift. Consequently, this review restricts its focus to winning strategies from recent Kaggle competitions spanning the last two years, as methodologies developed before the NIL era may not reflect the approaches best suited to the heightened stratification of team strength driven by current transfer portal dynamics.
+The applicability of these frameworks is heavily constrained by the structural discontinuity introduced by the 2021 Name, Image, and Likeness (NIL) legislation. An analysis of historical team winning percentages in the post-NIL landscape reveals a significant deviation from historical norms, characterized by a rapid consolidation of talent where the number of programs maintaining elite win percentages above 75\% has nearly tripled compared to the preceding two decades \cite{CBS}. This phenomenon implies that feature weights derived before 2021 eras are likely subject to significant concept drift. Consequently, this review restricts its focus to winning strategies from recent Kaggle competitions spanning the last two years, as methodologies developed before the NIL era may not reflect the approaches best suited to the heightened stratification of team strength driven by current transfer portal dynamics.
 
 The most influential baseline in recent competition history is a solution that placed highly in multiple competition years and was directly referenced or built upon by multiple top finishers in both 2024 and 2025 \cite{raddar}. This solution organizes its feature set into tiers of increasing complexity, beginning with tournament seeding, progressing through season-level efficiency averages, and culminating in a custom Elo rating system and a GLM-based team quality metric derived from point differential. The model is implemented using XGBoost with a fixed number of boosting rounds, and its widespread adoption as a community baseline reflects the consensus that gradient boosting produces strong and reproducible predictions in this competition. A third consistent pattern across recent competition years is the use of simulation to convert win probability estimates into bracket outcomes. Rather than predicting game results once, top competitors simulate each tournament thousands to hundreds of thousands of times, drawing the winner of each game according to the estimated win probabilities. Among the most notable implementations, one approach simulated brackets using win probabilities derived from expert ratings converted through a normal distribution over predicted point margins, while another used opponent adjusted efficiency margins scaled to a standard possession count with a normal distribution and an empirically estimated standard error. This approach of predicting a continuous score or margin first and then simulating to derive a win probability directly inspired the Linear Regression Monte Carlo model developed in this paper.
 
@@ -674,7 +682,7 @@ where $l$ is the loss function which simply computes the difference between the 
 \begin{figure}[H]
 \begin{center}
 \includegraphics[scale=1.2]{paper_photos/Schematic-illustration-of-the-XGboost-model_W640.jpg}
-\caption{An Illustration Showing How XGBoost Predicts\cite{XGphoto}.}
+\caption{An Illustration Showing How XGBoost Predicts \cite{XGphoto}.}
 \label{}
 \end{center}
 \end{figure}
@@ -756,23 +764,11 @@ With the models estimated on the 2023 and 2024 tournament data, the analysis beg
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
 
-{\centering \includegraphics[width=0.9\textwidth]{figure/vif_mens_log-1} 
+{\centering \includegraphics[width=\textwidth]{figure/vif_log_DO-1} 
 
 }
 
-\caption[VIF Plot for the Men's Logistic Regression Model]{VIF Plot for the Men's Logistic Regression Model.}\label{fig:vif_mens_log}
-\end{figure}
-
-\end{knitrout}
-
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-
-{\centering \includegraphics[width=0.9\textwidth]{figure/vif_womens_log-1} 
-
-}
-
-\caption[VIF Plot for the Women's Logistic Regression Model]{VIF Plot for the Women's Logistic Regression Model.}\label{fig:vif_womens_log}
+\caption[VIF Plots for the Men's and Women's Logistic Regression Models]{VIF Plots for the Men's and Women's Logistic Regression Models.}\label{fig:vif_log_DO}
 \end{figure}
 
 \end{knitrout}
@@ -794,7 +790,7 @@ The pairwise correlation matrices for the men's and women's training data are pr
 Because separate models were trained for the men's and women's tournaments, the resulting coefficient structures can be analyzed independently to determine the relative importance of each feature. These independent estimates are then compared against one another to assess whether the Four Factors operate fundamentally differently across the two divisions. By rigorously examining the magnitude and statistical significance of each variable, it becomes possible to identify which specific phases of the game best dictate postseason success for each gender. To illustrate these comparative findings, Tables \ref{tab:mens_coef} and \ref{tab:womens_coef} present the estimated coefficients, standard errors, p-values, and significance levels for the men's and women's models, respectively.
 
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Fri Apr 10 00:15:18 2026
+% Sat Apr 11 01:53:16 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -813,7 +809,7 @@ Intercept & 0.4352 & 0.2062 & 0.0348 & * \\
 \label{tab:mens_coef}
 \end{table}
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Fri Apr 10 00:15:18 2026
+% Sat Apr 11 01:53:16 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -949,12 +945,12 @@ In addition to the number of boosting rounds, five hyperparameters were tuned to
 
 The feature importance output from the final model ranks each predictor by its average gain across all splits, where gain measures the reduction in the loss function attributable to each specific feature. As shown in Figure \ref{fig:feature_importance}, \texttt{Seed\_diff} is the most influential predictor by a wide margin, accounting for $32.2\%$ of the total gain. This result is entirely consistent with the exploratory analysis presented in the Variable Selection section, which demonstrated a remarkably strong relationship between seed differential and tournament outcomes. Ultimately, this confirms that tournament seeding remains the single strongest signal for predicting matchup results across the historical dataset.
 
-The \texttt{Elo\_diff} metric ranks second with $11.5\%$ of the total gain, capturing cumulative season long performance in a nuanced way that seeds alone cannot reflect. Together, these two features account for roughly $44\%$ of the model's total predictive power, forming the core of the algorithm's decision making process. The \texttt{avg\_point\_diff\_diff} variable contributes an additional $5.5\%$, reflecting the average margin by which each team outperformed its opponents during the regular season. Beyond these three primary features, the remaining predictors each contribute less than $3\%$ individually, with strength of schedule variables making up the next tier followed by a long tail of specific box score statistics. This concentration of predictive power in seeding and Elo suggests that broad measures of aggregate team quality drive tournament outcomes significantly more than any individual box score metric.
+The \texttt{Elo\_diff} metric ranks second with $11.5\%$ of the total gain, capturing cumulative season long performance in a nuanced way that seeds alone cannot reflect. The \texttt{avg\_point\_diff\_diff} variable contributes an additional $5.5\%$, reflecting the average margin by which each team outperformed its opponents during the regular season. Beyond these three primary features, the remaining predictors each contribute less than $3\%$ individually, with strength of schedule variables making up the next tier followed by a long tail of specific box score statistics. This concentration of predictive power in seeding and Elo suggests that broad measures of aggregate team quality drive tournament outcomes significantly more than any individual box score metric.
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
 
-{\centering \includegraphics[width=\maxwidth]{figure/feature_importance-1} 
+{\centering \includegraphics[width=0.8\textwidth]{figure/feature_importance-1} 
 
 }
 
@@ -978,195 +974,384 @@ The predictive ability of the model is further assessed through the (AUC), prese
 \end{knitrout}
 
 
-\begin{center}
-
-\end{center}
-\thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
 
 
 
 
-The logistic regression and XGBoost models developed in the preceding sections predict win probabilities directly from features derived entirely from the Kaggle competition dataset. While both models demonstrated meaningful predictive performance, they share a fundamental limitation: the outcome variable is modeled as a function of aggregated season statistics without any explicit representation of how many points each team is expected to score in a given matchup. The Linear Regression Monte Carlo model takes a different approach by decomposing the prediction problem into two stages. In the first stage, a linear regression model is trained to predict the number of points a team will score given its own offensive efficiency, its opponent's defensive efficiency, and the pace at which both teams play. In the second stage, the predicted scores and their associated uncertainty are used to simulate each game thousands of times, with the win probability derived as the proportion of simulations in which the team of interest outscores its opponent. This simulation-based framework incorporates external efficiency ratings from two sources: KenPom for the men's division and Bart Torvik for the women's division. Both sources provide opponent-adjusted offensive and defensive efficiency metrics that are not available in the raw Kaggle box score data, allowing the model to draw on a richer and more carefully constructed measure of team quality than the previous two models.
+
+\newpage
+
 \usubsection{Linear Regression Monte Carlo}
-The Linear Regression Monte Carlo model is motivated by the observation that predicting a final score is a more tractable regression problem than directly estimating a win probability. Rather than asking the model to learn a complex nonlinear boundary between wins and losses, the linear regression stage asks a simpler question: given two teams' efficiency profiles, how many points should each team score? The residual standard deviation from this regression, denoted $\sigma$, captures the inherent unpredictability of college basketball scoring and serves as the engine of the simulation stage. By drawing repeated samples from the implied score distributions and counting the proportion of simulated games in which each team wins, the model converts a point estimate into a well-calibrated probability that naturally reflects the uncertainty in the underlying score prediction.
+The logistic regression and XGBoost models developed in the preceding sections predict win probabilities directly from features derived entirely from the Kaggle competition dataset. Rather than extending those frameworks further, the Linear Regression Monte Carlo model takes a different approach to the prediction problem. Where the previous two models learn a direct mapping from team statistics to win probability, this model grounds the prediction in an explicit scoring model, asking first how many points each team is expected to score before deriving a win probability from the simulated distribution of outcomes. The prediction pipeline is decomposed into two stages. In the first stage, a linear regression model is trained to predict the number of points a team will score given its own offensive efficiency, its opponent's defensive efficiency, and the pace at which both teams play. In the second stage, the predicted scores and their associated uncertainty are used to simulate each game thousands of times, with the win probability derived as the proportion of simulations in which the team of interest outscores its opponent. This simulation based framework incorporates external efficiency ratings from two sources: KenPom for the men's division and Bart Torvik for the women's division. Both sources provide opponent adjusted offensive and defensive efficiency metrics that are not available in the raw Kaggle box score data, allowing the model to draw on a richer and more carefully constructed measure of team quality than the previous two models
+
+The Linear Regression Monte Carlo model is motivated by the observation that predicting a final score is a more tractable regression problem than directly estimating a win probability. Rather than asking the model to learn a complex nonlinear boundary between wins and losses, the linear regression stage asks a simpler question: given two teams' efficiency profiles, how many points should each team score? The residual standard deviation from this regression, denoted $\sigma$, captures the inherent unpredictability of college basketball scoring and serves as the engine of the simulation stage. By drawing repeated samples from the score distributions and counting the proportion of simulated games in which each team wins, the model converts a point estimate into a probability that naturally reflects the uncertainty in the underlying score prediction.
+
 \usubsubsection{Variable Selection}
-The feature set for the Linear Regression Monte Carlo model is built around opponent-adjusted efficiency ratings sourced externally rather than computed from raw box score totals. For the men's division, KenPom provides adjusted offensive efficiency (\texttt{ORtg}), adjusted defensive efficiency (\texttt{DRtg}), and adjusted tempo (\texttt{AdjT}), all of which account for the strength of opposition faced and the pace at which games were played \cite{KenPom}. For the women's division, equivalent metrics are sourced from Bart Torvik, providing adjusted offensive efficiency (\texttt{AdjOE}), adjusted defensive efficiency (\texttt{AdjDE}), and adjusted tempo (\texttt{AdjT}) \cite{Torvik}. These opponent-adjusted metrics are preferred over the raw box score averages available in the Kaggle dataset because they isolate a team's true efficiency from the confounding influence of schedule strength, providing a cleaner signal for predicting how many points a team will score against a given opponent.
+The feature set for the Linear Regression Monte Carlo model is built around opponent-adjusted efficiency ratings sourced externally rather than computed from raw box score totals. For the men's division, KenPom provides adjusted offensive efficiency (\texttt{ORtg}), adjusted defensive efficiency (\texttt{DRtg}), and adjusted tempo (\texttt{AdjT}), all of which account for the strength of opposition faced and the pace at which games were played \cite{KenPom}. For the women's division, equivalent metrics are sourced from Bart Torvik, providing adjusted offensive efficiency (\texttt{AdjOE}), adjusted defensive efficiency (\texttt{AdjDE}), and adjusted tempo (\texttt{AdjT}) \cite{Torvik}. These opponent adjusted metrics are preferred over the raw box score averages available in the Kaggle dataset because they isolate a team's true efficiency from the confounding influence of schedule strength, providing a cleaner signal for predicting how many points a team will score against a given opponent. Unlike the previous two models which draw on historical tournament outcomes for training, the linear regression stage is trained exclusively on the current regular season, as the external efficiency ratings from KenPom and Bart Torvik are season snapshots that reflect the adjusted efficiencies accumulated over that season's play.
 
-A key design decision in the feature construction is how the efficiency ratings are paired for each prediction. Rather than inputting each team's statistics in isolation, the model explicitly pits each team's offensive profile against the opponent's defensive profile. To predict Team A's score, the model uses Team A's adjusted offensive efficiency as \texttt{OffRating} and Team B's adjusted defensive efficiency as \texttt{DefRating}, along with both teams' tempo values. The same logic applies symmetrically to predict Team B's score. This pairing structure mirrors how scoring actually occurs in basketball — a team's expected output is not simply a function of how well it attacks, but how well it attacks against a specific opponent's defense. A team with an elite offense facing an elite defense should be expected to score fewer points than the same team facing a weak defense, and the feature pairing ensures the model captures this interaction directly rather than leaving it to be inferred from aggregate statistics alone.
+A key design decision in the feature construction is how the efficiency ratings are paired for each prediction. Rather than inputting each team's statistics in isolation, the model explicitly pits each team's offensive profile against the opponent's defensive profile. To predict Team A's score, the model uses Team A's adjusted offensive efficiency as \texttt{OffRating} and Team B's adjusted defensive efficiency as \texttt{DefRating}, along with both teams' tempo values. The same logic applies symmetrically to predict Team B's score. This pairing structure mirrors how scoring actually occurs in basketball, a team's expected output is not simply a function of how well it attacks, but how well it attacks against a specific opponent's defense. A team with an elite offense facing an elite defense should be expected to score fewer points than the same team facing a weak defense, and the feature pairing ensures the model captures this interaction directly rather than leaving it to be inferred from aggregate statistics alone.
 
-Two additional differential features are included to capture relative team quality beyond the efficiency ratings alone. The Elo differential (\texttt{Diff\_Elo}), computed as the difference between each team's end-of-season Elo rating, reflects the cumulative outcome of each team's season relative to its opponents. The Elo rating system used here follows the implementation described in \cite{haupts_elo}, originally written in Python and reimplemented in R for this analysis.
-
-For the men's division, an additional net rating differential (\texttt{Diff\_NetRtg}) is also included, defined as the difference between each team's KenPom net rating, which is the margin between adjusted offensive and defensive efficiency. This feature is not included in the women's model because the Bart Torvik data source does not provide a precomputed net rating, and computing it manually from \texttt{AdjOE} and \texttt{AdjDE} was not performed during implementation. This represents a known limitation of the women's model relative to the men's, and future iterations should compute and include this feature to fully align the two frameworks. Season identifiers and team identifiers are excluded from the feature matrix as they carry no generalizable predictive signal.
-
-\usubsubsection{Data Preparation}
-The data preparation pipeline for the Linear Regression Monte Carlo model differs from the previous two models in two important ways. First, the training data is drawn exclusively from the current regular season rather than historical tournament games. The men's model is trained on all $2025$ regular season games and the women's model is trained on all $2025$ regular season games, meaning the linear regression learns to predict points scored from efficiency ratings and pace as observed in that season's regular season play. This is appropriate because the external efficiency ratings from KenPom and Bart Torvik are also season-specific, reflecting the adjusted efficiencies accumulated over the $2025$ regular season only. Second, the model requires an additional data integration step not present in the previous models: team name matching between the external ratings sources and the Kaggle team identifier system.
-
-Each regular season game is duplicated symmetrically in the same manner as the XGBoost training data, generating one row from the scoring team's perspective and one from the opponent's perspective. This ensures the model learns to predict points from both orientations and does not develop a directional bias. The Elo ratings used as a differential feature are computed from the full historical regular season results available in the Kaggle dataset, spanning multiple decades of game results. At the start of the first available season every team is initialized at $1500$. Ratings are then updated after every regular season game and carried over between seasons according to $R_{\text{new}} = 0.5 \times R_{\text{final}} + 750$, meaning each team's end-of-season rating partially persists into the following year rather than resetting. By the time the $2025$ end-of-season ratings are extracted, they reflect the cumulative outcome of over two decades of regular season results, giving historically dominant programs a meaningfully higher baseline than programs with limited historical success. Following symmetric duplication, the training matrix is filtered using \texttt{complete.cases} to retain only rows where every feature is present. In practice no rows were removed, indicating that every team in the $2025$ regular season had sufficient data across all feature sources to produce a complete profile. The final men's training matrix consisted of $10,326$ rows and $6$ features, while the women's training matrix consisted of $10,828$ rows and $5$ features, with the women's model excluding \texttt{Diff\_NetRtg} as discussed in the Variable Selection section.
+Two additional differential features are included to capture relative team quality beyond the efficiency ratings alone. The Elo differential (\texttt{Diff\_Elo}) is computed as the difference between each team's Elo rating, utilizing the same custom implementation described in the XGBoost model \cite{haupts_elo}. For the men's division, an additional net rating differential (\texttt{Diff\_NetRtg}) is also included, defined as the difference between each team's KenPom net rating, which represents the margin between adjusted offensive and defensive efficiency. This feature is not included in the women's model because the Bart Torvik data source does not provide a precomputed net rating, and computing it manually from \texttt{AdjOE} and \texttt{AdjDE} was not performed during implementation. This represents a known limitation of the women's model relative to the men's, and future iterations should compute and include this feature to fully align the two frameworks. Ultimately, the presence of these composite features allows the model to differentiate between teams with similar efficiency profiles but disparate levels of overall regular season dominance.
 
 \usubsubsection{Model Implementation}
-The linear regression model is fit using ordinary least squares, which identifies the coefficient vector $\hat{\beta}$ that minimizes the sum of squared residuals between the predicted and observed scores across all training observations. Unlike the logistic regression described in the prior section, which models the log-odds of a binary outcome, the linear regression here models a continuous response, the number of points a team scores in a given game. The formal specification for the men's model is:
-\begin{equation}
-\begin{split}
-\text{Points} = \beta_0 &+ \beta_1(\texttt{OffRating}) + \beta_2(\texttt{DefRating}) + \beta_3(\texttt{AdjT\_team}) \\
-&+ \beta_4(\texttt{AdjT\_opp}) + \beta_5(\texttt{Diff\_NetRtg}) + \beta_6(\texttt{Diff\_Elo}) + \varepsilon
-\end{split}
-\end{equation}
-and for the women's model:
-\begin{equation}
-\begin{split}
-\text{Points} = \beta_0 &+ \beta_1(\texttt{OffRating}) + \beta_2(\texttt{DefRating}) + \beta_3(\texttt{AdjT\_team}) \\
-&+ \beta_4(\texttt{AdjT\_opp}) + \beta_5(\texttt{Diff\_Elo}) + \varepsilon
-\end{split}
-\end{equation}
+The linear regression model is fit separately for the men's and women's divisions using Ordinary Least Squares (OLS). This foundational method identifies the specific coefficient vector $\hat{\boldsymbol{\beta}}$ that minimizes the sum of squared residuals between the predicted and observed scores across all training observations. The final curated men's training matrix consisted of $10,326$ rows and $6$ features, while the women's training matrix comprised $10,828$ rows and $5$ features. The formal specification for the men's model is defined as:
+\begin{equation}\begin{split}\text{Points} = \beta_0 &+ \beta_1(\texttt{OffRating}) + \beta_2(\texttt{DefRating}) + \beta_3(\texttt{AdjT\_team}) \\ 
+&+ \beta_4(\texttt{AdjT\_opp}) + \beta_5(\texttt{Diff\_NetRtg}) + \beta_6(\texttt{Diff\_Elo}) + \varepsilon\end{split}\end{equation}
+and the corresponding specification for the women's model is:
+\begin{equation}\begin{split}\text{Points} = \beta_0 &+ \beta_1(\texttt{OffRating}) + \beta_2(\texttt{DefRating}) + \beta_3(\texttt{AdjT\_team}) \\
+&+ \beta_4(\texttt{AdjT\_opp}) + \beta_5(\texttt{Diff\_Elo}) + \varepsilon\end{split}\end{equation}
+where $\varepsilon \sim \mathcal{N}(0, \sigma^2)$ is the residual error term and $\sigma$ is estimated directly from the training data.
 
-where $\varepsilon \sim \mathcal{N}(0, \sigma^2)$ is the residual error term. The residual standard deviation $\sigma$ is estimated from the training data. The values of $\sigma$ for both divisions are reported and interpreted in the Model Analysis section, where they serve as a measure of the model's predictive accuracy. Here $\sigma$ serves as the key input to the simulation stage, quantifying the uncertainty around each predicted score. The resulting coefficients reflect both the direction and magnitude of each predictor's contribution to the expected score. A positive coefficient on \texttt{OffRating} indicates that a team with a higher adjusted offensive efficiency is expected to score more points, which is consistent with basketball theory. Similarly, a positive coefficient on \texttt{DefRating} reflects the opponent's defensive efficiency, a higher opponent defensive rating means the opponent allows more points per possession, which naturally increases the scoring team's expected output. A positive coefficient on \texttt{AdjT\_team} indicates that teams playing at a faster pace are expected to score more points in absolute terms, since more possessions create more scoring opportunities, while \texttt{AdjT\_opp} captures the opponent's contribution to the pace of the game.
+The decision to train entirely separate models for each division directly mirrors the justification applied in the earlier logistic regression section. The fundamental relationship between efficiency ratings, tempo, and scoring may differ structurally between divisions due to inherent differences in average pace, physicality, and overall playing style. Forcing shared parameter estimates across both genders would carry a significant risk of masking these meaningful structural differences, thereby degrading predictive accuracy. The resulting values of $\sigma$ for both divisions are explicitly reported and interpreted in the Model Analysis section, where they serve as a direct measure of model calibration and as the primary input for the subsequent simulation stage.
 
-To convert the predicted scores into win probabilities, a Monte Carlo simulation is applied to each tournament matchup. For a given matchup between Team A and Team B, the linear regression produces two point estimates $\hat{\mu}_A$ and $\hat{\mu}_B$, representing the expected scores for each team given their respective efficiency profiles and the matchup context. Score realizations are then drawn independently for each team:
-
+To convert the predicted point totals into win probabilities, a Monte Carlo simulation framework is applied to each specific tournament matchup. For a given matchup between Team A and Team B, the fitted linear regression model produces two distinct point estimates, denoted as $\hat{\mu}_A$ and $\hat{\mu}_B$, representing the statistically expected scores for each team given their respective efficiency profiles. Continuous score realizations are then drawn independently for each team from a normal distribution centered on these predictions:
 \begin{align}
 \text{Score}_A &\sim \mathcal{N}(\hat{\mu}_A, \sigma^2) \\
-\text{Score}_B &\sim \mathcal{N}(\hat{\mu}_B, \sigma^2).
+\text{Score}_B &\sim \mathcal{N}(\hat{\mu}_B, \sigma^2)
 \end{align}
-
-The win probability for Team A is then computed as:
-
+Following these simulated iterations, the overarching win probability for Team A is computed as the strict proportion of trials where their simulated score exceeds that of their opponent:
 \begin{equation}
 \hat{P}(\text{Team A wins}) = \frac{1}{n} \sum_{i=1}^{n} \mathbf{1}[\text{Score}_{A,i} > \text{Score}_{B,i}]
 \end{equation}
 
-This proportion $\hat{P}(\text{Team A wins})$ is submitted directly to Kaggle as the predicted win probability for the matchup, with the complementary probability $1 - \hat{P}(\text{Team A wins})$ implicitly assigned to Team B. The normality assumption for score distributions is motivated by the central limit theorem: a team's final score is the aggregate of many independent possession outcomes, and the distribution of these aggregates converges toward normality as the number of possessions increases. The men's model uses $n = 100,000$ simulations per matchup, and the women's $2025$ submission used $n = 50,000$ due to an implementation inconsistency discussed in the limitations section. At both sample sizes, the standard error of the proportion estimate is bounded by $\sqrt{p(1-p)/n} \leq 0.002$ at $n = 50,000$ in the worst case, confirming that the estimates have converged to stable values.
+This final calculated proportion is submitted directly to Kaggle as the predicted win probability for the specified matchup, with the complementary probability $1 - \hat{P}(\text{Team A wins})$ assigned to Team B.The normality assumption underlying this simulation stage is robustly supported by both theoretical foundations and empirical evidence. From a theoretical perspective, a team's final score is essentially the aggregate sum of many independent possession outcomes over the course of a game. By the Central Limit Theorem \cite{CLT}, the distribution of this cumulative aggregate naturally converges toward normality as the total number of possessions increases. To verify this phenomenon empirically, the full distribution of regular season scores across all available historical seasons was formally examined for both divisions. As shown visually in Figures \ref{fig:hist_mens} and \ref{fig:hist_womens}, the observed score distributions closely trace a fitted normal curve in both datasets.
 
-As with the logistic regression, separate models are trained for the men's and women's divisions rather than a single combined model. The justification mirrors that of the prior section. The relationship between efficiency ratings, tempo, and scoring may differ structurally between divisions due to differences in pace, physicality, and playing style. Training separate models allows each set of coefficients to reflect the unique dynamics of its respective division rather than forcing shared parameter estimates that could mask meaningful differences.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
 
-An important practical consideration in this implementation is the decision to train exclusively on the current regular season rather than pooling multiple years of data. A single NCAA regular season produces several thousand games per division, which is sufficient to estimate a low-dimensional model with six or seven predictors reliably. However, this also means the model is sensitive to season-specific variation in how efficiency ratings translate to scoring. A team whose KenPom ratings were inflated by a weak schedule may be overestimated by the model, and conversely, a team that peaked late in the season after an early slump may have efficiency ratings that understate their true tournament form. These limitations are inherent to any model that relies on season-aggregate statistics and are shared to varying degrees by all three modeling approaches in this analysis. For this reason, the model is deliberately kept parsimonious, relying on six predictors for the men's model and five for the women's rather than expanding the feature set further. This is consistent with the principle of Occam's Razor applied in the logistic regression section. A simpler model that generalizes reliably is preferred over a more complex one that risks overfitting to season-specific patterns in the training data \cite{occam}.
+{\centering \includegraphics[width=0.8\textwidth]{figure/hist_mens-1} 
+
+}
+
+\caption[Distribution of Men's Regular Season Scores]{Distribution of Men's Regular Season Scores}\label{fig:hist_mens}
+\end{figure}
+
+\end{knitrout}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+{\centering \includegraphics[width=0.8\textwidth]{figure/hist_womens-1} 
+
+}
+
+\caption[Distribution of Women's Regular Season Scores]{Distribution of Women's Regular Season Scores}\label{fig:hist_womens}
+\end{figure}
+
+\end{knitrout}
+
+The empirical rule further confirms this structural normality: $68.82\%$ of men's scores and $67.35\%$ of women's scores fall within one standard deviation of the mean, $95.55\%$ and $95.76\%$ fall within two standard deviations, and $99.64\%$ and $99.56\%$ fall within three standard deviations. These calculated values almost perfectly match the theoretical expectations for a true Gaussian distribution, conclusively demonstrating that the normality assumption is well supported by the underlying data.
+
+During the final prediction phase, the men's model utilized $n = 100,000$ simulation iterations per matchup, while the women's 2025 submission utilized $n = 50,000$. Fortunately, at both of these massive sample sizes, the standard error of the resulting proportion estimate is strictly bounded by $\sqrt{p(1-p)/n} \leq 0.002$ in the absolute worst case scenario at $n = 50,000$. This mathematical bound guarantees that the simulated probability estimates have successfully converged to highly stable values that are immune to random sampling noise. Ultimately, the predictions for the 2025 tournament are generated by computing the expected scores for every possible matchup using each team's 2025 KenPom and Bart Torvik efficiency ratings alongside their end-of-season Elo ratings, and then systematically applying this Monte Carlo simulation to produce a final win probability $\hat{P} \in (0, 1)$ for each unique pairing.
+
 \usubsubsection{Model Analysis}
-With the models estimated on the $2025$ regular season data, the resulting coefficients can be examined to evaluate which predictors carry meaningful weight in each division and how well the linear regression captures the relationship between efficiency ratings and scoring. Because separate models were trained for the men's and women's tournaments, the coefficient structures can be analyzed independently and then compared to assess whether the efficiency and tempo features operate differently across divisions. Tables \ref{tab:mens_coef_mc} and \ref{tab:womens_coef_mc} present the estimated coefficients, p-values, and significance levels for the men's and women's models respectively.
+With the models estimated on the 2025 regular season data, the analysis begins by verifying that the four core assumptions of multiple linear regression are satisfied before interpreting the coefficient estimates. These assumptions are linearity, normality of residuals, homoscedasticity, and no multicollinearity.
+
+The first three assumptions are assessed jointly through the combined diagnostic plots presented in Figures \ref{fig:diag_mens} and \ref{fig:diag_womens}. The first assumption, linearity, requires that the relationship between the dependent variable and each independent variable is linear. The Residuals vs. Fitted panels show residuals randomly scattered around zero with approximately flat smoothing lines across the range of predicted scores, confirming that the linearity assumption is reasonably satisfied in both models. The second assumption, normality of residuals, requires that the residuals follow an approximately normal distribution. The Q-Q panels show that the residuals follow the theoretical normal reference line closely through the central range in both models, with some deviation in the tails driven by a small number of extreme blowout games. The third assumption, homoscedasticity, requires that the variance of the residuals is consistent across all levels of the predicted values. The Residuals vs. Fitted panels show no discernible cone-shaped or fanning pattern, confirming that the error variance is approximately constant across the range of fitted values in both models. The Residuals vs. Leverage panels further confirm that no observations exert undue influence on the model estimates in either division, as no points fall outside Cook's distance boundaries and leverage values remain uniformly small. (next plots im iffy on, but not sure how to include them and not take a page up. appendix maybe?)
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+\includegraphics[width=\textwidth]{figure/diag_mens-1} \caption[Diagnostic Plots for the Men's Linear Regression Model]{Diagnostic Plots for the Men's Linear Regression Model.}\label{fig:diag_mens}
+\end{figure}
+
+\end{knitrout}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+\includegraphics[width=\textwidth]{figure/diag_womens-1} \caption[Diagnostic Plots for the Women's Linear Regression Model]{Diagnostic Plots for the Women's Linear Regression Model.}\label{fig:diag_womens}
+\end{figure}
+
+\end{knitrout}
+
+The fourth assumption, no multicollinearity, requires that the independent variables are not too highly correlated with one another. Figure \ref{fig:vif_log} presents the VIF plots for both the men's and women's models. In the men's model, shows that \texttt{Diff\_NetRtg} carries a moderate VIF of approximately $7.5$, the highest among all predictors. While this falls below the problematic threshold of 10, it indicates meaningful shared variance between \texttt{Diff\_NetRtg} and \texttt{Diff\_Elo}, as both features capture overall team quality. In the women's model, all VIF values fall below $5$, indicating a clean feature structure with no problematic collinearity. 
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+{\centering \includegraphics[width=\textwidth]{figure/vif_log-1} 
+
+}
+
+\caption[VIF Plots for the Men's (left) and Women's (right) Logistic Regression Models]{VIF Plots for the Men's (left) and Women's (right) Logistic Regression Models.}\label{fig:vif_log}
+\end{figure}
+
+\end{knitrout}
+
+
+The pairwise correlation matrices in Figure \ref{fig:corr_mc} confirm these findings. In the men's model, \texttt{Diff\_NetRtg} and \texttt{Diff\_Elo} exhibit a correlation of $0.89$, the strongest relationship in the matrix and the primary driver of the elevated VIF for \texttt{Diff\_NetRtg}. All other pairwise correlations in the men's model remain below $0.5$. In the women's model, with \texttt{Diff\_NetRtg} absent, the strongest relationship is between \texttt{OffRating} and \texttt{Diff\_Elo} at $0.46$, which is well within acceptable bounds. A moderate negative correlation of $-0.35$ between \texttt{OffRating} and \texttt{DefRating} is also present in the men's model, with a similar value of$-0.37$ observed in the women's model. This is expected given that teams facing stronger defenses tend to have lower offensive outputs, meaning that higher defensive ratings naturally correspond to lower scoring environments for the opposing offense. While the men's model's moderate collinearity does not invalidate the coefficient estimates, it inflates the standard errors of the affected predictors and makes it more difficult to isolate their individual contributions. Both features were retained for their theoretical relevance rather than purely statistical grounds.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+{\centering \includegraphics[width=\textwidth]{figure/corr_mc-1} 
+
+}
+
+\caption[Feature Correlation Matrices for the Men's and Women's Linear Regression Models]{Feature Correlation Matrices for the Men's and Women's Linear Regression Models.}\label{fig:corr_mc}
+\end{figure}
+
+\end{knitrout}
+
+Because separate models were trained for the men's and women's tournaments, the coefficient structures can be analyzed independently and then compared to assess whether the efficiency and tempo features operate differently across divisions. Tables \ref{tab:mens_coef_mc} and \ref{tab:womens_coef_mc} present the estimated coefficients, standard errors, p-values, and significance levels for the men's and women's models respectively.
 
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Fri Apr 10 00:15:19 2026
+% Sat Apr 11 01:53:21 2026
 \begin{table}[ht]
 \centering
-\caption{Linear Regression Coefficient Estimates (Men's 2025 Model)} 
+\begin{tabular}{lrrrl}
+  \hline
+Variable & Estimate & Std. Error & p-value & Sig. \\ 
+  \hline
+Intercept & -207.3986 & 5.4365 & 0.0000 & *** \\ 
+  Off Rating & 0.6519 & 0.0216 & 0.0000 & *** \\ 
+  Def Rating & 0.6421 & 0.0239 & 0.0000 & *** \\ 
+  AdjT Team & 1.0826 & 0.0378 & 0.0000 & *** \\ 
+  AdjT Opp & 1.0086 & 0.0378 & 0.0000 & *** \\ 
+  Diff NetRtg & 0.0540 & 0.0181 & 0.0029 & ** \\ 
+  Diff Elo & 0.0013 & 0.0008 & 0.1229 &  \\ 
+   \hline
+\end{tabular}
+\caption{Linear Regression Coefficient Estimates (Men's 2025 Model).} 
 \label{tab:mens_coef_mc}
-\begin{tabular}{lrrl}
-  \hline
-Variable & Estimate & p-value & Sig. \\ 
-  \hline
-Intercept & -207.3986 & 0.0000 & *** \\ 
-  Off Rating & 0.6519 & 0.0000 & *** \\ 
-  Def Rating & 0.6421 & 0.0000 & *** \\ 
-  AdjT Team & 1.0826 & 0.0000 & *** \\ 
-  AdjT Opp & 1.0086 & 0.0000 & *** \\ 
-  Diff NetRtg & 0.0540 & 0.0029 & ** \\ 
-  Diff Elo & 0.0013 & 0.1229 &  \\ 
-   \hline
-\end{tabular}
 \end{table}
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Fri Apr 10 00:15:19 2026
+% Sat Apr 11 01:53:21 2026
 \begin{table}[ht]
 \centering
-\caption{Linear Regression Coefficient Estimates (Women's 2025 Model)} 
-\label{tab:womens_coef_mc}
-\begin{tabular}{lrrl}
+\begin{tabular}{lrrrl}
   \hline
-Variable & Estimate & p-value & Sig. \\ 
+Variable & Estimate & Std. Error & p-value & Sig. \\ 
   \hline
-Intercept & -202.9007 & 0.0000 & *** \\ 
-  Off Rating & 0.7309 & 0.0000 & *** \\ 
-  Def Rating & 0.7866 & 0.0000 & *** \\ 
-  AdjT Team & 0.9605 & 0.0000 & *** \\ 
-  AdjT Opp & 0.8542 & 0.0000 & *** \\ 
-  Diff Elo & 0.0024 & 0.0000 & *** \\ 
+Intercept & -202.9007 & 3.9728 & 0.0000 & *** \\ 
+  Off Rating & 0.7309 & 0.0136 & 0.0000 & *** \\ 
+  Def Rating & 0.7866 & 0.0189 & 0.0000 & *** \\ 
+  AdjT Team & 0.9605 & 0.0333 & 0.0000 & *** \\ 
+  AdjT Opp & 0.8542 & 0.0331 & 0.0000 & *** \\ 
+  Diff Elo & 0.0024 & 0.0006 & 0.0000 & *** \\ 
    \hline
 \end{tabular}
+\caption{Linear Regression Coefficient Estimates (Women's 2025 Model).} 
+\label{tab:womens_coef_mc}
 \end{table}
 
-In the men's model, four of the six predictors reach conventional statistical significance at the $0.001$ level: \texttt{OffRating}, \texttt{DefRating}, \texttt{AdjT\_team}, and \texttt{AdjT\_opp}. The positive coefficient on \texttt{OffRating} ($\hat{\beta} = 0.6519$) confirms that teams with higher adjusted offensive efficiency are expected to score more points, consistent with the feature's definition. The positive coefficient on \texttt{DefRating} ($\hat{\beta} = 0.6421$) reflects that facing a weaker defense, one that allows more points per $100$ possessions, is associated with higher expected scoring. Both tempo features carry positive and similarly sized coefficients, with \texttt{AdjT\_team} ($\hat{\beta} = 1.083$) and \texttt{AdjT\_opp} ($\hat{\beta} = 1.009$) indicating that faster pace from either team is associated with more points scored in absolute terms, consistent with the interpretation that more possessions generate more scoring opportunities. \texttt{Diff\_NetRtg} reaches significance at the $0.01$ level ($p = 0.0029$), contributing a small but meaningful positive adjustment to the expected score when a team's net rating differential over its opponent is favorable. \texttt{Diff\_Elo}, however, fails to reach significance ($p = 0.1229$), suggesting that once the KenPom efficiency ratings and net rating differential are accounted for, the Elo differential contributes no additional explanatory power in the men's model.
 
-The women's model tells a somewhat different story. All five predictors reach statistical significance, including \texttt{Diff\_Elo} ($\hat{\beta} = 0.002383$, $p < 0.001$), which was insignificant in the men's model. The efficiency and tempo coefficients are larger in magnitude for the women's model than the men's, with \texttt{OffRating} at $0.7309$ versus $0.6519$ and \texttt{DefRating} at $0.7866$ versus $0.6421$, suggesting that adjusted efficiency ratings are more predictive of actual scoring in the women's game. The significance of \texttt{Diff\_Elo} in the women's model but not the men's is directly attributable to the absence of \texttt{Diff\_NetRtg} in the women's feature set. In the men's model, \texttt{Diff\_NetRtg} and \texttt{Diff\_Elo} share variance since both capture overall team quality di fferential, and \texttt{Diff\_NetRtg} absorbs the signal that \texttt{Diff\_Elo} would otherwise contribute. In the women's model, with \texttt{Diff\_NetRtg} absent, \texttt{Diff\_Elo} becomes the primary carrier of that signal and its contribution is clearly detectable.
+In the men's model, four of the six predictors reach statistical significance at the $0.001$ level: \texttt{OffRating}, \texttt{DefRating}, \texttt{AdjT\_team}, and \texttt{AdjT\_opp}. The positive coefficient on \texttt{OffRating} ($\hat{\beta} = 0.6519$) confirms that teams with higher adjusted offensive efficiency are expected to score more points, consistent with the feature's definition. The positive coefficient on \texttt{DefRating} ($\hat{\beta} = 0.6421$) reflects that facing a weaker defense is associated with higher expected scoring. Both tempo features carry positive and similarly sized coefficients, with \texttt{AdjT\_team} ($\hat{\beta} = 1.083$) and \texttt{AdjT\_opp} ($\hat{\beta} = 1.009$) indicating that faster pace from either team is associated with more points scored. \texttt{Diff\_NetRtg} reaches significance at the $0.01$ level ($p = 0.0029$), contributing a small but meaningful positive adjustment to the expected score when a team's net rating differential is favorable. \texttt{Diff\_Elo} fails to reach significance ($p = 0.1229$), which is directly attributable to its collinearity with \texttt{Diff\_NetRtg} as identified in the VIF analysis.
 
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-\includegraphics[width=\textwidth]{figure/diag_mens-1} \caption[Diagnostic Plots for the Men's Linear Regression Model]{Diagnostic Plots for the Men's Linear Regression Model}\label{fig:diag_mens}
-\end{figure}
+The women's model tells a somewhat different story. All five predictors reach statistical significance, including \texttt{Diff\_Elo} ($\hat{\beta} = 0.002383$, $p < 0.001$), which was insignificant in the men's model. The efficiency coefficients are larger in magnitude for the women's model than the men's, with \texttt{OffRating} at $0.7309$ versus $0.6519$ and \texttt{DefRating} at $0.7866$ versus $0.6421$, suggesting that adjusted efficiency ratings are more predictive of actual scoring in the women's game. The tempo coefficients in the women's model are slightly smaller than the men's, with \texttt{AdjT\_team} at $0.9605$ versus $1.083$ and \texttt{AdjT\_opp} at $0.8542$ versus $1.009$, suggesting that pace has a somewhat weaker impact on scoring in the women's game. The significance of \texttt{Diff\_Elo} in the women's model but not the men's is directly attributable to the absence of \texttt{Diff\_NetRtg} in the women's feature set. With \texttt{Diff\_NetRtg} absent, \texttt{Diff\_Elo} becomes the primary carrier of the team quality differential signal and its contribution is clearly detectable.
 
-\end{knitrout}
-
-The two models also differ meaningfully in their goodness of fit. The women's model achieves an $R^2$ of $0.524$, meaning it explains $52.4\%$ of the variance in points scored, compared to $0.379$ for the men's model. This gap suggests that Bart Torvik efficiency ratings are more predictive of women's scoring outcomes than KenPom men's rankings. This is possibly because the women's game exhibits less of the high variance play that characterizes men's basketball at the tournament level \cite{parity}. The residual standard deviations are $\sigma = 9.507$ for the men's model and $\sigma = 9.300$ for the women's model, meaning the women's model's score predictions are marginally more precise. These values of $\sigma$ feed directly into the Monte Carlo simulation as the spread of the score distribution, so the women's slightly lower $\sigma$ means its win probability estimates are derived from slightly tighter score distributions.
-
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-\includegraphics[width=\textwidth]{figure/diag_womens-1} \caption[Diagnostic Plots for the Women's Linear Regression Model]{Diagnostic Plots for the Women's Linear Regression Model}\label{fig:diag_womens}
-\end{figure}
-
-\end{knitrout}
-
-Figure \ref{fig:diag_mens} presents the diagnostic plots for the men's model and Figure \ref{fig:diag_womens} presents the equivalent plots for the women's model. In both cases, the Residuals vs. Fitted plots show residuals randomly scattered around zero with approximately flat smoothing lines, confirming that the linearity assumption is reasonably satisfied across the range of predicted scores. The Q-Q plots show that the residuals follow the theoretical normal line closely through the central range in both models, with some deviation in the tails where a small number of extreme scoring observations pull away from the reference line. This tail behavior is driven by the frequency of extreme blowouts that act as outlying observations, a phenomenon well-documented in empirical sports modeling \cite{tails}. This deviation does not materially undermine the normality assumption that motivates the simulation framework, particularly given the large training sample sizes of over $10,000$ observations in each division. The Residuals vs. Leverage plots confirm that no observations exert undue influence on the model estimates in either division, as no points fall outside Cook's distance boundaries and leverage values remain uniformly small.
-
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-
-{\centering \includegraphics[width=0.9\textwidth]{figure/vif_mens-1} 
-
-}
-
-\caption[VIF Plot for the Men's Linear Regression Model]{VIF Plot for the Men's Linear Regression Model}\label{fig:vif_mens}
-\end{figure}
-
-\end{knitrout}
-
-The VIF analysis reveals a meaningful structural difference between the two models. In the men's model, shown in Figure \ref{fig:vif_mens}, \texttt{Diff\_NetRtg} carries a moderate VIF of approximately $7.5$, the highest among all predictors, indicating that it shares substantial variance with other features in the model. This collinearity is the direct cause of \texttt{Diff\_Elo}'s insignificance in the men's model, as the two features capture overlapping information about team quality differential. In the women's model, shown in Figure \ref{fig:vif_womens}, with \texttt{Diff\_NetRtg} absent, all VIF values fall below $5$ and are classified as low, indicating a cleaner feature structure with no problematic collinearity. While the men's model's moderate collinearity does not invalidate the estimates, it inflates the standard errors of the affected coefficients and makes it more difficult to isolate the individual contributions of correlated predictors. This is an accepted consequence given that both features were included for their theoretical relevance rather than purely statistical grounds.
-
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-
-{\centering \includegraphics[width=0.9\textwidth]{figure/vif_womens-1} 
-
-}
-
-\caption[VIF Plot for the Women's Linear Regression Model]{VIF Plot for the Women's Linear Regression Model}\label{fig:vif_womens}
-\end{figure}
-
-\end{knitrout}
+The two models also differ meaningfully in their goodness of fit. The women's model achieves an $R^2$ of $0.524$, meaning it explains $52.4\%$ of the variance in points scored, compared to $0.379$ for the men's model. This gap suggests that Bart Torvik efficiency ratings are more predictive of women's scoring outcomes than KenPom ratings are for men's, possibly because the women's game exhibits less of the high variance play that characterizes men's basketball at the tournament level \cite{parity}. The residual standard deviations are $\sigma = 9.507$ for the men's model and $\sigma = 9.300$ for the women's model, meaning the women's model's score predictions are marginally more precise. These values feed directly into the Monte Carlo simulation as the spread of the score distribution, so the women's slightly lower $\sigma$ means its win probability estimates are derived from slightly tighter score distributions.
 
 Taken together, the diagnostic analysis confirms that both models satisfy the core assumptions of linear regression sufficiently to justify their use in the simulation framework. The women's model is the stronger of the two by every measured criterion, achieving higher $R^2$, lower $\sigma$, cleaner VIF structure, and full predictor significance. The men's model is adequate but limited by the moderate collinearity between \texttt{Diff\_NetRtg} and \texttt{Diff\_Elo} and the lower overall explanatory power of the efficiency features in the men's regular season data. These findings reinforce the decision to train the models independently rather than pooling the divisions, as the structural differences in coefficient magnitudes, predictor significance, and goodness of fit confirm that the two divisions are not governed by the same scoring dynamics.
-
-
-
-
 
 \newpage
 \begin{center}
 \section{RESULTS}
 \end{center}
 \thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
+The Results section evaluates the predictive performance of all three models developed in this analysis on the 2025 NCAA tournament. The actual tournament outcomes serve as the ground truth against which all predictions are evaluated. Performance is assessed across three complementary dimensions: classification accuracy derived from the confusion matrices, the AUC curves computed on the 2025 tournament predictions, and the combined Brier Score across both divisions. Together these metrics capture both the directional accuracy of each model's winner predictions and the quality of its probability calibration. The Kaggle competition winning Brier Score of $0.10411$ serves as the external benchmark throughout.
+\usubsection{2025 Results}
+The 2025 NCAA tournament serves as the primary evaluation for all three models developed in this paper. Each model generated win probability estimates for every possible tournament matchup across both the men's and women's divisions, and those probabilities are evaluated here against the actual tournament outcomes. Performance is assessed across three dimensions: classification accuracy derived from the confusion matrices, the Area Under the Receiver Operating Characteristic Curve computed on the 2025 tournament predictions, and the combined Brier Score across both divisions. Together these metrics provide a comprehensive picture of each model's predictive ability, capturing both directional accuracy and probability calibration. The Kaggle competition winning Brier Score of $0.10411$ serves as the external benchmark against which all three models are compared.
 
-\usubsection{Model Comparison}
+The logistic regression model serves as the interpretable baseline and produces the most modest classification performance of the three models. Figure \ref{fig:conf_matrices_2025} presents the confusion matrices for the men's, women's, and combined results. The women's model achieves the strongest classification performance at $77.6\%$ accuracy, followed by the combined model at $73.9\%$ and the men's model at $70.1\%$. This ordering is consistent with the coefficient analysis in the Model Analysis section, where the women's model benefited from three statistically significant predictors while the men's model had only one. All three accuracy figures comfortably exceed the $50\%$ baseline expected from random prediction, confirming that the Four Factors carry prediction power in both divisions.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+\includegraphics[width=\linewidth]{figure/conf_matrices_2025-1} \caption[Confusion Matrices for the 2025 Logistic Regression Models]{Confusion Matrices for the 2025 Logistic Regression Models.}\label{fig:conf_matrices_2025}
+\end{figure}
+
+\end{knitrout}
+
+The XGBoost model produces stronger classification performance across both divisions, reflecting the expanded feature set and nonlinear modeling framework. Figure \ref{fig:conf_matrix_xgb} presents the confusion matrices for the men's, women's, and combined results. The women's model achieves the strongest classification performance at 80.6\% accuracy, followed by the combined model at 79.1\% and the men's model at 77.6\%. This ordering is consistent with the feature importance analysis, where measures of team quality such as seeding and Elo drive predictions, and the women's tournament historically exhibits stronger seed correlation with outcomes than the men's. All three accuracy figures improve upon the logistic regression results, confirming that the richer feature set contributes meaningful predictive gains over the Four Factors baseline.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+\includegraphics[width=\textwidth]{figure/conf_matrix_xgb-1} \caption[Confusion Matrices for the 2025 XGBoost Model]{Confusion Matrices for the 2025 XGBoost Model.}\label{fig:conf_matrix_xgb}
+\end{figure}
+
+\end{knitrout}
+
+
+The Linear Regression Monte Carlo model produces the strongest classification performance of the three models across both divisions. Figure \ref{fig:conf_mc} presents the mens,women's, and combined results. The women's model achieves $82.09\%$ accuracy and the men's model achieves $77.61\%$, yielding a combined accuracy of $79.85\%$. The women's accuracy of $82.09\%$ is the highest recorded across all three models and both divisions, consistent with the Model Analysis finding that the women's linear regression achieved a higher $R^2$ and lower $\sigma$ than the men's model. The men's accuracy of $77.61\%$ is comparable to the XGBoost men's result of $77.6\%$, suggesting that despite using a fundamentally different prediction approach, the two models identify similar matchup patterns in the men's tournament.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+\includegraphics[width=\linewidth]{figure/conf_mc-1} \caption[Confusion Matrices for the 2025 Monte Carlo Model]{Confusion Matrices for the 2025 Monte Carlo Model.}\label{fig:conf_mc}
+\end{figure}
+
+\end{knitrout}
+Figure \ref{fig:roc_comparison} presents the ROC curves for all three models evaluated on the 2025 tournament predictions. The ROC curve plots the true positive rate against the false positive rate across all possible classification thresholds, with the area under the curve summarizing overall predictive ability. A model with no predictive power would follow the diagonal reference line with an AUC of $0.5$, while a perfect model would achieve an AUC of $1.0$.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+{\centering \includegraphics[width=\textwidth]{figure/roc_comparison-1} 
+
+}
+
+\caption[ROC Curves for All Three Models on the 2025 Tournament]{ROC Curves for All Three Models on the 2025 Tournament}\label{fig:roc_comparison}
+\end{figure}
+
+\end{knitrout}
+
+While the AUC results highlight the discriminative advantage of XGBoost and Monte Carlo over the logistic regression baseline, the Brier Scores tell a consistent story. Summarized in Table \ref{tab:model_comparison}, the logistic regression achieves a combined Brier Score of $0.18401$, while XGBoost achieves $0.12761$ and the Monte Carlo model achieves $0.12857$. To contextualize these values, a Brier Score of $B$ implies that the model performed on average similarly to consistently assigning a win probability of $1 - \sqrt{B}$ to the eventual winner. By this measure the logistic regression corresponds to an average assigned probability of approximately $0.571$, while XGBoost and Monte Carlo both correspond to approximately $0.643$ and $0.641$ respectively, reflecting meaningfully sharper probability estimates. The competition winning score of $0.10411$ corresponds to approximately $0.677$, indicating that top submissions are consistently more confident on clear matchups while remaining appropriately uncertain on competitive ones. The difference of less than $0.001$ between XGBoost and Monte Carlo is negligible in practical terms, confirming that both models produce comparably calibrated win probabilities on the 2025 tournament despite their fundamentally different approaches. All three models fall short of the competition winning Brier Score of $0.10411$, indicating that the best performing submissions in the Kaggle competition produce sharper and better calibrated probabilities than any of the three models developed here. 
+
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Sat Apr 11 01:53:22 2026
+\begin{table}[ht]
+\centering
+\scalebox{0.85}{
+\begin{tabular}{llllll}
+  \hline
+Model & Men's Acc & Women's Acc & Combined Acc & Brier Score & AUC \\ 
+  \hline
+Logistic Regression & 70.10\% & 77.60\% & 73.90\% & 0.18401 & 0.8098 \\ 
+  XGBoost & 77.60\% & 80.60\% & 79.10\% & 0.12761 & 0.9215 \\ 
+  Monte Carlo & 77.61\% & 82.09\% & 79.85\% & 0.12857 & 0.9125 \\ 
+  Kaggle Winner & --- & --- & --- & 0.10411 & --- \\ 
+   \hline
+\end{tabular}
+}
+\caption{Model Performance Comparison on the 2025 Tournament} 
+\label{tab:model_comparison}
+\end{table}
+
+
+Given the comparable performance of the XGBoost and Monte Carlo models across all three evaluation metrics, the selection of a model for the 2026 Kaggle submission was not driven by marginal differences in Brier Score or AUC. The Monte Carlo model was selected for submission primarily on the basis of novelty. The simulation based scoring framework, which grounds win probability estimates in explicit score predictions derived from external efficiency ratings rather than learning a direct mapping from features to outcomes, represents a fundamentally different approach to the tournament prediction problem than the ensemble methods that dominate top Kaggle submission. From an academic standpoint the Monte Carlo model also offers greater interpretability, the predicted scores, the residual standard deviation $\sigma$, and the simulated score distributions all carry direct basketball meaning that can be examined and explained in ways that the internal structure of a boosted tree ensemble cannot. The 2025 results confirm that this interpretability does not come at a meaningful cost to predictive performance, as the Monte Carlo model achieved the highest combined classification accuracy of the three models and a Brier Score within $0.001$ of XGBoost.
+
+\usubsubsection{2026 Retraining}
+The Linear Regression Monte Carlo model was retrained on the 2026 regular season data prior to submission, following the same pipeline described in the Methods section. The men's model was trained on $11,236$ observations across six features and the women's model was trained on $10,900$ observations across five features, both reflecting a full 2026 regular season. The linearity, normality, and homoscedasticity assumptions were verified through diagnostic plots and were consistent with the 2025 findings ( i dont want to put the plots again, but i can if needed (q-q, resid vs lev, resid vs fitted, correlation matrix)). The collinearity structure, however, showed a notable change in the men's model. The VIF analysis, presented in Figure \ref{fig:vif_2026}, reveals that both \texttt{Diff\_NetRtg} and \texttt{Diff\_Elo} now register in the moderate range, with \texttt{Diff\_NetRtg} at approximately $8.0$ and \texttt{Diff\_Elo} at approximately $5.5$, compared to $7.5$ and below $5$ respectively in 2025. Both values remain below the problematic threshold of $10$, so the coefficient estimates remain valid, but the increased collinearity between these two features is a known limitation of the 2026 men's model. The women's model VIF structure remained clean with all values below $5$, consistent with 2025.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+{\centering \includegraphics[width=\textwidth]{figure/vif_2026-1} 
+
+}
+
+\caption[VIF Plots for the Men's and Women's 2026 Linear Regression Models]{VIF Plots for the Men's and Women's 2026 Linear Regression Models}\label{fig:vif_2026}
+\end{figure}
+
+\end{knitrout}
+
+The 2026 men's model produced several notable differences from the 2025 version. Most significantly, \texttt{Diff\_Elo} reached statistical significance at the $0.001$ level ($p = 0.000101$) with a negative coefficient of $-0.003569$, reversing the positive but insignificant direction observed in 2025. This suggests that in the 2026 season, after controlling for KenPom efficiency ratings and net rating differential, teams with historically higher Elo ratings relative to their opponents scored slightly fewer points than expected, a possible reflection of season specific regression toward the mean for historically dominant programs. \texttt{Diff\_NetRtg} also strengthened considerably, with its coefficient rising from $0.05398$ in 2025 to $0.1284$ in 2026 and reaching significance at the $0.001$ level. The $R^2$ improved modestly to $0.4021$ from $0.379$, and $\sigma$ increased slightly to $9.676$ from $9.507$.
+
+The 2026 women's model remained structurally consistent with its 2025 counterpart. All five predictors reached statistical significance, with \texttt{OffRating} ($\hat{\beta} = 0.7369$), \texttt{DefRating} ($\hat{\beta} = 0.7750$), \texttt{AdjT\_team} ($\hat{\beta} = 0.9290$), \texttt{AdjT\_opp} ($\hat{\beta} = 0.8534$), and \texttt{Diff\_Elo} ($\hat{\beta} = 0.002479$, $p < 0.001$) all performing consistently with their 2025 estimates. The efficiency coefficients are nearly identical to the 2025 values of $0.7309$ and $0.7866$ respectively, suggesting that the relationship between Bart Torvik efficiency ratings and scoring is stable across seasons. The $R^2$ improved slightly to $0.531$ from $0.524$, and $\sigma$ increased marginally to $9.413$ from $9.300$, indicating comparable predictive precision to the prior year. The stability of the women's model across both seasons reinforces the reliability of the Bart Torvik efficiency framework as a consistent predictor of women's tournament scoring.
+
+
+
+
+
+
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Sat Apr 11 01:53:23 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrl}
+  \hline
+Variable & Estimate & Std. Error & p-value & Sig. \\ 
+  \hline
+(Intercept) & -219.1897 & 5.1350 & 0.0000 & *** \\ 
+  OffRating & 0.6784 & 0.0191 & 0.0000 & *** \\ 
+  DefRating & 0.6744 & 0.0224 & 0.0000 & *** \\ 
+  AdjT\_team & 1.0885 & 0.0402 & 0.0000 & *** \\ 
+  AdjT\_opp & 1.0821 & 0.0400 & 0.0000 & *** \\ 
+  Diff\_NetRtg & 0.1284 & 0.0182 & 0.0000 & *** \\ 
+  Diff\_Elo & -0.0036 & 0.0009 & 0.0001 & *** \\ 
+   \hline
+\end{tabular}
+\caption{Linear Regression Coefficient Estimates (Men’s 2026 Model).} 
+\label{tab:mens_coef_2026}
+\end{table}
+
+
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Sat Apr 11 01:53:23 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrl}
+  \hline
+Variable & Estimate & Std. Error & p-value & Sig. \\ 
+  \hline
+(Intercept) & -197.5640 & 3.9846 & 0.0000 & *** \\ 
+  OffRating & 0.7369 & 0.0131 & 0.0000 & *** \\ 
+  DefRating & 0.7750 & 0.0183 & 0.0000 & *** \\ 
+  AdjT\_team & 0.9290 & 0.0325 & 0.0000 & *** \\ 
+  AdjT\_opp & 0.8534 & 0.0324 & 0.0000 & *** \\ 
+  Diff\_Elo & 0.0025 & 0.0006 & 0.0000 & *** \\ 
+   \hline
+\end{tabular}
+\caption{Linear Regression Coefficient Estimates (Women’s 2026 Model).} 
+\label{tab:womens_coef_2026}
+\end{table}
+
+
+
+\usubsection{2026 Results}
+
+
+(i dont mention the results of the other two models. XGBoost and Logistic Regression model had Brier Scores around ~.16. Maybe a sentence or two bringing it up, but in detail I didn't feel it was needed since it wasn't selected.)
+
+Prior to submitting the 2026 predictions, a set of manual probability overrides were applied to specific matchups based on historical seeding patterns in the NCAA tournament. These overrides, $32$ in total, reflect the well documented dominance of top seeds in early rounds and were applied independently for the men's and women's divisions. The decision to implement deterministic overrides rather than relying purely on the model's calibrated probabilities was driven by the competitive nature of the Kaggle tournament. Securing a top leaderboard position (a "medal") requires differentiating the submission from the consensus, which often necessitates an aggressive strategy. While a well-calibrated model might accurately assign a $0.95$ win probability to a $1$-seed, that remaining $0.05$ uncertainty still accumulates a small Brier Score penalty even when the favored team wins. By overriding these highly predictable early round matchups to a full $1.0$ probability, the submission intentionally accepts the catastrophic risk of a historic upset in exchange for accumulating exactly zero penalty on expected outcomes, effectively maximizing the ceiling of the final score.
+
+For the men's tournament, all $1$ and $2$ seeds were assigned a win probability of $1.0$ in Round 1, reflecting the historical rarity of a $1$ or $2$ seed losing to a $15$ or $16$ seed opponent. In Round $2$, all $1$ seeds were assigned a win probability of $1.0$, reflecting their historically strong performance against opponents in the round of $32$. The women's overrides were more aggressive, consistent with the historically stronger seed correlation in the women's tournament. All $1$ and $2$ seeds were assigned a win probability of $1.0$ in Round $1$, and all $1$ and $2$ seeds were again assigned $1.0$ in Round $2$. In Round $3$, all $1$ seeds were assigned a win probability of $1.0$. Finally, the UConn women's program was assigned a win probability of $1.0$ in Round 4, reflecting their sustained dominance in the women's tournament, and because they entered the tournament undefeated. These overrides were applied after the Monte Carlo simulation produced its base probability estimates, replacing the model's predicted probabilities for the specified matchups with deterministic assignments. All other matchup probabilities were left unchanged from the simulation output.
+
+Of the $32$ matchups where overrides were applied, $30$ resulted in the correct outcome, meaning the team assigned a probability of $1.0$ did in fact win. The two incorrect overrides assigned a probability of $1.0$ to the eventual loser, generating the maximum possible squared error of $1.0$ per game. This is the inherent risk of a deterministic strategy. The final submitted Brier Score with overrides was $0.13237$, compared to $0.12797$ for the base Monte Carlo model without overrides. While the $30$ correct overrides each contributed zero squared error and improved the Brier Score relative to what the base model would have assigned to those games, the two incorrect overrides each contributed a squared error of $1.0$, the maximum possible penalty. The net effect of all $32$ overrides combined was an inflation of the Brier Score by approximately $0.00440$, meaning the damage from the two incorrect overrides outweighed the cumulative benefit of the $30$ correct ones. This finding highlights a fundamental tension in tournament prediction between exploiting high confidence prior knowledge about seeding dominance and preserving the calibration properties of a probabilistic model. The net effect of a perfect override strategy would therefore have been a meaningfully lower Brier Score than either submission achieved.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+{\centering \includegraphics[width=\textwidth]{figure/worst_plots_2026-1} 
+
+}
+
+\caption[Top 10 Worst Predicted Games by Division (2026)]{Top 10 Worst Predicted Games by Division (2026)}\label{fig:worst_plots_2026}
+\end{figure}
+
+\end{knitrout}
+
+The two incorrect overrides are particularly notable given both the pregame betting market context and the historical seeding record supporting them. In the men's tournament, Florida entered as a $1$ seed facing Iowa, a $9$ seed, in a matchup where $1$ seeds hold a record of $85-8$ against $9$ seeds \cite{mcubed}. Florida was also a $-10.5$ point spread favorite with a moneyline of $-575$, implying a win probability of approximately 85\%. Despite this combination of historical dominance and heavy market favoritism, Iowa prevailed. In the women's tournament, Iowa entered as a $2$ seed facing Virginia in a matchup where $2$ seeds hold an all-time record of $48-7$ against $10$ seeds \cite{mcubed}. Iowa was a $-14.5$ point spread favorite with a moneyline of $-1450$, implying a win probability of approximately 94\%. Virginia nonetheless upset Iowa. Both losses occurred in matchups where every available signal, historical seeding records, point spreads, and moneyline odds, pointed overwhelmingly toward the favorite. These two upsets serve as a reminder that deterministic overrides remain vulnerable to the inherent unpredictability that makes the NCAA tournament compelling.
+
+The confusion matrices for the override and base submissions are identical since no override changed the predicted winner, only the confidence assigned to each outcome. Figure \ref{fig:conf_2026} presents the confusion matrices for the men's, women's, and combined results. The men's model achieves a classification accuracy of $74.60\%$, the women's model achieves $80.95\%$, and the combined accuracy is $77.78\%$. The women's model again outperforms the men's in directional accuracy, consistent with the pattern observed in the 2025 results and the stronger $R^2$ and lower $\sigma$ of the women's linear regression. Both divisions exceed the $50\%$ random baseline comfortably, confirming that the Monte Carlo model retains meaningful predictive power on the 2026 tournament.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+\includegraphics[width=\linewidth]{figure/conf_2026-1} \caption[Confusion Matrices for the 2026 Monte Carlo Model]{Confusion Matrices for the 2026 Monte Carlo Model}\label{fig:conf_2026}
+\end{figure}
+
+\end{knitrout}
+
+While the confusion matrices and classification accuracy are identical across both submissions, the ROC curves reveal meaningful differences in probability calibration. Figure \ref{fig:roc_2026} presents the ROC curves for both the override and base submissions. The base model achieves a combined AUC of $0.9021$, outperforming the override submission's combined AUC of $0.8871$. This gap is consistent with the Brier Score findings that the two incorrect overrides severely distorted the probability ranking that AUC measures. The base model also outperforms the override across both divisions individually, achieving an AUC of $0.8614$ for men's and $0.9306$ for women's, compared to $0.8370$ and $0.9204$ for the override submission respectively. The women's AUC of $0.9306$ for the base model is the strongest discriminative performance recorded across any division in either submission, reinforcing the consistently superior performance of the women's model throughout this analysis.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+{\centering \includegraphics[width=\linewidth]{figure/roc_2026-1} 
+
+}
+
+\caption[ROC Curves for the 2026 Monte Carlo Model]{ROC Curves for the 2026 Monte Carlo Model}\label{fig:roc_2026}
+\end{figure}
+
+\end{knitrout}
+
+The 2026 Kaggle competition results provide important competitive context for evaluating both submissions. The base Monte Carlo model achieved a Brier Score of $0.12797$, finishing 387th out of all submissions. The override submission achieved a Brier Score of $0.13237$, finishing 822nd. The 8th place cutoff, the lowest medal position, was $0.11845$, meaning the base model fell short by only $0.00352$. The competition winning score was $0.10975$. To contextualize these values, a Brier Score of $0.11845$ corresponds to a win probability of approximately $0.656$ assigned to the correct outcome, compared to $0.642$ for the base model. In addition to the flat probability submission, a bracket simulation was run using the stochastic prediction framework described in the Methods section, where each game is predicted and Elo ratings are updated in real time after each result. The bracket correctly predicted $26$ of $32$ first round games, $12$ of $16$ second round games, $5$ of $8$ Sweet Sixteen games, $2$ of $4$ Elite Eight games, and $1$ of $2$ Final Four games, and correctly identified Michigan as the national champion.
+
 \newpage
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{center}
-\usubsection{2026 Competition}
+\section{CONCLUSION}
 \end{center}
 \thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
+This paper developed and evaluated three distinct predictive models for NCAA March Madness tournament outcomes, motivated by the Kaggle March Machine Learning Mania competition framework. The logistic regression model provided an interpretable baseline grounded in Dean Oliver's Four Factors framework, demonstrating that a parsimonious five feature model trained on a narrow two year window of tournament data can achieve meaningful predictive accuracy. The XGBoost model extended this framework considerably, incorporating $139$ features across three tiers of increasing complexity and leveraging the full historical tournament record from 2003 to 2024 to produce the best probability calibration of the three models on the 2025 tournament. The Linear Regression Monte Carlo model offered a fundamentally different philosophical approach, decomposing the prediction problem into an explicit scoring stage and a simulation stage grounded in external efficiency ratings from KenPom and Bart Torvik.
 
-talking about the results of each model in the competition, as well as our submission.
-%%%%%%%%%%%%%%%%%%%%%%
+Across all three evaluation dimensions on the 2025 tournament, the XGBoost and Monte Carlo models performed comparably and both represented substantial improvements over the logistic regression baseline. The XGBoost model achieved the best Brier Score of $0.12761$ and the highest AUC of $0.9215$, while the Monte Carlo model achieved the highest combined classification accuracy of $79.85\%$ and a Brier Score of $0.12857$ that was negligibly higher than XGBoost. The women's models consistently outperformed the men's models across all three approaches and all three metrics, a finding that held across both the 2025 and 2026 tournaments and is consistent with the historically stronger seed correlation in the women's tournament.
 
-\newpage
+The Monte Carlo model was selected for the 2026 live competition submission on the basis of methodological novelty, as the simulation scoring framework represents a fundamentally different approach to tournament prediction than the ensemble methods that dominate top Kaggle submissions. A set of $32$ deterministic probability overrides were applied to highly favored seeds in early rounds, of which $30$ were correct. The two incorrect overrides inflated the final submitted Brier Score from $0.12797$ to $0.13237$. The base model finished 387th in the competition with a Brier Score of $0.10975$ separating it from the winning submission. The bracket simulation correctly identified Michigan as the national champion, predicting $47$ of $63$ games correctly across all six rounds.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Several limitations of this analysis warrant acknowledgment. The three models are not directly comparable on equal footing due to meaningful differences in their training data and implementation. The logistic regression model trains on two years of tournament outcomes, the XGBoost model trains on all available tournament outcomes from 2003 to 2024, and the Monte Carlo model trains on a single regular season. These structural differences mean that performance gaps between models reflect not only differences in modeling approach but also differences in the volume and type of data each model was exposed to. A controlled comparison holding training data constant across all three models would be necessary to isolate the contribution of methodology from the contribution of data availability.
 
-\begin{center}
-\section{CONCLUSIONS}
-\end{center}
-\thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
-i am free
-%%%%%%%%%%%%%%%%%%%%%%
-\usubsection{Summary}
+Beyond the comparability issue, the logistic regression model's two-year rolling training window constrains the amount of historical information available and may underfit structural patterns that persist across multiple seasons. The Monte Carlo model's decision to train exclusively on the current regular season introduces sensitivity to season specific variation that a multiyear strategy could mitigate. The absence of \texttt{Diff\_NetRtg} from the women's Monte Carlo model represents a known asymmetry between the two divisions that future iterations should address.
 
+Future work could explore several directions. Ensemble approaches that combine the probability estimates from multiple models may produce better outputs than any individual model. Incorporating injury reports, player availability data, or transfer portal activity could improve the model's sensitivity to mid season, and off season roster changes. A natural extension of the Monte Carlo framework would be to model individual player performance and aggregate those estimates to the team level, replacing the reliance on aggregate efficiency ratings with a scoring model that explicitly accounts for matchup player dynamics. This approach would be particularly valuable in the post-NIL era where roster composition changes rapidly. Finally, a systematic analysis of the optimal override threshold, the seed cutoff and round depth at which deterministic assignments improve rather than hurt the expected Brier Score, would provide a more principled foundation for the override strategy employed here.
 
 \clearpage
 
@@ -1178,83 +1363,86 @@ i am free
 \singlespacing %THIS LOOKS BETTER ON REFERENCE PAGE, DOUBLESPACING WOULD BE TOO UGLY
 \thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
 
-\bibitem{Berkowitz2025} S. Berkowitz. NCAA revenue shattered record in 2024, but association faces massive debt from legal settlements. \emph{USA Today}. (2025). Available at https://www.usatoday.com/story/sports/college/2025/02/27/ncaa-financial-report-revenue-surplus/80733616007/
+\bibitem{book} Aster, R. C., Borchers, B., Thurber, C. H. (2018). \textit{Parameter Estimation and Inverse Problems} (2nd edition). Academic Press.
 
-\bibitem{AGA2025} Cohen, Dara. “Americans to Legally Wager Estimated \$3.1 Billion on March Madness - American Gaming Association.” American Gaming Association, 13 Mar. 2025, www.americangaming.org/americans-to-legally-wager-estimated-3-1-billion-on-march-madness/.
-
-\bibitem{Torvik} Torvik, Bart. “T-Rank FAQ.” Blogspot.com, 2017, adamcwisports.blogspot.com/p/every-possession-counts.html.
-
-\bibitem{GD} Ruder, Sebastian. ``An Overview of Gradient Descent Optimization Algorithms.'' \textit{arXiv preprint arXiv:1609.04747}, 2017, \url{https://arxiv.org/abs/1609.04747}.
-
-\bibitem{XGBoost} Kavlakoglu, Eda, and Erika Russi. “XGBoost.” Ibm.com, 9 May 2024, www.ibm.com/think/topics/xgboost.
+\bibitem{Berkowitz2025} Berkowitz, S. “NCAA revenue shattered record in 2024, but association faces massive debt from legal settlements.” \emph{USA Today}. (2025). Available at https://www.usatoday.com/story/sports/college/2025/02/27/ncaa-financial-report-revenue-surplus/80733616007/
 
 \bibitem{CBS} Boone, Kyle. “How NIL Has Changed College Basketball: Numbers Deep Dive Reveals Surprising Trends, Recipe for Success.” CBSSports.com, 2025, www.cbssports.com/college-basketball/news/how-nil-has-changed-college-basketball-numbers-deep-dive-reveals-surprising-trends-recipe-for-success/.
 
-\bibitem{haupts_elo} L. Haupts, ``Calculate Elo Ratings,'' Kaggle Notebook, 2025. [Online]. Available: \url{https://www.kaggle.com/code/lennarthaupts/calculate-elo-ratings}
-
-\bibitem{Optimization} Melis Kizildemir, et al. “A Family of Solutions Related to Shin’s Model for Probability Forecasts.” Journal of Quantitative Analysis in Sports, vol. 21, no. 2, 6 Feb. 2025, pp. 153–158, https://doi.org/10.1515/jqas-2024-0064. Accessed 20 Jan. 2026.
-
-\bibitem{EMH} Burns, William. “Efficient-Market Hypothesis (EMH) | EBSCO.” EBSCO Information Services, Inc. | Www.ebsco.com, 2024, www.ebsco.com/research-starters/social-sciences-and-humanities/efficient-market-hypothesis-emh.
-
-\bibitem{KenPom} Pomeroy, Ken. \textit{Pomeroy College Basketball Ratings}. The Forecast Factory LLC, 2025, https://kenpom.com. Accessed Mar. 2025.
-
-\bibitem{Massey} Massey, Kenneth. \textit{Massey Ratings}. masseyratings.com, 2025, https://masseyratings.com. Accessed Mar. 2025.
-
-\bibitem{goto} gotoConversion. “GitHub - GotoConversion/Goto\_conversion: Goto\_conversion - Powered $47,000$ of Prize Money, over $10$ Gold Medals and $100$ Medals on Kaggle.” GitHub, 2025, github.com/gotoConversion/goto\_conversion/tree/main. Accessed 20 Jan. 2026.
-
-\bibitem{chess} Glickman, Mark  E., and Thomas Doan. The US Chess Rating System. 26 July 2025, www.glicko.net/ratings/rating.system.pdf.
-
-\bibitem{OLS} Lumivero. “Ordinary Least Squares Regression (OLS).” XLSTAT, Your Data Analysis Solution, 2025, www.xlstat.com/solutions/features/ordinary-least-squares-regression-ols.
-
-\bibitem{logphoto} Kanade, Vijay. “Everything You Need to Know about Logistic Regression.” Spiceworks Inc, Spiceworks, 8 Apr. 2022, www.spiceworks.com/soft-tech/what-is-logistic-regression/.
-
-\bibitem{ff} “Four Factors.” Basketball-Reference.com, www.basketball-reference.com/about/factors.html.
-
-\bibitem{linearphoto} Raschka, Sebastian. “LinearRegression: An Implementation of Ordinary Least-Squares Linear Regression - Mlxtend.” Rasbt.github.io, rasbt.github.io/mlxtend/user\_guide/regressor/LinearRegression/.
-
-\bibitem{Large Numbers} “Law of Large Numbers | EBSCO.” EBSCO Information Services, Inc. | Www.ebsco.com, 2022, www.ebsco.com/research-starters/mathematics/law-large-numbers.
-%IF YOU ARE DOING A PROJECT IN PURE/APPLIED MATH, THEN YOU NEED TO USE AMS STYLE FOR REFERENCES (GET YOUR REFERENCES FROM MATHSCINET). CONSULT YOUR ADVISOR ABOUT WHAT IS THE STANDARD IN YOUR FIELD, IF YOU ARE DOING STATS OR MATH ED.
-
-\bibitem{Pace} “Hoops in Motion: The Evolution of Pace in Basketball.” Substack.com, SLT Sports Analytics: Slamming Data into the Game, Mar. 2024, sltsportsanalytics.substack.com/p/hoops-in-motion-the-evolution-of.
-
-\bibitem{Dean} Oliver, Dean. Basketball on Paper. Potomac Books, 1 Nov. 2004.
-
-\bibitem{Brier1950} BRIER, GLENN W. “VERIFICATION of FORECASTS EXPRESSED in TERMS of PROBABILITY.” Monthly Weather Review, vol. 78, no. 1, Jan. 1950, pp. 1–3, https://doi.org/10.1175/1520-0493(1950)078\%3C0001:vofeit\%3E2.0.co;2.
-
-\bibitem{logistic} Logistic Regression 12.1 Modeling Conditional Probabilities.
-
-\bibitem{occam} Tavhare, Avadhoot. “Occam’s Razor in Machine Learning: The Principle of Parsimony.” Medium, 21 May 2024, medium.com/@qjbqvwzmg/occams-razor-in-machine-learning-the-principle-of-parsimony-de110ce7fe13.
-
-\bibitem{cvart}  Josep Ferrer. “What Is Cross-Validation? A Plain English Guide with Diagrams - KDnuggets.” KDnuggets, 1 Oct. 2025, www.kdnuggets.com/what-is-cross-validation-a-plain-english-guide-with-diagrams.
-
-\bibitem{regularization} “XGBoost Regularization Techniques | XGBoosting.” Xgboosting.com, 2024, xgboosting.com/xgboost-regularization-techniques/.
-
-\bibitem{book} Aster, R. C., Borchers, B.,  Thurber, C. H. (2018). Parameter Estimation and Inverse Problems (2nd edition). Academic Press.
-
-\bibitem{cv} Rudin, Cynthia. Cross Validation Duke Course Notes.
-
-\bibitem{Bergen2018} Harris, Janie. “How Hard Is It to Pick a Perfect Bracket? | NCAA.com.” Www.ncaa.com, 18 Feb. 2026, www.ncaa.com/news/basketball-men/bracketiq/2018-02-15/march-madness-bracket-challenge-how-hard-it-pick-perfect. 
-
 \bibitem{Sokol2026} “Bracketology Driven by Data | News Center.” Georgia Tech News Center, 2026, news.gatech.edu/news/2026/03/18/bracketology-driven-data.
 
-\bibitem{JW} International, Journal For Innovative Research In Multidisciplinary Field, and Issn. “Jaro Winkler Fuzzy Match Algorithm to Calculate a Similarity Index between Two Strings Using Open Source Platform.” Peer-Reviewed, Refereed, Indexed Journal with IC, no. 8, 2018, pp. 2455-0620, www.ijirmf.com/wp-content/uploads/IJIRMF201808019.pdf. Accessed 7 Apr. 2026.
+\bibitem{Brier1950} Brier, Glenn W. “Verification of Forecasts Expressed in Terms of Probability.” \textit{Monthly Weather Review}, vol. 78, no. 1, Jan. 1950, pp. 1–3, https://doi.org/10.1175/1520-0493(1950)078\%3C0001:vofeit\%3E2.0.co;2.
 
-\bibitem{Schwertman} Schwertman, Neil C., Kathryn L. Schenk, and Brett C. Holbrook. ``More Probability Models for the NCAA Regional Basketball Tournaments.'' \textit{The American Statistician}, vol. 50, no. 1, Feb. 1996, pp. 34--38, \url{https://www.jstor.org/stable/2685041}.
+\bibitem{EMH} Burns, William. “Efficient-Market Hypothesis (EMH) | EBSCO.” EBSCO Information Services, Inc., 2024, www.ebsco.com/research-starters/social-sciences-and-humanities/efficient-market-hypothesis-emh.
 
-\bibitem{Simon2024} Simon, Jay. “Inefficient Forecasts at the Sportsbook: An Analysis of Real-Time Betting Line Movement.” Management Science, vol. 70, no. 12, Dec. 2024, pp. 8583–8611, https://doi.org/10.1287/mnsc.2022.00456. Accessed 6 Jan. 2025.
+\bibitem{AGA2025} Cohen, Dara. “Americans to Legally Wager Estimated \$3.1 Billion on March Madness - American Gaming Association.” American Gaming Association, 13 Mar. 2025, www.americangaming.org/americans-to-legally-wager-estimated-3-1-billion-on-march-madness/.
+
+\bibitem{cvart} Ferrer, Josep. “What Is Cross-Validation? A Plain English Guide with Diagrams - KDnuggets.” KDnuggets, 1 Oct. 2025, www.kdnuggets.com/what-is-cross-validation-a-plain-english-guide-with-diagrams.
 
 \bibitem{parity} Figueroa, Jared. “Why Does the Women’s NCAA Tournament Feature so Few Upsets?” Cronkite News, 18 Mar. 2026, cronkitenews.azpbs.org/2026/03/18/women-ncaa-tournament-features-few-upsets/. Accessed 8 Apr. 2026.
 
-\bibitem{tails} Harville, David A. ``The Selection or Seeding of College Basketball or Football Teams for Postseason Competition.'' \textit{Journal of the American Statistical Association}, vol. 98, no. 461, March 2003, pp. 17--27, \url{https://doi.org/10.1198/016214503388619058}.
+\bibitem{ff} “Four Factors.” Basketball-Reference.com, www.basketball-reference.com/about/factors.html.
+
+\bibitem{chess} Glickman, Mark E., and Thomas Doan. \textit{The US Chess Rating System}. 26 July 2025, www.glicko.net/ratings/rating.system.pdf.
+
+\bibitem{goto} gotoConversion. “GitHub - GotoConversion/Goto\_conversion: Powered \$47,000 of Prize Money, over 10 Gold Medals and 100 Medals on Kaggle.” GitHub, 2025, github.com/gotoConversion/goto\_conversion/tree/main. Accessed 20 Jan. 2026.
 
 \bibitem{Gumm} Gumm, J., A. Barrett, and G. Hu. ``A Machine Learning Strategy for Predicting March Madness Winners.'' \textit{2015 IEEE/ACIS 16th International Conference on Software Engineering, Artificial Intelligence, Networking and Parallel/Distributed Computing (SNPD)}, 2015, pp. 1--6, \url{https://doi.org/10.1109/SNPD.2015.7176206}.
 
-\bibitem{XGphoto} Yao, Xiaotong \& Fu, Xiaoli \& Zong, Chaofei. (2022). Short-Term Load Forecasting Method Based on Feature Preference Strategy and LightGBM-XGboost. IEEE Access. 10. 1-1. 10.1109/ACCESS.2022.3192011. 
+\bibitem{Bergen2018} Harris, Janie. “How Hard Is It to Pick a Perfect Bracket? | NCAA.com.” NCAA, 18 Feb. 2026, www.ncaa.com/news/basketball-men/bracketiq/2018-02-15/march-madness-bracket-challenge-how-hard-it-pick-perfect.
+
+\bibitem{tails} Harville, David A. ``The Selection or Seeding of College Basketball or Football Teams for Postseason Competition.'' \textit{Journal of the American Statistical Association}, vol. 98, no. 461, March 2003, pp. 17--27, \url{https://doi.org/10.1198/016214503388619058}.
+
+\bibitem{haupts_elo} Haupts, L. ``Calculate Elo Ratings,'' Kaggle Notebook, 2025. [Online]. Available: \url{https://www.kaggle.com/code/lennarthaupts/calculate-elo-ratings}
+
+\bibitem{Pace} “Hoops in Motion: The Evolution of Pace in Basketball.” Substack.com, SLT Sports Analytics, Mar. 2024, sltsportsanalytics.substack.com/p/hoops-in-motion-the-evolution-of.
+
+\bibitem{JW} International Journal For Innovative Research In Multidisciplinary Field. “Jaro Winkler Fuzzy Match Algorithm to Calculate a Similarity Index between Two Strings Using Open Source Platform.” Peer-Reviewed, Refereed, Indexed Journal with IC, no. 8, 2018, pp. 2455-0620, www.ijirmf.com/wp-content/uploads/IJIRMF201808019.pdf. Accessed 7 Apr. 2026.
+
+\bibitem{logphoto} Kanade, Vijay. “Everything You Need to Know about Logistic Regression.” Spiceworks Inc, 8 Apr. 2022, www.spiceworks.com/soft-tech/what-is-logistic-regression/.
+
+\bibitem{XGBoost} Kavlakoglu, Eda, and Erika Russi. “XGBoost.” Ibm.com, 9 May 2024, www.ibm.com/think/topics/xgboost.
+
+\bibitem{Optimization} Kizildemir, Melis, et al. “A Family of Solutions Related to Shin’s Model for Probability Forecasts.” \textit{Journal of Quantitative Analysis in Sports}, vol. 21, no. 2, 6 Feb. 2025, pp. 153–158, https://doi.org/10.1515/jqas-2024-0064. Accessed 20 Jan. 2026.
+
+\bibitem{CLT} Kwak, Sang Gyu, and Jong Hae Kim. “Central Limit Theorem: The Cornerstone of Modern Statistics.” \textit{Korean Journal of Anesthesiology}, vol. 70, no. 2, 21 Feb. 2017, pp. 144–156, https://doi.org/10.4097/kjae.2017.70.2.144.
+
+\bibitem{Large Numbers} “Law of Large Numbers | EBSCO.” EBSCO Information Services, Inc., 2022, www.ebsco.com/research-starters/mathematics/law-large-numbers.
+
+\bibitem{logistic} Logistic Regression 12.1 Modeling Conditional Probabilities.
+
+\bibitem{OLS} Lumivero. “Ordinary Least Squares Regression (OLS).” XLSTAT, 2025, www.xlstat.com/solutions/features/ordinary-least-squares-regression-ols.
+
+\bibitem{Massey} Massey, Kenneth. \textit{Massey Ratings}. masseyratings.com, 2025, https://masseyratings.com. Accessed Mar. 2025.
+
+\bibitem{mcubed} mcubed.net. \textit{Women's NCAA Basketball Tournament: Games between \#2 seeds and \#10 seeds}. Last updated April 6, 2026. Available at \url{http://mcubed.net/ncaabw/seed2v10.shtml}.
+
+\bibitem{Dean} Oliver, Dean. \textit{Basketball on Paper}. Potomac Books, 1 Nov. 2004.
+
+\bibitem{KenPom} Pomeroy, Ken. \textit{Pomeroy College Basketball Ratings}. The Forecast Factory LLC, 2025, https://kenpom.com. Accessed Mar. 2025.
+
+\bibitem{raddar} raddar. ``Kaggle March Machine Learning Mania 2024.'' \textit{Kaggle}, 2024, \url{https://www.kaggle.com/competitions/march-machine-learning-mania-2024/discussion/494723}.
+
+\bibitem{linearphoto} Raschka, Sebastian. “LinearRegression: An Implementation of Ordinary Least-Squares Linear Regression - Mlxtend.” Rasbt.github.io, rasbt.github.io/mlxtend/user\_guide/regressor/LinearRegression/.
+
+\bibitem{GD} Ruder, Sebastian. ``An Overview of Gradient Descent Optimization Algorithms.'' \textit{arXiv preprint arXiv:1609.04747}, 2017, \url{https://arxiv.org/abs/1609.04747}.
+
+\bibitem{cv} Rudin, Cynthia. Cross Validation Duke Course Notes.
+
+\bibitem{Schwertman} Schwertman, Neil C., Kathryn L. Schenk, and Brett C. Holbrook. ``More Probability Models for the NCAA Regional Basketball Tournaments.'' \textit{The American Statistician}, vol. 50, no. 1, Feb. 1996, pp. 34--38, \url{https://www.jstor.org/stable/2685041}.
+
+\bibitem{Simon2024} Simon, Jay. “Inefficient Forecasts at the Sportsbook: An Analysis of Real-Time Betting Line Movement.” \textit{Management Science}, vol. 70, no. 12, Dec. 2024, pp. 8583–8611, https://doi.org/10.1287/mnsc.2022.00456. Accessed 6 Jan. 2025.
+
+\bibitem{occam} Tavhare, Avadhoot. “Occam’s Razor in Machine Learning: The Principle of Parsimony.” Medium, 21 May 2024, medium.com/@qjbqvwzmg/occams-razor-in-machine-learning-the-principle-of-parsimony-de110ce7fe13.
+
+\bibitem{Torvik} Torvik, Bart. “T-Rank FAQ.” Blogspot.com, 2017, adamcwisports.blogspot.com/p/every-possession-counts.html.
+
+\bibitem{XGphoto} Yao, Xiaotong, Fu, Xiaoli, and Zong, Chaofei. (2022). Short-Term Load Forecasting Method Based on Feature Preference Strategy and LightGBM-XGboost. \textit{IEEE Access}. 10.1109/ACCESS.2022.3192011.
+
+\bibitem{regularization} “XGBoost Regularization Techniques | XGBoosting.” Xgboosting.com, 2024, xgboosting.com/xgboost-regularization-techniques/.
 
 \bibitem{Zimmermann} Zimmermann, Albrecht, Sruthi Moorthy, and Zifan Shi. ``Predicting College Basketball Match Outcomes Using Machine Learning Techniques: Some Results and Lessons Learned.'' \textit{arXiv preprint arXiv:1310.3607}, 2013, \url{https://arxiv.org/abs/1310.3607}.
 
 \end{thebibliography}
-
-
 
 \end{document} 

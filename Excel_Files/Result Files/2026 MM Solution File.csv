@@ -1,0 +1,127 @@
+ID,Pred,Spread,Usage,ID1,ID2,TeamName.1,TeamName.2
+2026_1103_1403,0,-20,Actual,1103,1403,Akron,Texas Tech
+2026_1104_1220,1,20,Actual,1104,1220,Alabama,Hofstra
+2026_1104_1276,0,-13,Actual,1104,1276,Alabama,Michigan
+2026_1104_1403,1,25,Actual,1104,1403,Alabama,Texas Tech
+2026_1112_1116,1,21,Actual,1112,1116,Arizona,Arkansas
+2026_1112_1254,1,34,Actual,1112,1254,Arizona,LIU Brooklyn
+2026_1112_1276,0,-18,Actual,1112,1276,Arizona,Michigan
+2026_1112_1345,1,15,Actual,1112,1345,Arizona,Purdue
+2026_1112_1429,1,12,Actual,1112,1429,Arizona,Utah St
+2026_1116_1218,1,19,Actual,1116,1218,Arkansas,Hawaii
+2026_1116_1219,1,6,Actual,1116,1219,Arkansas,High Point
+2026_1140_1400,0,-8,Actual,1140,1400,BYU,Texas
+2026_1155_1234,0,-6,Actual,1155,1234,Clemson,Iowa
+2026_1163_1181,1,1,Actual,1163,1181,Connecticut,Duke
+2026_1163_1202,1,11,Actual,1163,1202,Connecticut,Furman
+2026_1163_1228,1,9,Actual,1163,1228,Connecticut,Illinois
+2026_1163_1276,0,-6,Actual,1163,1276,Connecticut,Michigan
+2026_1163_1277,1,4,Actual,1163,1277,Connecticut,Michigan St
+2026_1163_1417,1,16,Actual,1163,1417,Connecticut,UCLA
+2026_1181_1373,1,6,Actual,1181,1373,Duke,Siena
+2026_1181_1385,1,5,Actual,1181,1385,Duke,St John's
+2026_1181_1395,1,23,Actual,1181,1395,Duke,TCU
+2026_1196_1234,0,-1,Actual,1196,1234,Florida,Iowa
+2026_1196_1341,1,59,Actual,1196,1341,Florida,Prairie View
+2026_1208_1387,0,-25,Actual,1208,1387,Georgia,St Louis
+2026_1211_1244,1,9,Actual,1211,1244,Gonzaga,Kennesaw
+2026_1211_1400,0,-6,Actual,1211,1400,Gonzaga,Texas
+2026_1219_1458,1,1,Actual,1219,1458,High Point,Wisconsin
+2026_1222_1225,1,31,Actual,1222,1225,Houston,Idaho
+2026_1222_1228,0,-10,Actual,1222,1228,Houston,Illinois
+2026_1222_1401,1,31,Actual,1222,1401,Houston,Texas A&M
+2026_1224_1276,0,-21,Actual,1224,1276,Howard,Michigan
+2026_1228_1234,1,12,Actual,1228,1234,Illinois,Iowa
+2026_1228_1335,1,35,Actual,1228,1335,Illinois,Penn
+2026_1228_1433,1,21,Actual,1228,1433,Illinois,VCU
+2026_1234_1304,1,6,Actual,1234,1304,Iowa,Nebraska
+2026_1235_1246,1,19,Actual,1235,1246,Iowa St,Kentucky
+2026_1235_1397,0,-14,Actual,1235,1397,Iowa St,Tennessee
+2026_1235_1398,1,34,Actual,1235,1398,Iowa St,Tennessee St
+2026_1242_1385,0,2,Actual,1242,1385,Kansas,St John's
+2026_1242_1465,1,8,Actual,1242,1465,Kansas,Cal Baptist
+2026_1246_1365,1,5,Actual,1246,1365,Kentucky,Santa Clara
+2026_1257_1277,0,-8,Actual,1257,1277,Louisville,Michigan St
+2026_1257_1378,1,4,Actual,1257,1378,Louisville,South Florida
+2026_1270_1435,0,-10,Actual,1270,1435,McNeese St,Vanderbilt
+2026_1274_1281,1,14,Actual,1274,1281,Miami FL,Missouri
+2026_1274_1345,0,-10,Actual,1274,1345,Miami FL,Purdue
+2026_1275_1397,0,-22,Actual,1275,1397,Miami OH,Tennessee
+2026_1276_1387,1,23,Actual,1276,1387,Michigan,St Louis
+2026_1276_1397,1,33,Actual,1276,1397,Michigan,Tennessee
+2026_1277_1295,1,25,Actual,1277,1295,Michigan St,N Dakota St
+2026_1304_1407,1,29,Actual,1304,1407,Nebraska,Troy
+2026_1304_1435,1,2,Actual,1304,1435,Nebraska,Vanderbilt
+2026_1314_1433,0,-4,Actual,1314,1433,North Carolina,VCU
+2026_1320_1385,0,-26,Actual,1320,1385,Northern Iowa,St John's
+2026_1326_1395,0,-2,Actual,1326,1395,Ohio St,TCU
+2026_1345_1400,1,2,Actual,1345,1400,Purdue,Texas
+2026_1345_1474,1,33,Actual,1345,1474,Purdue,Queens NC
+2026_1388_1401,0,-13,Actual,1388,1401,St Mary's CA,Texas A&M
+2026_1397_1438,1,7,Actual,1397,1438,Tennessee,Virginia
+2026_1416_1417,0,-4,Actual,1416,1417,UCF,UCLA
+2026_1429_1437,1,10,Actual,1429,1437,Utah St,Villanova
+2026_1438_1460,1,9,Actual,1438,1460,Virginia,Wright St
+2026_3104_3257,0,1,Actual,3104,3257,Alabama,Louisville
+2026_3104_3348,1,13,Actual,3104,3348,Alabama,Rhode Island
+2026_3124_3181,0,-23,Actual,3124,3181,Baylor,Duke
+2026_3124_3304,1,5,Actual,3124,3304,Baylor,Nebraska
+2026_3155_3425,0,-4,Actual,3155,3425,Clemson,USC
+2026_3158_3181,0,-17,Actual,3158,3181,Col Charleston,Duke
+2026_3160_3228,0,-9,Actual,3160,3228,Colorado,Illinois
+2026_3161_3277,0,-3,Actual,3161,3277,Colorado St,Michigan St
+2026_3163_3314,1,21,Actual,3163,3314,Connecticut,North Carolina
+2026_3163_3323,1,18,Actual,3163,3323,Connecticut,Notre Dame
+2026_3163_3376,0,-14,Actual,3163,3376,Connecticut,South Carolina
+2026_3163_3393,1,53,Actual,3163,3393,Connecticut,Syracuse
+2026_3163_3427,1,38,Actual,3163,3427,Connecticut,UT San Antonio
+2026_3181_3261,1,2,Actual,3181,3261,Duke,LSU
+2026_3181_3417,0,-12,Actual,3181,3417,Duke,UCLA
+2026_3192_3234,0,-10,Actual,3192,3234,F Dickinson,Iowa
+2026_3193_3323,0,-19,Actual,3193,3323,Fairfield,Notre Dame
+2026_3208_3438,0,-9,Actual,3208,3438,Georgia,Virginia
+2026_3211_3279,0,-15,Actual,3211,3279,Gonzaga,Mississippi
+2026_3219_3435,0,-41,Actual,3219,3435,High Point,Vanderbilt
+2026_3221_3276,0,-35,Actual,3221,3276,Holy Cross,Michigan
+2026_3224_3326,0,-21,Actual,3224,3326,Howard,Ohio St
+2026_3225_3328,0,-30,Actual,3225,3328,Idaho,Oklahoma
+2026_3228_3435,0,-18,Actual,3228,3435,Illinois,Vanderbilt
+2026_3234_3438,0,-8,Actual,3234,3438,Iowa,Virginia
+2026_3235_3393,0,-9,Actual,3235,3393,Iowa St,Syracuse
+2026_3239_3261,0,-58,Actual,3239,3261,Jacksonville,LSU
+2026_3241_3246,0,-15,Actual,3241,3246,James Madison,Kentucky
+2026_3246_3400,0,-22,Actual,3246,3400,Kentucky,Texas
+2026_3246_3452,1,1,Actual,3246,3452,Kentucky,West Virginia
+2026_3257_3276,0,-19,Actual,3257,3276,Louisville,Michigan
+2026_3257_3436,1,20,Actual,3257,3436,Louisville,Vermont
+2026_3261_3403,1,54,Actual,3261,3403,LSU,Texas Tech
+2026_3268_3293,1,32,Actual,3268,3293,Maryland,Murray St
+2026_3268_3314,0,-8,Actual,3268,3314,Maryland,North Carolina
+2026_3275_3452,0,-28,Actual,3275,3452,Miami OH,West Virginia
+2026_3276_3301,1,29,Actual,3276,3301,Michigan,NC State
+2026_3276_3400,0,-36,Actual,3276,3400,Michigan,Texas
+2026_3277_3328,0,-6,Actual,3277,3328,Michigan St,Oklahoma
+2026_3278_3279,1,2,Actual,3278,3279,Minnesota,Mississippi
+2026_3278_3417,0,-24,Actual,3278,3417,Minnesota,UCLA
+2026_3278_3453,1,17,Actual,3278,3453,Minnesota,WI Green Bay
+2026_3283_3400,0,-42,Actual,3283,3400,Missouri St,Texas
+2026_3301_3397,1,15,Actual,3301,3397,NC State,Tennessee
+2026_3314_3442,1,31,Actual,3314,3442,North Carolina,W Illinois
+2026_3323_3326,1,8,Actual,3323,3326,Notre Dame,Ohio St
+2026_3323_3435,1,3,Actual,3323,3435,Notre Dame,Vanderbilt
+2026_3328_3376,0,-26,Actual,3328,3376,Oklahoma,South Carolina
+2026_3329_3343,1,14,Actual,3329,3343,Oklahoma St,Princeton
+2026_3329_3417,0,-19,Actual,3329,3417,Oklahoma St,UCLA
+2026_3332_3400,0,-42,Actual,3332,3400,Oregon,Texas
+2026_3332_3439,1,10,Actual,3332,3439,Oregon,Virginia Tech
+2026_3355_3449,0,-18,Actual,3355,3449,S Dakota St,Washington
+2026_3376_3380,1,69,Actual,3376,3380,South Carolina,Southern Univ
+2026_3376_3395,1,26,Actual,3376,3395,South Carolina,TCU
+2026_3376_3417,0,-28,Actual,3376,3417,South Carolina,UCLA
+2026_3376_3425,1,40,Actual,3376,3425,South Carolina,USC
+2026_3395_3438,1,10,Actual,3395,3438,TCU,Virginia
+2026_3395_3449,1,3,Actual,3395,3449,TCU,Washington
+2026_3395_3471,1,46,Actual,3395,3471,TCU,UC San Diego
+2026_3400_3417,0,-7,Actual,3400,3417,Texas,UCLA
+2026_3403_3437,1,5,Actual,3403,3437,Texas Tech,Villanova
+2026_3417_3465,1,53,Actual,3417,3465,UCLA,Cal Baptist

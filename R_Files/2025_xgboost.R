@@ -680,4 +680,5 @@ if (file.exists(file_path)) {
   }
 }
 
-
+roc_xgb_2025 <- roc(valid_test$Actual_Result, probs_2025)
+cat("XGBoost 2025 Test AUC:", round(auc(roc_xgb_2025), 4), "\n")

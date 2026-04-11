@@ -440,3 +440,8 @@ ggroc(roc_mens) +
   theme_minimal() +
   annotate("text", x = 0.25, y = 0.1, 
            label = paste("AUC =", round(auc(roc_mens), 4)))
+
+
+roc_mc_2025 <- roc(tournament_predictions$Actual, tournament_predictions$Pred)
+cat("Monte Carlo 2025 Test AUC:", round(auc(roc_mc_2025), 4), "\n")
+

@@ -216,3 +216,5 @@ corrplot(cor(womens_features, use = "complete.obs"),
          tl.srt      = 45,
          title       = "Women's Feature Correlation Matrix",
          mar         = c(0, 0, 1, 0))
+roc_log_2025 <- roc(combined_report_2025$Team1_win, combined_report_2025$Pred)
+cat("Logistic Regression 2025 Test AUC:", round(auc(roc_log_2025), 4), "\n")
