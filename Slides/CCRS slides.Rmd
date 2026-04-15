@@ -1,0 +1,45 @@
+---
+title: "Predicting March Madness Basketball Games"
+author: "Jonathen Marin"
+institute: "California State University, Fresno"
+date: "April 23, 2025"
+output:
+  beamer_presentation:
+    theme: "Madrid"
+    includes:
+      in_header: preamble.tex
+---
+
+## Introduction
+
+- March Madness is a $68$ team, single-elimination tournament held to determine the NCAA National Champion.
+
+\vspace{0.2in}
+
+- The Kaggle competition (March Machine Learning Mania) evaluates the accuracy of predictions using the Brier score (BS).
+
+\vspace{0.2in}
+
+\begin{equation}
+BS = \frac{1}{N}\sum_{t=1}^N(f_t - o_t)^2
+\end{equation}
+\begin{itemize}
+\item Where $f_t$ is our prediction and $o_t$ is the outcome. 
+\item $o_t$ is $1$ if the team wins, and $0$ is they lose. 
+\end{itemize}
+
+## Introduction
+
+\begin{itemize}
+\item A naive `coin flip' strategy (50\% probability for all games) yields a Brier Score of $0.25$, serving as our baseline.
+\vspace{0.2in}
+\begin{example}
+If we predict that Michigan has a win probability of $0.70$ against Uconn.
+
+If Duke \textcolor{red}{wins},
+$$\text{Cost} = (\textcolor{red}{1}-0.70)^2 = (0.3)(0.3) = 0.09$$
+If Duke \textcolor{red}{loses},
+$$\text{Cost} = (\textcolor{red}{0}-0.70)^2 = (0.7)(0.7) = 0.49$$
+\end{example}
+\vspace{0.2in}
+\end{itemize}
