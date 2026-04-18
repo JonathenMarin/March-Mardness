@@ -1,7 +1,6 @@
 ---
 title: "Predicting March Madness Basketball Games"
 author: "Jonathen Marin"
-institute: "California State University, Fresno"
 date: "April 23, 2025"
 output:
   beamer_presentation:
@@ -12,7 +11,7 @@ output:
 
 ## Introduction
 
-- March Madness is a $68$ team, single-elimination tournament held to determine the NCAA National Champion.
+- March Madness is a $68$-team, single-elimination tournament across both the Men's and Women's divisions to determine the NCAA National Champions.
 
 \vspace{0.2in}
 
@@ -34,7 +33,7 @@ BS = \frac{1}{N}\sum_{t=1}^N(f_t - o_t)^2
 \item A naive `coin flip' strategy (50\% probability for all games) yields a Brier Score of $0.25$, serving as our baseline.
 \vspace{0.2in}
 \begin{example}
-If we predict that Michigan has a win probability of $0.70$ against Uconn.
+If we predict that Duke has a win probability of $0.70$ against Houston.
 
 If Duke \textcolor{red}{wins},
 $$\text{Cost} = (\textcolor{red}{1}-0.70)^2 = (0.3)(0.3) = 0.09$$
@@ -42,4 +41,147 @@ If Duke \textcolor{red}{loses},
 $$\text{Cost} = (\textcolor{red}{0}-0.70)^2 = (0.7)(0.7) = 0.49$$
 \end{example}
 \vspace{0.2in}
+\item We will call the two teams we are predicting Team A and team B. 
 \end{itemize}
+## Models
+\begin{itemize}
+\item We looked at three different modeling techniques:
+  \begin{itemize}
+  \item Two models gave us the probability outright (Logistic/XGBoost).
+  \item One model predicted the final scores (Simulation).
+  \end{itemize}
+\vspace{0.2in}
+\item We will be looking at the model that predicts final scores. We separate the men's and women's divisions.
+
+\vspace{0.2in}
+\item We are predicting the points that Team A will score against team B and vice versa. Then simulate $+50,000$ times. 
+\item The ratio that Team A wins of the simulation is the predicted probability.
+\end{itemize}
+
+## Models
+\begin{columns}
+\column{0.5\textwidth}
+\textbf{Men's Model}
+\begin{itemize}
+\item Offensive Rating ($OffRating_A$)
+\item Defensive Rating ($DefRating_B$)
+\item Team Tempo ($AdjTempo_A$)
+\item Opponent Tempo ($AdjTempo_B$)
+\item Net Rating Difference ($NetRating_A - NetRating_B$)
+\item Elo Difference ($Elo_A - Elo_B$)
+\end{itemize}
+
+\column{0.5\textwidth}
+\textbf{Women's Model}
+\begin{itemize}
+\item Offensive Rating ($OffRating_A$)
+\item Defensive Rating ($DefRating_B$)
+\item Team Tempo ($AdjTempo_A$)
+\item Opponent Tempo ($AdjTempo_B$)
+\item Elo Difference ($Elo_A - Elo_B$)
+\end{itemize}
+\end{columns}
+
+## Simulation Example
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{Duke_Dist.png}
+    \caption{Duke Distribution Against Houston, $\sigma = 9.523$}
+    \label{fig:placeholder}
+\end{figure}
+## Simulation Example
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{Duke_Houst_Dist.png}
+    \caption{Duke vs Houston, $\sigma = 9.523$}
+    \label{fig:placeholder}
+\end{figure}
+
+## 2025 Results
+\begin{itemize}
+    \item Model Achieved a Brier Score of \textcolor{red}{$0.1305$} ($500$ spots away from bronze).
+    \vspace{0.1in}
+    \item Men's tournament Brier score was \textcolor{red}{$0.1448$}. Women's was \textcolor{red}{$0.1157$}.
+    \vspace{0.1in}
+    \item Winning scores for the past three years were:
+\end{itemize}
+\begin{table}
+    \centering
+    \renewcommand{\arraystretch}{1.5}
+    \begin{tabular}{|c|c|c|}
+        \hline
+        \textbf{2023} & \textbf{2024} & \textbf{2025} \\
+        \hline
+        0.1737 & 0.0531 & \textcolor{red}{$0.1041$} \\
+        \hline
+    \end{tabular}
+    \caption{Winning Brier Scores}
+\end{table}
+
+## 2025 Results
+\begin{itemize}
+\item The 2025 Model was $79.9\%$ accurate in picking the winners and losers. 
+
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{2025_lin_reg_monte_womens-8.pdf}
+    \caption{Confusion Matrix for 2025}
+    \label{Confusion2025}
+\end{figure}
+
+## 2026 Results
+\begin{itemize}
+\item Prior to the tournament, we made $32$ overrides to the models predictions. These were to give $100\%$ probability to obvious favorites. 
+\vspace{0.2in}
+\item Got $30$ overrides correct, missed $2$.
+\vspace{0.2in}
+\begin{table}
+    \centering
+    \renewcommand{\arraystretch}{1.5}
+    \begin{tabular}{|c|c|c|}
+        \hline
+        \textbf{Overrides} & \textbf{Original} & \textbf{Winner} \\
+        \hline
+        0.13237 & 0.12797 & \textcolor{red}{$0.10975$} \\
+        \hline
+    \end{tabular}
+    \caption{2026 Brier Score Comparisons}
+\end{table}
+\vspace{0.2in}
+\item These probabilities were $63.6\%, 64.2\%, 66.9\%$ correct. 
+\end{itemize}
+
+## 2026 Results
+\begin{itemize}
+\item The 2026 Model was $77.8\%$ accurate.
+\end{itemize}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{26_actual_results-2.pdf}
+    \caption{Confusion Matrix for 2026}
+    \label{Confusion2026}
+\end{figure}
+
+## 2026 Worst Predictions
+\begin{figure}
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{26_actual_results-4.pdf}
+        \caption{Men's BS Graph}
+        \label{fig:worst_mens}
+    \end{minipage}
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{26_actual_results-5.pdf}
+        \caption{Women's BS Graph}
+        \label{fig:worst_womens}
+    \end{minipage}
+\end{figure}
+
+---
+\begin{center}
+\Huge{Thank You!}
+\end{center}

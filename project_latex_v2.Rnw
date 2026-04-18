@@ -2917,6 +2917,7 @@ Two additional differential features are included to capture relative team quali
 
 \usubsubsection{Model Implementation}
 The linear regression model is fit separately for the men's and women's divisions using Ordinary Least Squares (OLS). This foundational method identifies the specific coefficient vector $\hat{\boldsymbol{\beta}}$ that minimizes the sum of squared residuals between the predicted and observed scores across all training observations. The final curated men's training matrix consisted of $10,326$ rows and $6$ features, while the women's training matrix comprised $10,828$ rows and $5$ features. The formal specification for the men's model is defined as:
+
 \begin{equation}\begin{split}\text{Points_A} = \beta_0 &+ \beta_1(\texttt{OffRating}_A) + \beta_2(\texttt{DefRating}_B) + \beta_3(\texttt{AdjTempo}_A) \\ 
 &+ \beta_4(\texttt{AdjTempo_B}) + \beta_5(\texttt{(NetRtg_A - NetRtg_B)}) + \beta_6(\texttt{(Elo_A - Elo_B)}) + \varepsilon\end{split}\end{equation}
 and the corresponding specification for the women's model is:
