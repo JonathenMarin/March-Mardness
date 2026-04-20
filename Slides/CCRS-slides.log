@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.1) (preloaded format=pdflatex 2026.2.3)  17 APR 2026 20:04
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.1) (preloaded format=pdflatex 2026.2.3)  20 APR 2026 02:14
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1249,7 +1249,7 @@ Package pdftex.def Info: 2025_lin_reg_monte_womens-8.pdf  used on input line 25
 <26_actual_results-2.pdf, id=153, 505.89pt x 505.89pt>
 File: 26_actual_results-2.pdf Graphic file (type pdf)
 <use 26_actual_results-2.pdf>
-Package pdftex.def Info: 26_actual_results-2.pdf  used on input line 294.
+Package pdftex.def Info: 26_actual_results-2.pdf  used on input line 295.
 (pdftex.def)             Requested size: 171.21765pt x 171.22067pt.
 [11
 
@@ -1257,12 +1257,12 @@ Package pdftex.def Info: 26_actual_results-2.pdf  used on input line 294.
 <26_actual_results-4.pdf, id=169, 505.89pt x 505.89pt>
 File: 26_actual_results-4.pdf Graphic file (type pdf)
 <use 26_actual_results-4.pdf>
-Package pdftex.def Info: 26_actual_results-4.pdf  used on input line 313.
+Package pdftex.def Info: 26_actual_results-4.pdf  used on input line 314.
 (pdftex.def)             Requested size: 164.36748pt x 164.36598pt.
 <26_actual_results-5.pdf, id=170, 505.89pt x 505.89pt>
 File: 26_actual_results-5.pdf Graphic file (type pdf)
 <use 26_actual_results-5.pdf>
-Package pdftex.def Info: 26_actual_results-5.pdf  used on input line 313.
+Package pdftex.def Info: 26_actual_results-5.pdf  used on input line 314.
 (pdftex.def)             Requested size: 164.36748pt x 164.36598pt.
 [12
 
@@ -1290,7 +1290,7 @@ LaTeX Warning: There were multiply-defined labels.
 Here is how much of TeX's memory you used:
  27968 strings out of 467866
  557565 string characters out of 5418326
- 952028 words of memory out of 5000000
+ 952027 words of memory out of 5000000
  56144 multiletter control sequences out of 15000+600000
  705052 words of font info for 142 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -1306,7 +1306,7 @@ fb><C:/Users/marin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsso10.
 pfb><C:/Users/marin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsso8.
 pfb><C:/Users/marin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy10.
 pfb>
-Output written on CCRS-slides.pdf (13 pages, 451607 bytes).
+Output written on CCRS-slides.pdf (13 pages, 451833 bytes).
 PDF statistics:
  261 PDF objects out of 1000 (max. 8388607)
  43 named destinations out of 1000 (max. 500000)
