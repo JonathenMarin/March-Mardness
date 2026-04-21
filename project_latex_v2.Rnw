@@ -2918,11 +2918,19 @@ Two additional differential features are included to capture relative team quali
 \usubsubsection{Model Implementation}
 The linear regression model is fit separately for the men's and women's divisions using Ordinary Least Squares (OLS). This foundational method identifies the specific coefficient vector $\hat{\boldsymbol{\beta}}$ that minimizes the sum of squared residuals between the predicted and observed scores across all training observations. The final curated men's training matrix consisted of $10,326$ rows and $6$ features, while the women's training matrix comprised $10,828$ rows and $5$ features. The formal specification for the men's model is defined as:
 
-\begin{equation}\begin{split}\text{Points_A} = \beta_0 &+ \beta_1(\texttt{OffRating}_A) + \beta_2(\texttt{DefRating}_B) + \beta_3(\texttt{AdjTempo}_A) \\ 
-&+ \beta_4(\texttt{AdjTempo_B}) + \beta_5(\texttt{(NetRtg_A - NetRtg_B)}) + \beta_6(\texttt{(Elo_A - Elo_B)}) + \varepsilon\end{split}\end{equation}
+\begin{equation}
+\begin{split}
+\text{Points\_A} = \beta_0 &+ \beta_1(\mathtt{OffRating}_A) + \beta_2(\mathtt{DefRating}_B) + \beta_3(\mathtt{AdjTempo}_A) \\
+&+ \beta_4(\mathtt{AdjTempo}_B) + \beta_5(\mathtt{NetRtg}_A - \mathtt{NetRtg}_B) + \beta_6(\mathtt{Elo}_A - \mathtt{Elo}_B) + \varepsilon
+\end{split}
+\end{equation}
 and the corresponding specification for the women's model is:
-\begin{equation}\begin{split}\text{Points_A} = \beta_0 &+ \beta_1(\texttt{AdjOE}_A) + \beta_2(\texttt{AdjDE}_B) + \beta_3(\texttt{AdjTempo}_A) \\
-&+ \beta_4(\texttt{AdjTempo}_B) + \beta_5(\texttt{(Elo_A - Elo_B)}) + \varepsilon\end{split}\end{equation}
+\begin{equation}
+\begin{split}
+\text{Points\_A} = \beta_0 &+ \beta_1(\mathtt{AdjOE}_A) + \beta_2(\mathtt{AdjDE}_B) + \beta_3(\mathtt{AdjTempo}_A) \\
+&+ \beta_4(\mathtt{AdjTempo}_B) + \beta_5(\mathtt{Elo}_A - \mathtt{Elo}_B) + \varepsilon
+\end{split}
+\end{equation}
 where $\varepsilon \sim \mathcal{N}(0, \sigma^2)$ is the residual error term and $\sigma$ is estimated directly from the training data.
 
 The decision to train entirely separate models for each division directly mirrors the justification applied in the earlier logistic regression section. The fundamental relationship between efficiency ratings, tempo, and scoring may differ structurally between divisions due to inherent differences in average pace, physicality, and overall playing style. Forcing shared parameter estimates across both genders would carry a significant risk of masking these meaningful structural differences, thereby degrading predictive accuracy. The resulting values of $\sigma$ for both divisions are explicitly reported and interpreted in the Model Analysis section, where they serve as a direct measure of model calibration and as the primary input for the subsequent simulation stage.
@@ -3228,7 +3236,7 @@ print(xtable(comparison_df,
       include.rownames       = FALSE,
       caption.placement      = "bottom",
       sanitize.text.function = identity,
-      scalebox               = 0.85) # Adjust this value (e.g., 0.9, 0.75) to fit your margins
+      scalebox               = 0.85)
 @
 
 Given the comparable performance of the XGBoost and Monte Carlo models across all three evaluation metrics, the selection of a model for the 2026 Kaggle submission was not driven by marginal differences in Brier Score or AUC. The Monte Carlo model was selected for submission primarily on the basis of novelty. The simulation based scoring framework, which grounds win probability estimates in explicit score predictions derived from external efficiency ratings rather than learning a direct mapping from features to outcomes, represents a fundamentally different approach to the tournament prediction problem than the ensemble methods that dominate top Kaggle submission. From an academic standpoint the Monte Carlo model also offers greater interpretability, the predicted scores, the residual standard deviation $\sigma$, and the simulated score distributions all carry direct basketball meaning that can be examined and explained in ways that the internal structure of a boosted tree ensemble cannot. The 2025 results confirm that this interpretability does not come at a meaningful cost to predictive performance, as the Monte Carlo model achieved the highest combined classification accuracy of the three models and a Brier Score within $0.001$ of XGBoost.

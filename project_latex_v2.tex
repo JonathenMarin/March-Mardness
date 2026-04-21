@@ -740,7 +740,7 @@ The logistic regression model is implemented separately for the men's and women'
 
 \begin{equation}
 \begin{split}
-\text{logit}(P) = \ln\left(\frac{P}{1-P}\right) = \beta_0 & + \beta_1(\text{eFG\_diff}) + \beta_2(\text{TOV\_diff}) \\
+\text{logit}(\hat{P}) = \ln\left(\frac{P}{1-P}\right) = \beta_0 & + \beta_1(\text{eFG\_diff}) + \beta_2(\text{TOV\_diff}) \\
 & + \beta_3(\text{ORB\_diff}) + \beta_4(\text{FTR\_diff}) + \beta_5(\text{Win\_diff})
 \end{split}
 \end{equation}
@@ -788,7 +788,7 @@ The pairwise correlation matrices for the men's and women's training data are pr
 Because separate models were trained for the men's and women's tournaments, the resulting coefficient structures can be analyzed independently to determine the relative importance of each feature. These independent estimates are then compared against one another to assess whether the Four Factors operate fundamentally differently across the two divisions. By rigorously examining the magnitude and statistical significance of each variable, it becomes possible to identify which specific phases of the game best dictate postseason success for each gender. To illustrate these comparative findings, Tables \ref{tab:mens_coef} and \ref{tab:womens_coef} present the estimated coefficients, standard errors, p-values, and significance levels for the men's and women's models, respectively.
 
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Sat Apr 11 02:18:38 2026
+% Mon Apr 20 19:40:05 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -807,7 +807,7 @@ Intercept & 0.4352 & 0.2062 & 0.0348 & * \\
 \label{tab:mens_coef}
 \end{table}
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Sat Apr 11 02:18:38 2026
+% Mon Apr 20 19:40:05 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -985,31 +985,40 @@ The logistic regression and XGBoost models developed in the preceding sections p
 The Linear Regression Monte Carlo model is motivated by the observation that predicting a final score is a more tractable regression problem than directly estimating a win probability. Rather than asking the model to learn a complex nonlinear boundary between wins and losses, the linear regression stage asks a simpler question: given two teams' efficiency profiles, how many points should each team score? The residual standard deviation from this regression, denoted $\sigma$, captures the inherent unpredictability of college basketball scoring and serves as the engine of the simulation stage. By drawing repeated samples from the score distributions and counting the proportion of simulated games in which each team wins, the model converts a point estimate into a probability that naturally reflects the uncertainty in the underlying score prediction.
 
 \usubsubsection{Variable Selection}
-The feature set for the Linear Regression Monte Carlo model is built around opponent-adjusted efficiency ratings sourced externally rather than computed from raw box score totals. For the men's division, KenPom provides adjusted offensive efficiency (\texttt{ORtg}), adjusted defensive efficiency (\texttt{DRtg}), and adjusted tempo (\texttt{AdjT}), all of which account for the strength of opposition faced and the pace at which games were played \cite{KenPom}. For the women's division, equivalent metrics are sourced from Bart Torvik, providing adjusted offensive efficiency (\texttt{AdjOE}), adjusted defensive efficiency (\texttt{AdjDE}), and adjusted tempo (\texttt{AdjT}) \cite{Torvik}. These opponent adjusted metrics are preferred over the raw box score averages available in the Kaggle dataset because they isolate a team's true efficiency from the confounding influence of schedule strength, providing a cleaner signal for predicting how many points a team will score against a given opponent. Unlike the previous two models which draw on historical tournament outcomes for training, the linear regression stage is trained exclusively on the current regular season, as the external efficiency ratings from KenPom and Bart Torvik are season snapshots that reflect the adjusted efficiencies accumulated over that season's play.
+The feature set for the Linear Regression Monte Carlo model is built around opponent-adjusted efficiency ratings sourced externally rather than computed from raw box score totals. For the men's division, KenPom provides adjusted offensive efficiency (\texttt{OffRating}), adjusted defensive efficiency (\texttt{DefRating}), and adjusted tempo (\texttt{AdjTempo}), all of which account for the strength of opposition faced and the pace at which games were played \cite{KenPom}. For the women's division, equivalent metrics are sourced from Bart Torvik, providing adjusted offensive efficiency (\texttt{AdjOE}), adjusted defensive efficiency (\texttt{AdjDE}), and adjusted tempo (\texttt{AdjT}) \cite{Torvik}. These opponent adjusted metrics are preferred over the raw box score averages available in the Kaggle dataset because they isolate a team's true efficiency from the confounding influence of schedule strength, providing a cleaner signal for predicting how many points a team will score against a given opponent. Unlike the previous two models which draw on historical tournament outcomes for training, the linear regression stage is trained exclusively on the current regular season, as the external efficiency ratings from KenPom and Bart Torvik are season snapshots that reflect the adjusted efficiencies accumulated over that season's play.
 
-A key design decision in the feature construction is how the efficiency ratings are paired for each prediction. Rather than inputting each team's statistics in isolation, the model explicitly pits each team's offensive profile against the opponent's defensive profile. To predict Team A's score, the model uses Team A's adjusted offensive efficiency as \texttt{OffRating} and Team B's adjusted defensive efficiency as \texttt{DefRating}, along with both teams' tempo values. The same logic applies symmetrically to predict Team B's score. This pairing structure mirrors how scoring actually occurs in basketball, a team's expected output is not simply a function of how well it attacks, but how well it attacks against a specific opponent's defense. A team with an elite offense facing an elite defense should be expected to score fewer points than the same team facing a weak defense, and the feature pairing ensures the model captures this interaction directly rather than leaving it to be inferred from aggregate statistics alone.
+A key design decision in the feature construction is how the efficiency ratings are paired for each prediction. Rather than inputting each team's statistics in isolation, the model explicitly pits each team's offensive profile against the opponent's defensive profile. To predict Team A's score, the model uses Team A's adjusted offensive efficiency as \texttt{OffRating}, or \texttt{AdjOE}, and Team B's adjusted defensive efficiency as \texttt{DefRating} or \texttt{AdjDE}, along with both teams' tempo values. The same logic applies symmetrically to predict Team B's score. This pairing structure mirrors how scoring actually occurs in basketball, a team's expected output is not simply a function of how well it attacks, but how well it attacks against a specific opponent's defense. A team with an elite offense facing an elite defense should be expected to score fewer points than the same team facing a weak defense, and the feature pairing ensures the model captures this interaction directly rather than leaving it to be inferred from aggregate statistics alone.
 
-Two additional differential features are included to capture relative team quality beyond the efficiency ratings alone. The Elo differential (\texttt{Diff\_Elo}) is computed as the difference between each team's Elo rating, utilizing the same custom implementation described in the XGBoost model \cite{haupts_elo}. For the men's division, an additional net rating differential (\texttt{Diff\_NetRtg}) is also included, defined as the difference between each team's KenPom net rating, which represents the margin between adjusted offensive and defensive efficiency. This feature is not included in the women's model because the Bart Torvik data source does not provide a precomputed net rating, and computing it manually from \texttt{AdjOE} and \texttt{AdjDE} was not performed during implementation. This represents a known limitation of the women's model relative to the men's, and future iterations should compute and include this feature to fully align the two frameworks. Ultimately, the presence of these composite features allows the model to differentiate between teams with similar efficiency profiles but disparate levels of overall regular season dominance.
+Two additional differential features are included to capture relative team quality beyond the efficiency ratings alone. The Elo differential is computed as the difference between each team's Elo rating, utilizing the same custom implementation described in the XGBoost model \cite{haupts_elo}. For the men's division, an additional net rating differential is also included, defined as the difference between each team's KenPom net rating, which represents the margin between adjusted offensive and defensive efficiency. This feature is not included in the women's model because the Bart Torvik data source does not provide a precomputed net rating, and computing it manually from \texttt{AdjOE} and \texttt{AdjDE} was not performed during implementation. This represents a known limitation of the women's model relative to the men's, and future iterations should compute and include this feature to fully align the two frameworks. Ultimately, the presence of these composite features allows the model to differentiate between teams with similar efficiency profiles but disparate levels of overall regular season dominance.
 
 \usubsubsection{Model Implementation}
 The linear regression model is fit separately for the men's and women's divisions using Ordinary Least Squares (OLS). This foundational method identifies the specific coefficient vector $\hat{\boldsymbol{\beta}}$ that minimizes the sum of squared residuals between the predicted and observed scores across all training observations. The final curated men's training matrix consisted of $10,326$ rows and $6$ features, while the women's training matrix comprised $10,828$ rows and $5$ features. The formal specification for the men's model is defined as:
-\begin{equation}\begin{split}\text{Points} = \beta_0 &+ \beta_1(\texttt{OffRating}) + \beta_2(\texttt{DefRating}) + \beta_3(\texttt{AdjT\_team}) \\ 
-&+ \beta_4(\texttt{AdjT\_opp}) + \beta_5(\texttt{Diff\_NetRtg}) + \beta_6(\texttt{Diff\_Elo}) + \varepsilon\end{split}\end{equation}
+
+\begin{equation}
+\begin{split}
+\text{Points\_A} = \beta_0 &+ \beta_1(\mathtt{OffRating}_A) + \beta_2(\mathtt{DefRating}_B) + \beta_3(\mathtt{AdjTempo}_A) \\
+&+ \beta_4(\mathtt{AdjTempo}_B) + \beta_5(\mathtt{NetRtg}_A - \mathtt{NetRtg}_B) + \beta_6(\mathtt{Elo}_A - \mathtt{Elo}_B) + \varepsilon
+\end{split}
+\end{equation}
 and the corresponding specification for the women's model is:
-\begin{equation}\begin{split}\text{Points} = \beta_0 &+ \beta_1(\texttt{OffRating}) + \beta_2(\texttt{DefRating}) + \beta_3(\texttt{AdjT\_team}) \\
-&+ \beta_4(\texttt{AdjT\_opp}) + \beta_5(\texttt{Diff\_Elo}) + \varepsilon\end{split}\end{equation}
+\begin{equation}
+\begin{split}
+\text{Points\_A} = \beta_0 &+ \beta_1(\mathtt{AdjOE}_A) + \beta_2(\mathtt{AdjDE}_B) + \beta_3(\mathtt{AdjTempo}_A) \\
+&+ \beta_4(\mathtt{AdjTempo}_B) + \beta_5(\mathtt{Elo}_A - \mathtt{Elo}_B) + \varepsilon
+\end{split}
+\end{equation}
 where $\varepsilon \sim \mathcal{N}(0, \sigma^2)$ is the residual error term and $\sigma$ is estimated directly from the training data.
 
 The decision to train entirely separate models for each division directly mirrors the justification applied in the earlier logistic regression section. The fundamental relationship between efficiency ratings, tempo, and scoring may differ structurally between divisions due to inherent differences in average pace, physicality, and overall playing style. Forcing shared parameter estimates across both genders would carry a significant risk of masking these meaningful structural differences, thereby degrading predictive accuracy. The resulting values of $\sigma$ for both divisions are explicitly reported and interpreted in the Model Analysis section, where they serve as a direct measure of model calibration and as the primary input for the subsequent simulation stage.
 
 To convert the predicted point totals into win probabilities, a Monte Carlo simulation framework is applied to each specific tournament matchup. For a given matchup between Team A and Team B, the fitted linear regression model produces two distinct point estimates, denoted as $\hat{\mu}_A$ and $\hat{\mu}_B$, representing the statistically expected scores for each team given their respective efficiency profiles. Continuous score realizations are then drawn independently for each team from a normal distribution centered on these predictions:
 \begin{align}
-\text{Score}_A &\sim \mathcal{N}(\hat{\mu}_A, \sigma^2) \\
-\text{Score}_B &\sim \mathcal{N}(\hat{\mu}_B, \sigma^2)
+\text{Points}_A &\sim \mathcal{N}(\hat{\mu}_A, \sigma^2) \\
+\text{Points}_B &\sim \mathcal{N}(\hat{\mu}_B, \sigma^2)
 \end{align}
 Following these simulated iterations, the overarching win probability for Team A is computed as the strict proportion of trials where their simulated score exceeds that of their opponent:
 \begin{equation}
-\hat{P}(\text{Team A wins}) = \frac{1}{n} \sum_{i=1}^{n} \mathbf{1}[\text{Score}_{A,i} > \text{Score}_{B,i}]
+\hat{P}(\text{Team A wins}) = \frac{1}{n} \sum_{i=1}^{n} \mathbf{1}[\text{Points}_{A,i} > \text{Points}_{B,i}]
 \end{equation}
 
 This final calculated proportion is submitted directly to Kaggle as the predicted win probability for the specified matchup, with the complementary probability $1 - \hat{P}(\text{Team A wins})$ assigned to Team B.The normality assumption underlying this simulation stage is robustly supported by both theoretical foundations and empirical evidence. From a theoretical perspective, a team's final score is essentially the aggregate sum of many independent possession outcomes over the course of a game. By the Central Limit Theorem \cite{CLT}, the distribution of this cumulative aggregate naturally converges toward normality as the total number of possessions increases. To verify this phenomenon empirically, the full distribution of regular season scores across all available historical seasons was formally examined for both divisions. As shown visually in Figures \ref{fig:hist_mens} and \ref{fig:hist_womens}, the observed score distributions closely trace a fitted normal curve in both datasets.
@@ -1092,7 +1101,7 @@ The pairwise correlation matrices in Figure \ref{fig:corr_mc} confirm these find
 Because separate models were trained for the men's and women's tournaments, the coefficient structures can be analyzed independently and then compared to assess whether the efficiency and tempo features operate differently across divisions. Tables \ref{tab:mens_coef_mc} and \ref{tab:womens_coef_mc} present the estimated coefficients, standard errors, p-values, and significance levels for the men's and women's models respectively.
 
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Sat Apr 11 02:18:42 2026
+% Mon Apr 20 19:40:09 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1112,7 +1121,7 @@ Intercept & -207.3986 & 5.4365 & 0.0000 & *** \\
 \label{tab:mens_coef_mc}
 \end{table}
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Sat Apr 11 02:18:42 2026
+% Mon Apr 20 19:40:09 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1193,7 +1202,7 @@ Figure \ref{fig:roc_comparison} presents the ROC curves for all three models eva
 While the AUC results highlight the discriminative advantage of XGBoost and Monte Carlo over the logistic regression baseline, the Brier Scores tell a consistent story. Summarized in Table \ref{tab:model_comparison}, the logistic regression achieves a combined Brier Score of $0.18401$, while XGBoost achieves $0.12761$ and the Monte Carlo model achieves $0.12857$. To contextualize these values, a Brier Score of $B$ implies that the model performed on average similarly to consistently assigning a win probability of $1 - \sqrt{B}$ to the eventual winner. By this measure the logistic regression corresponds to an average assigned probability of approximately $0.571$, while XGBoost and Monte Carlo both correspond to approximately $0.643$ and $0.641$ respectively, reflecting meaningfully sharper probability estimates. The competition winning score of $0.10411$ corresponds to approximately $0.677$, indicating that top submissions are consistently more confident on clear matchups while remaining appropriately uncertain on competitive ones. The difference of less than $0.001$ between XGBoost and Monte Carlo is negligible in practical terms, confirming that both models produce comparably calibrated win probabilities on the 2025 tournament despite their fundamentally different approaches. All three models fall short of the competition winning Brier Score of $0.10411$, indicating that the best performing submissions in the Kaggle competition produce sharper and better calibrated probabilities than any of the three models developed here. 
 
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Sat Apr 11 02:18:43 2026
+% Mon Apr 20 19:40:10 2026
 \begin{table}[ht]
 \centering
 \scalebox{0.85}{
@@ -1240,7 +1249,7 @@ The 2026 women's model remained structurally consistent with its 2025 counterpar
 
 
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Sat Apr 11 02:18:44 2026
+% Mon Apr 20 19:40:11 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1262,7 +1271,7 @@ Variable & Estimate & Std. Error & p-value & Sig. \\
 
 
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Sat Apr 11 02:18:44 2026
+% Mon Apr 20 19:40:11 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}

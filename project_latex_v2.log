@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.1) (preloaded format=pdflatex 2026.2.3)  11 APR 2026 02:18
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.1) (preloaded format=pdflatex 2026.2.3)  20 APR 2026 19:40
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -994,91 +994,101 @@ File: figure/auc_xgb-1.pdf Graphic file (type pdf)
 <use figure/auc_xgb-1.pdf>
 Package pdftex.def Info: figure/auc_xgb-1.pdf  used on input line 965.
 (pdftex.def)             Requested size: 281.66415pt x 234.73135pt.
-[46 <./figure/auc_xgb-1.pdf>] [47] [48] [49] [50] [51]
+[46 <./figure/auc_xgb-1.pdf>] [47] [48] [49]
+Overfull \hbox (20.54678pt too wide) detected at line 1002
+[]
+ []
+
+
+Overfull \hbox (20.54678pt too wide) in alignment at lines 1001--1002
+[] [] 
+ []
+
+[50] [51]
 <figure/hist_mens-1.pdf, id=630, 505.89pt x 361.35pt>
 File: figure/hist_mens-1.pdf Graphic file (type pdf)
 <use figure/hist_mens-1.pdf>
-Package pdftex.def Info: figure/hist_mens-1.pdf  used on input line 1020.
+Package pdftex.def Info: figure/hist_mens-1.pdf  used on input line 1029.
 (pdftex.def)             Requested size: 321.90451pt x 229.9344pt.
 [52]
 <figure/hist_womens-1.pdf, id=640, 505.89pt x 361.35pt>
 File: figure/hist_womens-1.pdf Graphic file (type pdf)
 <use figure/hist_womens-1.pdf>
-Package pdftex.def Info: figure/hist_womens-1.pdf  used on input line 1032.
+Package pdftex.def Info: figure/hist_womens-1.pdf  used on input line 1041.
 (pdftex.def)             Requested size: 321.90451pt x 229.9344pt.
 [53 <./figure/hist_mens-1.pdf> <./figure/hist_womens-1.pdf>] [54]
 <figure/diag_mens-1.pdf, id=662, 722.7pt x 722.7pt>
 File: figure/diag_mens-1.pdf Graphic file (type pdf)
 <use figure/diag_mens-1.pdf>
-Package pdftex.def Info: figure/diag_mens-1.pdf  used on input line 1051.
+Package pdftex.def Info: figure/diag_mens-1.pdf  used on input line 1060.
 (pdftex.def)             Requested size: 402.37912pt x 402.38243pt.
 [55]
 <figure/diag_womens-1.pdf, id=667, 722.7pt x 722.7pt>
 File: figure/diag_womens-1.pdf Graphic file (type pdf)
 <use figure/diag_womens-1.pdf>
-Package pdftex.def Info: figure/diag_womens-1.pdf  used on input line 1058.
+Package pdftex.def Info: figure/diag_womens-1.pdf  used on input line 1067.
 (pdftex.def)             Requested size: 402.37912pt x 402.38243pt.
 [56 <./figure/diag_mens-1.pdf>] [57 <./figure/diag_womens-1.pdf>]
 <figure/vif_log-1.pdf, id=687, 1011.78pt x 433.62pt>
 File: figure/vif_log-1.pdf Graphic file (type pdf)
 <use figure/vif_log-1.pdf>
-Package pdftex.def Info: figure/vif_log-1.pdf  used on input line 1068.
+Package pdftex.def Info: figure/vif_log-1.pdf  used on input line 1077.
 (pdftex.def)             Requested size: 402.37912pt x 172.45245pt.
 [58 <./figure/vif_log-1.pdf>]
 <figure/corr_mc-1.pdf, id=702, 867.24pt x 433.62pt>
 File: figure/corr_mc-1.pdf Graphic file (type pdf)
 <use figure/corr_mc-1.pdf>
-Package pdftex.def Info: figure/corr_mc-1.pdf  used on input line 1083.
+Package pdftex.def Info: figure/corr_mc-1.pdf  used on input line 1092.
 (pdftex.def)             Requested size: 402.37912pt x 201.18791pt.
 [59 <./figure/corr_mc-1.pdf>] [60] [61] [62] [63]
 <figure/conf_matrices_2025-1.pdf, id=734, 722.7pt x 289.08pt>
 File: figure/conf_matrices_2025-1.pdf Graphic file (type pdf)
 <use figure/conf_matrices_2025-1.pdf>
 Package pdftex.def Info: figure/conf_matrices_2025-1.pdf  used on input line 11
-56.
+65.
 (pdftex.def)             Requested size: 402.37912pt x 160.95297pt.
 [64 <./figure/conf_matrices_2025-1.pdf>]
 <figure/conf_matrix_xgb-1.pdf, id=747, 722.7pt x 289.08pt>
 File: figure/conf_matrix_xgb-1.pdf Graphic file (type pdf)
 <use figure/conf_matrix_xgb-1.pdf>
-Package pdftex.def Info: figure/conf_matrix_xgb-1.pdf  used on input line 1165.
+Package pdftex.def Info: figure/conf_matrix_xgb-1.pdf  used on input line 1174.
 
 (pdftex.def)             Requested size: 402.37912pt x 160.95297pt.
 <figure/conf_mc-1.pdf, id=749, 722.7pt x 289.08pt>
 File: figure/conf_mc-1.pdf Graphic file (type pdf)
 <use figure/conf_mc-1.pdf>
-Package pdftex.def Info: figure/conf_mc-1.pdf  used on input line 1175.
+Package pdftex.def Info: figure/conf_mc-1.pdf  used on input line 1184.
 (pdftex.def)             Requested size: 402.37912pt x 160.95297pt.
 [65 <./figure/conf_matrix_xgb-1.pdf>]
 <figure/roc_comparison-1.pdf, id=761, 867.24pt x 361.35pt>
 File: figure/roc_comparison-1.pdf Graphic file (type pdf)
 <use figure/roc_comparison-1.pdf>
-Package pdftex.def Info: figure/roc_comparison-1.pdf  used on input line 1184.
+Package pdftex.def Info: figure/roc_comparison-1.pdf  used on input line 1193.
 (pdftex.def)             Requested size: 402.37912pt x 167.65659pt.
 [66 <./figure/conf_mc-1.pdf>] [67 <./figure/roc_comparison-1.pdf>] [68]
 <figure/vif_2026-1.pdf, id=788, 1011.78pt x 433.62pt>
 File: figure/vif_2026-1.pdf Graphic file (type pdf)
 <use figure/vif_2026-1.pdf>
-Package pdftex.def Info: figure/vif_2026-1.pdf  used on input line 1224.
+Package pdftex.def Info: figure/vif_2026-1.pdf  used on input line 1233.
 (pdftex.def)             Requested size: 402.37912pt x 172.45245pt.
 [69] [70 <./figure/vif_2026-1.pdf>] [71] [72] [73]
 <figure/worst_plots_2026-1.pdf, id=819, 867.24pt x 867.24pt>
 File: figure/worst_plots_2026-1.pdf Graphic file (type pdf)
 <use figure/worst_plots_2026-1.pdf>
-Package pdftex.def Info: figure/worst_plots_2026-1.pdf  used on input line 1300
+Package pdftex.def Info: figure/worst_plots_2026-1.pdf  used on input line 1309
 .
 (pdftex.def)             Requested size: 402.37912pt x 402.37582pt.
 [74] [75 <./figure/worst_plots_2026-1.pdf>]
 <figure/conf_2026-1.pdf, id=838, 722.7pt x 289.08pt>
 File: figure/conf_2026-1.pdf Graphic file (type pdf)
 <use figure/conf_2026-1.pdf>
-Package pdftex.def Info: figure/conf_2026-1.pdf  used on input line 1315.
+Package pdftex.def Info: figure/conf_2026-1.pdf  used on input line 1324.
 (pdftex.def)             Requested size: 402.37912pt x 160.95297pt.
 [76]
 <figure/roc_2026-1.pdf, id=845, 722.7pt x 361.35pt>
 File: figure/roc_2026-1.pdf Graphic file (type pdf)
 <use figure/roc_2026-1.pdf>
-Package pdftex.def Info: figure/roc_2026-1.pdf  used on input line 1325.
+Package pdftex.def Info: figure/roc_2026-1.pdf  used on input line 1334.
 (pdftex.def)             Requested size: 402.37912pt x 201.19122pt.
 [77 <./figure/conf_2026-1.pdf>] [78 <./figure/roc_2026-1.pdf>] [79] [80] [81] [
 82] [83
@@ -1094,7 +1104,7 @@ Package rerunfilecheck Info: File `project_latex_v2.out' has not changed.
 Here is how much of TeX's memory you used:
  24169 strings out of 467866
  454590 string characters out of 5418326
- 830746 words of memory out of 5000000
+ 830747 words of memory out of 5000000
  52385 multiletter control sequences out of 15000+600000
  637242 words of font info for 79 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -1116,7 +1126,7 @@ msfonts/cm/cmsy8.pfb><C:/Users/marin/AppData/Local/Programs/MiKTeX/fonts/type1/
 public/amsfonts/cm/cmti12.pfb><C:/Users/marin/AppData/Local/Programs/MiKTeX/fon
 ts/type1/public/amsfonts/cm/cmtt12.pfb><C:/Users/marin/AppData/Local/Programs/M
 iKTeX/fonts/type1/public/amsfonts/cm/cmtt8.pfb>
-Output written on project_latex_v2.pdf (95 pages, 5881258 bytes).
+Output written on project_latex_v2.pdf (95 pages, 5881223 bytes).
 PDF statistics:
  1025 PDF objects out of 1200 (max. 8388607)
  213 named destinations out of 1000 (max. 500000)
