@@ -1,0 +1,64 @@
+---
+title: "Predicting March Madness Basketball Games"
+author: "Jonathen Marin"
+date: "May 6, 2026"
+output:
+  beamer_presentation:
+    theme: "Madrid"
+    includes:
+      in_header: preamble.tex
+---
+
+## Introduction
+\begin{itemize}
+\item March Madness is the NCAA Division I Basketball Tournament, a single-elimination bracket of $68$ teams held each March and April across both the Men's and Women's divisions to crown the National Champions.
+\vspace{0.1in}
+\item Teams earn a spot either by winning their conference tournament (an automatic bid) or by being selected by the NCAA Selection Committee (an at-large bid).
+\vspace{0.1in}
+\item The regular season determines the seeding. Teams are seeded 1 through 16 within each of four regions, where lower seeds are considered the strongest and are rewarded with matchups against the highest seeds.
+\vspace{0.1in}
+\item With 63 games decided by single elimination, upsets are frequent, which is why the tournament has become famous for its unpredictability, hence the name ``March Madness.''
+\end{itemize}
+## Introduction
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth,height=0.8\textheight,keepaspectratio]{March_Madness_Bracket_Web_Womans_2026.png}
+\caption{2026 Bracket Example}
+\label{bracket}
+\end{figure}
+
+## Kaggle
+\begin{itemize}
+\item Kaggle is an online platform for data science and machine learning competitions, owned by Google.
+\vspace{0.1in}
+\item  Companies, researchers, and organizations post prediction problems with datasets, evaluation metrics, and prize pools.
+\vspace{0.1in}
+\item Participants submit models that are scored on a hidden test set, with a public leaderboard ranking submissions in real time.
+\vspace{0.1in}
+\item Kaggle has become a benchmark in the ML community for evaluating predictive modeling approaches against a global field of competitors.
+\end{itemize}
+
+## March Machine Learning Mania
+\begin{itemize}
+\item Annual Kaggle competition running since 2014, challenging participants to predict outcomes of every possible matchup in the NCAA tournament.
+\vspace{0.2in}
+\item Submissions are a probability $P \in [0,1]$ for each of the $2 \times \binom{68}{2} = 4556$ possible matchups across Men's and Women's.
+\vspace{0.2in} Scored using the Brier Score:
+\begin{equation}
+BS = \frac{1}{N}\sum_{t=1}^N(f_t - o_t)^2
+\end{equation}
+\item Where $f_t$ is our prediction and $o_t$ is the outcome. 
+\item $o_t$ is $1$ if the team wins, and $0$ is they lose. 
+\end{itemize}
+
+## Prediction Difficulty
+\begin{itemize}
+\item Top predictive models plateau near $75\%$ accuracy.
+\vspace{0.2in}
+\item Odds of a perfect bracket: $1$ in $9.2$ quintillion (random) to $1$ in $128$ billion (informed).
+\vspace{0.2in}
+\item No publicly verified bracket has survived past the Sweet Sixteen.
+\vspace{0.2in}
+\item \$$3.1$ billion wagered in 2025, sportsbook lines are the benchmark to beat.
+\end{itemize}
+
