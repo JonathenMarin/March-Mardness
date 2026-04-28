@@ -190,7 +190,7 @@ ggplot(train_data, aes(x = Diff_NetRtg, y = Points)) +
        y = "Points Scored") +
   theme_minimal()
 
-plot(model)
+plot(model, cex = 0.1)
 check_model(model, check = "vif")
 
 
@@ -445,3 +445,19 @@ ggroc(roc_mens) +
 roc_mc_2025 <- roc(tournament_predictions$Actual, tournament_predictions$Pred)
 cat("Monte Carlo 2025 Test AUC:", round(auc(roc_mc_2025), 4), "\n")
 
+
+train_data$Residuals <- train_data$Points - train_data$Predicted
+plot_resid_vs_actual <- ggplot(train_data, aes(x = Points, y = Residuals)) +
+  geom_point(alpha = 0.2, color = "purple") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red", size = 1) +
+  geom_smooth(method = "loess", color = "blue", se = FALSE) +
+  theme_minimal()
+
+print(plot_resid_vs_actual)
+
+check_heteroscedasticity(model)
+
+library(lmtest)
+
+bp_test <- bptest(model)
+print(bp_test)

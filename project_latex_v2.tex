@@ -539,7 +539,7 @@ PF          & Personal fouls \\
 \label{tab:boxscore}
 \end{table}
 
-While raw box scores capture the foundational events of a game, they often fail to account for nuances such as pace of play and strength of schedule. To address this limitation, this research supplements the Kaggle datasets with advanced metrics from analyst Ken Pomeroy (KenPom), which is incorporated into the Linear Regression Monte carlo model for the men's division. Pomeroy, who is widely accepted as the industry standard for college basketball analysis, normalizes performance by calculating efficiency on a per possession basis, where a possession is defined as the period in which a team controls the ball, ending with a shot attempt, turnover, or score. These ratings are updated daily throughout the regular season and tournament. For the purposes of this study, a snapshot of the rankings was acquired from the day prior to the start of the 2025 tournament. Table \ref{tab:kenpom} describes the primary metrics utilized from this source \cite{KenPom}.
+While raw box scores capture the foundational events of a game, they often fail to account for nuances such as pace of play and strength of schedule. To address this limitation, this research supplements the Kaggle datasets with advanced metrics from analyst Ken Pomeroy (KenPom), which is incorporated into the Linear Regression Monte carlo model for the men's division. Pomeroy, who is widely accepted as the industry standard for college basketball analysis, normalizes performance by calculating efficiency on a per possession basis, where a possession is defined as the period in which a team controls the ball, ending with a shot attempt, turnover, or score \cite{KenPom}. These ratings are updated daily throughout the regular season and tournament. For the purposes of this study, a snapshot of the rankings was acquired from the day prior to the start of the 2025 tournament. Table \ref{tab:kenpom} describes the primary metrics utilized from this source.
 
 \begin{table}[h]
 \centering
@@ -698,7 +698,7 @@ Cross validation is a model evaluation technique that uses systematic data split
 \section{METHODS}
 \end{center}
 \thispagestyle{empty} %NO PAGE NUMBER ON SECTION PAGES.
-The three models developed in this paper span a deliberate range of complexity and methodology, each grounded in the strategies and techniques established in the preceding literature review. Together they cover the primary approaches identified as most effective in this prediction environment: regression-based probability estimation, gradient boosting on structured efficiency features, and simulating win probability. By testing these three frameworks, this research isolates the specific mechanisms that best mitigate the inherent volatility of single elimination basketball. This design ensures that the theoretical concepts are rigorously validated against multiple analytical philosophies to find the optimal predictive performance.
+The three models in this paper span a deliberate range of complexity and methodology, each grounded in the strategies and techniques established in the preceding literature review. Together they cover the primary approaches identified as most effective in this prediction environment: regression-based probability estimation, gradient boosting on structured efficiency features, and simulating win probability. By testing these three frameworks, this research isolates the specific mechanisms that best mitigate the inherent volatility of single elimination basketball. This design ensures that the theoretical concepts are rigorously validated against multiple analytical philosophies to find the optimal predictive performance.
 
 The simplest approach begins with the premise that a small number of theoretically motivated statistics, computed directly from raw box scores, should be sufficient to capture the fundamental determinants of tournament success. This aligns with the academic finding that feature construction matters more than model complexity, and with the use of logistic regression as the canonical baseline in tournament prediction. The most complex approach abandons that idea entirely, constructing a broad feature matrix and allowing a gradient boosted ensemble to discover relationships across hundreds of variables without prior assumptions about which features matter most, mirroring the community baseline that dominated recent competition years. The third approach occupies a different dimension altogether, bypassing direct classification in favor of predicting each team's expected score and deriving win probabilities through repeated simulation of the resulting score distributions. Each model is presented in its own subsection following a consistent structure covering variable selection, model implementation, and model analysis, This standardization allows for a direct comparison of their respective strengths and predictive capabilities across the tournament dataset. Each model is evaluated against the 2025 tournament outcomes and benchmarked against the winning Brier Score from that competition year to establish its viability.
 
@@ -753,7 +753,7 @@ A practical constraint of this implementation is the relatively small training s
 Predictions for the 2025 tournament are generated by computing the Four Factors directly from each team's 2025 regular season results. This approach perfectly mirrors the training phase, where every historical tournament game was evaluated strictly against its corresponding regular season efficiency profile. Once compiled, these current metrics are transformed into mathematical differentials for every possible matchup across both the men's and women's divisions. The fitted divisional models are then applied via the inverse logit transformation to produce a calibrated win probability, $\hat{P} \in (0, 1)$, for each candidate pairing. Ultimately, this structural consistency ensures that the final forecasts accurately reflect each team's immediate performance trajectory heading into the postseason, explicitly avoiding the incorporation of outdated statistics from prior academic years.
 
 \usubsubsection{Model Analysis}
-With the models estimated on the 2023 and 2024 tournament data, the analysis begins by verifying that the core assumptions of the logistic regression framework are satisfied before interpreting the coefficient estimates. The collinearity assumption is first assessed through a Variance Inflation Factor (VIF) analysis for both the men's and women's models. All five predictors fall below a strict VIF threshold of $3$ in both divisions, indicating that the input differentials operate as sufficiently independent statistical signals. No single predictor inflates the variance of any other to a degree that would destabilize the coefficient estimates or undermine the reliability of the subsequent significance tests.
+With the models estimated on the 2023 and 2024 tournament data, the analysis begins by verifying that the core assumptions of the logistic regression framework are satisfied before interpreting the coefficient estimates. Multicollinearity is first assessed through a Variance Inflation Factor (VIF) analysis for both the men's and women's models. All five predictors fall below a strict VIF threshold of $3$ in both divisions, indicating that the input differentials operate as sufficiently independent statistical signals. No single predictor inflates the variance of any other to a degree that would destabilize the coefficient estimates or undermine the reliability of the subsequent significance tests.
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
@@ -783,8 +783,8 @@ The pairwise correlation matrices for the men's and women's training data are pr
 
 Because separate models were trained for the men's and women's tournaments, the resulting coefficient structures can be analyzed independently to determine the relative importance of each feature. These independent estimates are then compared against one another to assess whether the Four Factors operate fundamentally differently across the two divisions. By rigorously examining the magnitude and statistical significance of each variable, it becomes possible to identify which specific phases of the game best dictate postseason success for each gender. To illustrate these comparative findings, Tables \ref{tab:mens_coef} and \ref{tab:womens_coef} present the estimated coefficients, standard errors, p-values, and significance levels for the men's and women's models, respectively.
 
-% latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Tue Apr 28 00:47:38 2026
+% latex table generated in R 4.5.1 by xtable 1.8-4 package
+% Tue Apr 28 14:56:43 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -802,8 +802,8 @@ Intercept & 0.4352 & 0.2062 & 0.0348 & * \\
 \caption{Logistic Regression Coefficient Estimates (Men's 2025 Model)} 
 \label{tab:mens_coef}
 \end{table}
-% latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Tue Apr 28 00:47:38 2026
+% latex table generated in R 4.5.1 by xtable 1.8-4 package
+% Tue Apr 28 14:56:43 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -825,7 +825,7 @@ Intercept & -0.0888 & 0.2055 & 0.6657 &  \\
 
 In the men's model, the only variable to reach conventional statistical significance is Offensive Rebound Percentage, with an estimated coefficient of $12.3634$ and $p =0.0004$. The positive sign is consistent with  Oliver's framework \cite{Dean}, as a team that dominates the offensive rebounds generates additional possessions while simultaneously denying the opponent transition opportunities. Turnover Percentage approaches significance at the $0.10$ level with an estimate of $-20.5106$, and the negative direction is theoretically correct, as a team that surrenders possessions more frequently than its opponent is expected to win less often. Effective Field Goal Percentage, Free Throw Rate, and Win Percentage all fail to reach significance in the men's model, suggesting that within the narrow two-year training window, shooting efficiency and win records carry limited additional explanatory power once rebounding and turnover control are accounted for.
 
-The women's model tells a markedly different story regarding the underlying drivers of tournament success. Three variables reach statistical significance: Offensive Rebound Percentage ($12.4308$, $p < 0.001$), Effective Field Goal Percentage ($17.4458$, $p = 0.0016$), and Turnover Percentage ($-19.8212$, $p = 0.0237$). The near identical magnitude of the Offensive Rebound Percentage estimates across both independently trained models, $12.36$ in the men's and $12.43$ in the women's, strongly suggests that second chance scoring is a universal determinant of tournament success regardless of division. The most substantive structural difference between the two models is the role of Effective Field Goal Percentage, which is the second most significant predictor in the women's model but statistically indistinguishable from zero in the men's. This divergence suggests that shooting efficiency differentials are more decisive in women's tournament outcomes, where a meaningful gap in $eFG\%$ translates more reliably into a victory than in the men's game, where superior athleticism and individual shot creation can often compensate for overall efficiency deficits. Free Throw Rate fails to reach significance in either model, which is consistent with the relative stability of free throw volume across elite programs at the tournament level.
+The women's model tells a markedly different story regarding the underlying drivers of tournament success. Three variables reach statistical significance: Offensive Rebound Percentage ($\hat{\beta} = 12.4308$, $p < 0.001$), Effective Field Goal Percentage ($\hat{\beta} = 17.4458$, $p = 0.0016$), and Turnover Percentage ($\hat{\beta} = -19.8212$, $p = 0.0237$). The near identical magnitude of the Offensive Rebound Percentage estimates across both independently trained models, $12.36$ in the men's and $12.43$ in the women's, strongly suggests that second chance scoring is a universal determinant of tournament success regardless of division. The most substantive structural difference between the two models is the role of Effective Field Goal Percentage, which is the second most significant predictor in the women's model but statistically indistinguishable from zero in the men's. This divergence suggests that shooting efficiency differentials are more decisive in women's tournament outcomes, where a meaningful gap in $eFG\%$ translates more reliably into a victory than in the men's game, where superior athleticism and individual shot creation can often compensate for overall efficiency deficits. Free Throw Rate fails to reach significance in either model, which is consistent with the relative stability of free throw volume across elite programs at the tournament level.
 
 The significant intercept in the men's model warrants brief discussion. The intercept estimate of $0.4352$ represents the log-odds of a Team $1$ victory when all five statistical differentials are exactly zero, simulating a matchup between two teams with perfectly identical efficiency profiles. Theoretically, the probability of either team winning in a perfectly symmetric matchup should be exactly $0.5$, which corresponds to a log-odds of zero and a statistically insignificant intercept. However, the fact that this intercept is statistically significant at the $0.05$ level suggests a slight bias within the training data, where the lower ID team won more frequently even after controlling for all efficiency metrics. Because Team $1$ is strictly defined as the team with the numerically lower Kaggle ID, a static designation originally assigned alphabetically rather than by program prestige or talent, this finding clearly does not reflect a genuine basketball phenomenon. Instead, it is most likely a small sample artifact introduced by the restricted training window and should not be interpreted as a meaningful predictive signal for future tournaments.
 
@@ -992,14 +992,14 @@ The linear regression model is fit separately for the men's and women's division
 
 \begin{equation}
 \begin{split}
-\text{Points\_A} = \beta_0 &+ \beta_1(\mathtt{OffRating}_A) + \beta_2(\mathtt{DefRating}_B) + \beta_3(\mathtt{AdjTempo}_A) \\
+\text{Points}_A = \beta_0 &+ \beta_1(\mathtt{OffRating}_A) + \beta_2(\mathtt{DefRating}_B) + \beta_3(\mathtt{AdjTempo}_A) \\
 &+ \beta_4(\mathtt{AdjTempo}_B) + \beta_5(\mathtt{NetRtg}_A - \mathtt{NetRtg}_B) + \beta_6(\mathtt{Elo}_A - \mathtt{Elo}_B) + \varepsilon
 \end{split}
 \end{equation}
 and the corresponding specification for the women's model is:
 \begin{equation}
 \begin{split}
-\text{Points\_A} = \beta_0 &+ \beta_1(\mathtt{AdjOE}_A) + \beta_2(\mathtt{AdjDE}_B) + \beta_3(\mathtt{AdjTempo}_A) \\
+\text{Points}_A = \beta_0 &+ \beta_1(\mathtt{AdjOE}_A) + \beta_2(\mathtt{AdjDE}_B) + \beta_3(\mathtt{AdjTempo}_A) \\
 &+ \beta_4(\mathtt{AdjTempo}_B) + \beta_5(\mathtt{Elo}_A - \mathtt{Elo}_B) + \varepsilon
 \end{split}
 \end{equation}
@@ -1046,9 +1046,9 @@ This final calculated proportion is submitted directly to Kaggle as the predicte
 During the final prediction phase, the men's model utilized $n = 100,000$ simulation iterations per matchup, while the women's 2025 submission utilized $n = 50,000$. Fortunately, at both of these massive sample sizes, the standard error of the resulting proportion estimate is strictly bounded by $\sqrt{p(1-p)/n} \leq 0.002$ in the absolute worst case scenario at $n = 50,000$. This mathematical bound guarantees that the simulated probability estimates have successfully converged to highly stable values that are immune to random sampling noise. Ultimately, the predictions for the 2025 tournament are generated by computing the expected scores for every possible matchup using each team's 2025 KenPom and Bart Torvik efficiency ratings alongside their end-of-season Elo ratings, and then systematically applying this Monte Carlo simulation to produce a final win probability $\hat{P} \in (0, 1)$ for each unique pairing.
 
 \usubsubsection{Model Analysis}
-With the models estimated on the 2025 regular season data, the analysis begins by verifying that the four core assumptions of multiple linear regression are satisfied before interpreting the coefficient estimates. These assumptions are linearity, normality of residuals, homoscedasticity, and no multicollinearity.
+With the models estimated on the 2025 regular season data, the analysis begins by verifying that the four core assumptions of multiple linear regression are satisfied before interpreting the coefficient estimates. These assumptions are linearity, normality of residuals, homoscedasticity.
 
-The first three assumptions are assessed jointly through the combined diagnostic plots presented in Figures \ref{fig:diag_mens} and \ref{fig:diag_womens}. The first assumption, linearity, requires that the relationship between the dependent variable and each independent variable is linear. The Residuals vs. Fitted panels show residuals randomly scattered around zero with approximately flat smoothing lines across the range of predicted scores, confirming that the linearity assumption is reasonably satisfied in both models. The second assumption, normality of residuals, requires that the residuals follow an approximately normal distribution. The Q-Q panels show that the residuals follow the theoretical normal reference line closely through the central range in both models, with some deviation in the tails driven by a small number of extreme blowout games. The third assumption, homoscedasticity, requires that the variance of the residuals is consistent across all levels of the predicted values. The Residuals vs. Fitted panels show no discernible cone-shaped or fanning pattern, confirming that the error variance is approximately constant across the range of fitted values in both models. The Residuals vs. Leverage panels further confirm that no observations exert undue influence on the model estimates in either division, as no points fall outside Cook's distance boundaries and leverage values remain uniformly small.
+These three assumptions are assessed jointly through the combined diagnostic plots presented in Figures \ref{fig:diag_mens} and \ref{fig:diag_womens}. The first assumption, linearity, requires that the relationship between the dependent variable and each independent variable is linear. The Residuals vs. Fitted panels show residuals randomly scattered around zero with approximately flat smoothing lines across the range of predicted scores, confirming that the linearity assumption is reasonably satisfied in both models. The second assumption, normality of residuals, requires that the residuals follow an approximately normal distribution. The Q-Q panels show that the residuals follow the theoretical normal reference line closely through the central range in both models, with some deviation in the tails driven by a small number of extreme blowout games. The third assumption, homoscedasticity, requires that the variance of the residuals is consistent across all levels of the predicted values. The Residuals vs. Fitted panels appears to indicate the presence of heteroskedasticity. Performing classical tests such as the Breusch-Pagan test result in significant p-values. However, these same tests can be misleading for large sample sizes and the presence of outliers and high leverage points \cite{Pechcinska}. Satisfied with the visual inspection of the Residuals vs. Fitted plot and the existence of high leverage points in the Residuals vs. Leverage plot, we decided to proceed. 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
 \includegraphics[width=\textwidth]{figure/diag_mens-1} \caption[Diagnostic Plots for the Men's Linear Regression Model]{Diagnostic Plots for the Men's Linear Regression Model.}\label{fig:diag_mens}
@@ -1063,7 +1063,7 @@ The first three assumptions are assessed jointly through the combined diagnostic
 
 \end{knitrout}
 
-The fourth assumption, no multicollinearity, requires that the independent variables are not too highly correlated with one another. Figure \ref{fig:vif_log} presents the VIF plots for both the men's and women's models. In the men's model, shows that \texttt{Diff\_NetRtg} carries a moderate VIF of approximately $7.5$, the highest among all predictors. While this falls below the problematic threshold of 10, it indicates meaningful shared variance between \texttt{Diff\_NetRtg} and \texttt{Diff\_Elo}, as both features capture overall team quality. In the women's model, all VIF values fall below $5$, indicating a clean feature structure with no problematic collinearity. 
+Lastly we check the model for multicollinearity. Multicollinearity requires that the independent variables are not too highly correlated with one another. Figure \ref{fig:vif_log} presents the VIF plots for both the men's and women's models. In the men's model, shows that \texttt{Diff\_NetRtg} carries a moderate VIF of approximately $7.5$, the highest among all predictors. While this falls below the problematic threshold of 10, it indicates meaningful shared variance between \texttt{Diff\_NetRtg} and \texttt{Diff\_Elo}, as both features capture overall team quality. In the women's model, all VIF values fall below $5$, indicating a clean feature structure with no problematic collinearity. 
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
@@ -1094,8 +1094,8 @@ The pairwise correlation matrices in Figure \ref{fig:corr_mc} confirm these find
 
 Because separate models were trained for the men's and women's tournaments, the coefficient structures can be analyzed independently and then compared to assess whether the efficiency and tempo features operate differently across divisions. Tables \ref{tab:mens_coef_mc} and \ref{tab:womens_coef_mc} present the estimated coefficients, standard errors, p-values, and significance levels for the men's and women's models respectively.
 
-% latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Tue Apr 28 00:47:43 2026
+% latex table generated in R 4.5.1 by xtable 1.8-4 package
+% Tue Apr 28 14:56:47 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1114,8 +1114,8 @@ Intercept & -207.3986 & 5.4365 & 0.0000 & *** \\
 \caption{Linear Regression Coefficient Estimates (Men's 2025 Model).} 
 \label{tab:mens_coef_mc}
 \end{table}
-% latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Tue Apr 28 00:47:43 2026
+% latex table generated in R 4.5.1 by xtable 1.8-4 package
+% Tue Apr 28 14:56:47 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1196,8 +1196,8 @@ Figure \ref{fig:roc_comparison} presents the ROC curves for all three models eva
 
 While the AUC results highlight the discriminative advantage of XGBoost and Monte Carlo over the logistic regression baseline, the Brier Scores tell a consistent story. Summarized in Table \ref{tab:model_comparison}, the logistic regression achieves a combined Brier Score of $0.18401$, while XGBoost achieves $0.12761$ and the Monte Carlo model achieves $0.12857$. To contextualize these values, a Brier Score of $B$ implies that the model performed on average similarly to consistently assigning a win probability of $1 - \sqrt{B}$ to the eventual winner. By this measure the logistic regression corresponds to an average assigned probability of approximately $0.571$, while XGBoost and Monte Carlo both correspond to approximately $0.643$ and $0.641$ respectively, reflecting meaningfully sharper probability estimates. The competition winning score of $0.10411$ corresponds to approximately $0.677$, indicating that top submissions are consistently more confident on clear matchups while remaining appropriately uncertain on competitive ones. The difference of less than $0.001$ between XGBoost and Monte Carlo is negligible in practical terms, confirming that both models produce comparably calibrated win probabilities on the 2025 tournament despite their fundamentally different approaches. All three models fall short of the competition winning Brier Score of $0.10411$, indicating that the best performing submissions in the Kaggle competition produce sharper and better calibrated probabilities than any of the three models developed here. 
 
-% latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Tue Apr 28 00:47:45 2026
+% latex table generated in R 4.5.1 by xtable 1.8-4 package
+% Tue Apr 28 14:56:48 2026
 \begin{table}[ht]
 \centering
 \scalebox{0.85}{
@@ -1243,8 +1243,8 @@ The 2026 women's model remained structurally consistent with its 2025 counterpar
 
 
 
-% latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Tue Apr 28 00:47:45 2026
+% latex table generated in R 4.5.1 by xtable 1.8-4 package
+% Tue Apr 28 14:56:49 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1265,8 +1265,8 @@ Variable & Estimate & Std. Error & p-value & Sig. \\
 \end{table}
 
 
-% latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Tue Apr 28 00:47:45 2026
+% latex table generated in R 4.5.1 by xtable 1.8-4 package
+% Tue Apr 28 14:56:49 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1417,6 +1417,8 @@ Future work could explore several directions. Ensemble approaches that combine t
 \bibitem{mcubed} mcubed.net. \textit{Women's NCAA Basketball Tournament: Games between \#2 seeds and \#10 seeds}. Last updated April 6, 2026. Available at \url{http://mcubed.net/ncaabw/seed2v10.shtml}.
 
 \bibitem{Dean} Oliver, Dean. \textit{Basketball on Paper}. Potomac Books, 1 Nov. 2004.
+
+\bibitem{Pechcinska}Pechci\'nska, A. (2023). \textit{The Robustness of Heteroscedasticity Tests}. Master's Thesis, Erasmus School of Economics, Erasmus University Rotterdam. Retrieved from \texttt{https://thesis.eur.nl/pub/70292/Thesis\_AgnieszkaPechcinska\_638592.pdf}
 
 \bibitem{KenPom} Pomeroy, Ken. \textit{Pomeroy College Basketball Ratings}. The Forecast Factory LLC, 2025, https://kenpom.com. Accessed Mar. 2025.
 
