@@ -784,7 +784,7 @@ The pairwise correlation matrices for the men's and women's training data are pr
 Because separate models were trained for the men's and women's tournaments, the resulting coefficient structures can be analyzed independently to determine the relative importance of each feature. These independent estimates are then compared against one another to assess whether the Four Factors operate fundamentally differently across the two divisions. By rigorously examining the magnitude and statistical significance of each variable, it becomes possible to identify which specific phases of the game best dictate postseason success for each gender. To illustrate these comparative findings, Tables \ref{tab:mens_coef} and \ref{tab:womens_coef} present the estimated coefficients, standard errors, p-values, and significance levels for the men's and women's models, respectively.
 
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Tue Apr 28 22:08:39 2026
+% Wed Apr 29 16:38:20 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -803,7 +803,7 @@ Intercept & 0.4352 & 0.2062 & 0.0348 & * \\
 \label{tab:mens_coef}
 \end{table}
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Tue Apr 28 22:08:39 2026
+% Wed Apr 29 16:38:20 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1003,14 +1003,14 @@ and the corresponding specification for the women's model is:
 &+ \beta_4(\mathtt{AdjTempo}_B) + \beta_5(\mathtt{Elo}_A - \mathtt{Elo}_B) + \varepsilon
 \end{split}
 \end{equation}
-where $\varepsilon \sim \mathcal{N}(0, \sigma^2)$ is the residual error term and $\sigma$ is estimated directly from the training data. Note that $(\mathtt{NetRtg}_A - \mathtt{NetRtg}_B)$ and  $(\mathtt{Elo}_A - \mathtt{Elo}_B)$ correspond directly to  \texttt{Diff\_NetRtg} and \texttt{Diff\_Elo} in the model implementation, respectively, representing the net rating differential and Elo rating differential between the two competing teams.
+where $\varepsilon \sim \mathcal{N}(0, \hat{\sigma}^2)$ is the residual error term and $\hat{\sigma}$ is estimated directly from the training data. Note that $(\mathtt{NetRtg}_A - \mathtt{NetRtg}_B)$ and  $(\mathtt{Elo}_A - \mathtt{Elo}_B)$ correspond directly to  \texttt{Diff\_NetRtg} and \texttt{Diff\_Elo} in the model implementation, respectively, representing the net rating differential and Elo rating differential between the two competing teams.
 
-The decision to train entirely separate models for each division directly mirrors the justification applied in the earlier logistic regression section. The fundamental relationship between efficiency ratings, tempo, and scoring may differ structurally between divisions due to inherent differences in average pace, physicality, and overall playing style. Forcing shared parameter estimates across both genders would carry a significant risk of masking these meaningful structural differences, thereby degrading predictive accuracy. The resulting values of $\sigma$ for both divisions are explicitly reported and interpreted in the Model Analysis section, where they serve as a direct measure of model calibration and as the primary input for the subsequent simulation stage.
+The decision to train entirely separate models for each division directly mirrors the justification applied in the earlier logistic regression section. The fundamental relationship between efficiency ratings, tempo, and scoring may differ structurally between divisions due to inherent differences in average pace, physicality, and overall playing style. Forcing shared parameter estimates across both genders would carry a significant risk of masking these meaningful structural differences, thereby degrading predictive accuracy. The resulting values of $\hat{\sigma}$ for both divisions are explicitly reported and interpreted in the Model Analysis section, where they serve as a direct measure of model calibration and as the primary input for the subsequent simulation stage.
 
 To convert the predicted point totals into win probabilities, a Monte Carlo simulation framework is applied to each specific tournament matchup. For a given matchup between Team A and Team B, the fitted linear regression model produces two distinct point estimates, denoted as $\hat{\mu}_A$ and $\hat{\mu}_B$, representing the statistically expected scores for each team given their respective efficiency profiles. Continuous score realizations are then drawn independently for each team from a normal distribution centered on these predictions:
 \begin{align}
-\text{Points}_A &\sim \mathcal{N}(\hat{\mu}_A, \sigma^2) \\
-\text{Points}_B &\sim \mathcal{N}(\hat{\mu}_B, \sigma^2)
+\text{Points}_A &\sim \mathcal{N}(\hat{\mu}_A, \hat{\sigma}^2) \\
+\text{Points}_B &\sim \mathcal{N}(\hat{\mu}_B, \hat{\sigma}^2)
 \end{align}
 Following these simulated iterations, the overarching win probability for Team A is computed as the strict proportion of trials where their simulated score exceeds that of their opponent:
 \begin{equation}
@@ -1094,7 +1094,7 @@ The pairwise correlation matrices in Figure~\ref{fig:corr_mc} confirm these find
 Because separate models were trained for the men's and women's tournaments, the coefficient structures can be analyzed independently and then compared to assess whether the efficiency and tempo features operate differently across divisions. Tables \ref{tab:mens_coef_mc} and \ref{tab:womens_coef_mc} present the estimated coefficients, standard errors, p-values, and significance levels for the men's and women's models respectively.
 
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Tue Apr 28 22:08:44 2026
+% Wed Apr 29 16:38:24 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1114,7 +1114,7 @@ Intercept & -207.3986 & 5.4365 & 0.0000 & *** \\
 \label{tab:mens_coef_mc}
 \end{table}
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Tue Apr 28 22:08:44 2026
+% Wed Apr 29 16:38:24 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1170,7 +1170,7 @@ The XGBoost model produces stronger classification performance across both divis
 
 \end{knitrout}
 
-The Linear Regression Monte Carlo model produces the strongest classification performance of the three models across both divisions. Figure \ref{fig:conf_mc} presents the mens,women's, and combined results. The women's model achieves $82.09\%$ accuracy and the men's model achieves $77.61\%$, yielding a combined accuracy of $79.85\%$. The women's accuracy of $82.09\%$ is the highest recorded across all three models and both divisions, consistent with the Model Analysis finding that the women's linear regression achieved a higher $R^2$ and lower $\sigma$ than the men's model. The men's accuracy of $77.61\%$ is comparable to the XGBoost men's result of $77.6\%$, suggesting that despite using a fundamentally different prediction approach, the two models identify similar matchup patterns in the men's tournament.
+The Linear Regression Monte Carlo model produces the strongest classification performance of the three models across both divisions. Figure \ref{fig:conf_mc} presents the mens,women's, and combined results. The women's model achieves $82.09\%$ accuracy and the men's model achieves $77.61\%$, yielding a combined accuracy of $79.85\%$. The women's accuracy of $82.09\%$ is the highest recorded across all three models and both divisions, consistent with the Model Analysis finding that the women's linear regression achieved a higher $R^2$ and lower $\hat{\sigma}$ than the men's model. The men's accuracy of $77.61\%$ is comparable to the XGBoost men's result of $77.6\%$, suggesting that despite using a fundamentally different prediction approach, the two models identify similar matchup patterns in the men's tournament.
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
@@ -1199,7 +1199,7 @@ While the AUC results highlight the discriminative advantage of XGBoost and Mont
 The competition winning score of $0.10411$ corresponds to approximately $0.677$, indicating that top submissions are consistently more confident on clear matchups while remaining appropriately uncertain on competitive ones. The difference of less than $0.001$ between XGBoost and Monte Carlo is negligible in practical terms, confirming that both models produce comparably calibrated win probabilities on the 2025 tournament despite their fundamentally different approaches. All three models fall short of the competition winning Brier Score of $0.10411$, indicating that the best performing submissions in the Kaggle competition produce sharper and better calibrated probabilities than any of the three models developed here. 
 
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Tue Apr 28 22:08:45 2026
+% Wed Apr 29 16:38:26 2026
 \begin{table}[ht]
 \centering
 \scalebox{0.85}{
@@ -1221,6 +1221,10 @@ Logistic Regression & 70.10\% & 77.60\% & 73.90\% & 0.18401 & 0.8098 \\
 
 Given the comparable performance of the XGBoost and Monte Carlo models across all three evaluation metrics, the selection of a model for the 2026 Kaggle submission was not driven by marginal differences in Brier Score or AUC. The Monte Carlo model was selected for submission primarily on the basis of novelty. The simulation based scoring framework, which grounds win probability estimates in explicit score predictions derived from external efficiency ratings rather than learning a direct mapping from features to outcomes, represents a fundamentally different approach to the tournament prediction problem than the ensemble methods that dominate top Kaggle submission. From an academic standpoint the Monte Carlo model also offers greater interpretability, the predicted scores, the residual standard deviation $\hat{\sigma}$, and the simulated score distributions all carry direct basketball meaning that can be examined and explained in ways that the internal structure of a boosted tree ensemble cannot. The 2025 results confirm that this interpretability does not come at a meaningful cost to predictive performance, as the Monte Carlo model achieved the highest combined classification accuracy of the three models and a Brier Score within $0.001$ of XGBoost.
 
+
+
+
+
 \usubsubsection{2026 Retraining}
 The Linear Regression Monte Carlo model was retrained on the 2026 regular season data prior to submission, following the same pipeline described in the Methods section. The men's model was trained on $11,236$ observations across six features and the women's model was trained on $10,900$ observations across five features, both reflecting a full 2026 regular season. The linearity, normality, and homoscedasticity assumptions were verified through diagnostic plots and were consistent with the 2025 findings. The collinearity structure, however, showed a notable change in the men's model. The VIF analysis, presented in Figure \ref{fig:vif_2026}, reveals that both \texttt{Diff\_NetRtg} and \texttt{Diff\_Elo} now register in the moderate range, with \texttt{Diff\_NetRtg} at approximately $8.0$ and \texttt{Diff\_Elo} at approximately $5.5$, compared to $7.5$ and below $5$ respectively in 2025. Both values remain below the problematic threshold of $10$, so the coefficient estimates remain valid, but the increased collinearity between these two features is a known limitation of the 2026 men's model. The women's model VIF structure remained clean with all values below $5$, consistent with 2025.
 
@@ -1241,12 +1245,8 @@ The 2026 men's model produced several notable differences from the 2025 version.
 The 2026 women's model remained structurally consistent with its 2025 counterpart. All five predictors reached statistical significance, with \texttt{OffRating} ($\hat{\beta} = 0.7369$), \texttt{DefRating} ($\hat{\beta} = 0.7750$), \texttt{AdjT\_team} ($\hat{\beta} = 0.9290$), \texttt{AdjT\_opp} ($\hat{\beta} = 0.8534$), and \texttt{Diff\_Elo} ($\hat{\beta} = 0.002479$, $p < 0.001$) all performing consistently with their 2025 estimates. The efficiency coefficients are nearly identical to the 2025 values of $0.7309$ and $0.7866$ respectively, suggesting that the relationship between Bart Torvik efficiency ratings and scoring is stable across seasons. The $R^2$ improved slightly to $0.531$ from $0.524$, and $\sigma$ increased marginally to $9.413$ from $9.300$, indicating comparable predictive precision to the prior year. The stability of the women's model across both seasons reinforces the reliability of the Bart Torvik efficiency framework as a consistent predictor of women's tournament scoring.
 
 
-
-
-
-
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Tue Apr 28 22:08:46 2026
+% Wed Apr 29 16:38:27 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1268,7 +1268,7 @@ Variable & Estimate & Std. Error & p-value & Sig. \\
 
 
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Tue Apr 28 22:08:46 2026
+% Wed Apr 29 16:38:27 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1334,7 +1334,7 @@ While the confusion matrices and classification accuracy are identical across bo
 
 \end{knitrout}
 
-The 2026 Kaggle competition results provide important competitive context for evaluating both submissions. The base Monte Carlo model achieved a Brier Score of $0.12797$, finishing 387th out of all submissions. The override submission achieved a Brier Score of $0.13237$, finishing 822nd. The 8th place cutoff, the lowest medal position, was $0.11845$, meaning the base model fell short by only $0.00352$. The competition winning score was $0.10975$. To contextualize these values, a Brier Score of $0.11845$ corresponds to a win probability of approximately $0.656$ assigned to the correct outcome, compared to $0.642$ for the base model. In addition to the flat probability submission, a bracket simulation was run using the stochastic prediction framework described in the Methods section, where each game is predicted and Elo ratings are updated in real time after each result. The bracket correctly predicted $26$ of $32$ first round games, $12$ of $16$ second round games, $5$ of $8$ Sweet Sixteen games, $2$ of $4$ Elite Eight games, and $1$ of $2$ Final Four games, and correctly identified Michigan as the national champion.
+The 2026 Kaggle competition results provide important competitive context for evaluating both submissions. The base Monte Carlo model achieved a Brier Score of $0.12797$, finishing 387th out of all submissions. The override submission achieved a Brier Score of $0.13237$, finishing 822nd. The 8th place cutoff, the lowest medal position, was $0.11845$, meaning the base model fell short by only $0.00352$. The competition winning score was $0.10975$. To contextualize these values, a Brier Score of $0.11845$ corresponds to a win probability of approximately $0.656$ assigned to the correct outcome, compared to $0.642$ for the base model. In addition to the flat probability submission, a bracket simulation was run using the stochastic prediction framework described in the Methods section, where each game is predicted and Elo ratings are updated in real time after each result. The bracket correctly predicted $26$ of $32$ first round games, $12$ of $16$ second round games, $5$ of $8$ Sweet Sixteen games, $2$ of $4$ Elite Eight games, and $1$ of $2$ Final Four games, and correctly identified Michigan and UCLA as the national champion for the men's and women's respectively.
 
 \newpage
 

@@ -2931,14 +2931,14 @@ and the corresponding specification for the women's model is:
 &+ \beta_4(\mathtt{AdjTempo}_B) + \beta_5(\mathtt{Elo}_A - \mathtt{Elo}_B) + \varepsilon
 \end{split}
 \end{equation}
-where $\varepsilon \sim \mathcal{N}(0, \sigma^2)$ is the residual error term and $\sigma$ is estimated directly from the training data. Note that $(\mathtt{NetRtg}_A - \mathtt{NetRtg}_B)$ and  $(\mathtt{Elo}_A - \mathtt{Elo}_B)$ correspond directly to  \texttt{Diff\_NetRtg} and \texttt{Diff\_Elo} in the model implementation, respectively, representing the net rating differential and Elo rating differential between the two competing teams.
+where $\varepsilon \sim \mathcal{N}(0, \hat{\sigma}^2)$ is the residual error term and $\hat{\sigma}$ is estimated directly from the training data. Note that $(\mathtt{NetRtg}_A - \mathtt{NetRtg}_B)$ and  $(\mathtt{Elo}_A - \mathtt{Elo}_B)$ correspond directly to  \texttt{Diff\_NetRtg} and \texttt{Diff\_Elo} in the model implementation, respectively, representing the net rating differential and Elo rating differential between the two competing teams.
 
-The decision to train entirely separate models for each division directly mirrors the justification applied in the earlier logistic regression section. The fundamental relationship between efficiency ratings, tempo, and scoring may differ structurally between divisions due to inherent differences in average pace, physicality, and overall playing style. Forcing shared parameter estimates across both genders would carry a significant risk of masking these meaningful structural differences, thereby degrading predictive accuracy. The resulting values of $\sigma$ for both divisions are explicitly reported and interpreted in the Model Analysis section, where they serve as a direct measure of model calibration and as the primary input for the subsequent simulation stage.
+The decision to train entirely separate models for each division directly mirrors the justification applied in the earlier logistic regression section. The fundamental relationship between efficiency ratings, tempo, and scoring may differ structurally between divisions due to inherent differences in average pace, physicality, and overall playing style. Forcing shared parameter estimates across both genders would carry a significant risk of masking these meaningful structural differences, thereby degrading predictive accuracy. The resulting values of $\hat{\sigma}$ for both divisions are explicitly reported and interpreted in the Model Analysis section, where they serve as a direct measure of model calibration and as the primary input for the subsequent simulation stage.
 
 To convert the predicted point totals into win probabilities, a Monte Carlo simulation framework is applied to each specific tournament matchup. For a given matchup between Team A and Team B, the fitted linear regression model produces two distinct point estimates, denoted as $\hat{\mu}_A$ and $\hat{\mu}_B$, representing the statistically expected scores for each team given their respective efficiency profiles. Continuous score realizations are then drawn independently for each team from a normal distribution centered on these predictions:
 \begin{align}
-\text{Points}_A &\sim \mathcal{N}(\hat{\mu}_A, \sigma^2) \\
-\text{Points}_B &\sim \mathcal{N}(\hat{\mu}_B, \sigma^2)
+\text{Points}_A &\sim \mathcal{N}(\hat{\mu}_A, \hat{\sigma}^2) \\
+\text{Points}_B &\sim \mathcal{N}(\hat{\mu}_B, \hat{\sigma}^2)
 \end{align}
 Following these simulated iterations, the overarching win probability for Team A is computed as the strict proportion of trials where their simulated score exceeds that of their opponent:
 \begin{equation}
@@ -3167,7 +3167,7 @@ grid.arrange(
 )
 @
 
-The Linear Regression Monte Carlo model produces the strongest classification performance of the three models across both divisions. Figure \ref{fig:conf_mc} presents the mens,women's, and combined results. The women's model achieves $82.09\%$ accuracy and the men's model achieves $77.61\%$, yielding a combined accuracy of $79.85\%$. The women's accuracy of $82.09\%$ is the highest recorded across all three models and both divisions, consistent with the Model Analysis finding that the women's linear regression achieved a higher $R^2$ and lower $\sigma$ than the men's model. The men's accuracy of $77.61\%$ is comparable to the XGBoost men's result of $77.6\%$, suggesting that despite using a fundamentally different prediction approach, the two models identify similar matchup patterns in the men's tournament.
+The Linear Regression Monte Carlo model produces the strongest classification performance of the three models across both divisions. Figure \ref{fig:conf_mc} presents the mens,women's, and combined results. The women's model achieves $82.09\%$ accuracy and the men's model achieves $77.61\%$, yielding a combined accuracy of $79.85\%$. The women's accuracy of $82.09\%$ is the highest recorded across all three models and both divisions, consistent with the Model Analysis finding that the women's linear regression achieved a higher $R^2$ and lower $\hat{\sigma}$ than the men's model. The men's accuracy of $77.61\%$ is comparable to the XGBoost men's result of $77.6\%$, suggesting that despite using a fundamentally different prediction approach, the two models identify similar matchup patterns in the men's tournament.
 
 <<conf_mc, echo=FALSE, fig.cap="Confusion Matrices for the 2025 Monte Carlo Model.", fig.width=10, fig.height=4, out.width="\\linewidth", fig.pos='H'>>=
 grid.arrange(
@@ -3245,26 +3245,410 @@ print(xtable(comparison_df,
 
 Given the comparable performance of the XGBoost and Monte Carlo models across all three evaluation metrics, the selection of a model for the 2026 Kaggle submission was not driven by marginal differences in Brier Score or AUC. The Monte Carlo model was selected for submission primarily on the basis of novelty. The simulation based scoring framework, which grounds win probability estimates in explicit score predictions derived from external efficiency ratings rather than learning a direct mapping from features to outcomes, represents a fundamentally different approach to the tournament prediction problem than the ensemble methods that dominate top Kaggle submission. From an academic standpoint the Monte Carlo model also offers greater interpretability, the predicted scores, the residual standard deviation $\hat{\sigma}$, and the simulated score distributions all carry direct basketball meaning that can be examined and explained in ways that the internal structure of a boosted tree ensemble cannot. The 2025 results confirm that this interpretability does not come at a meaningful cost to predictive performance, as the Monte Carlo model achieved the highest combined classification accuracy of the three models and a Brier Score within $0.001$ of XGBoost.
 
-\usubsubsection{2026 Retraining}
-The Linear Regression Monte Carlo model was retrained on the 2026 regular season data prior to submission, following the same pipeline described in the Methods section. The men's model was trained on $11,236$ observations across six features and the women's model was trained on $10,900$ observations across five features, both reflecting a full 2026 regular season. The linearity, normality, and homoscedasticity assumptions were verified through diagnostic plots and were consistent with the 2025 findings. The collinearity structure, however, showed a notable change in the men's model. The VIF analysis, presented in Figure \ref{fig:vif_2026}, reveals that both \texttt{Diff\_NetRtg} and \texttt{Diff\_Elo} now register in the moderate range, with \texttt{Diff\_NetRtg} at approximately $8.0$ and \texttt{Diff\_Elo} at approximately $5.5$, compared to $7.5$ and below $5$ respectively in 2025. Both values remain below the problematic threshold of $10$, so the coefficient estimates remain valid, but the increased collinearity between these two features is a known limitation of the 2026 men's model. The women's model VIF structure remained clean with all values below $5$, consistent with 2025.
+<<26_mens_monte_carlo, include=FALSE, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE>>=
+# 1. DATA LOAD AND CLEANING -----------------------------------------------
 
-<<vif_2026, message=FALSE, warning=FALSE, echo=FALSE, fig.keep='last', fig.align='center', fig.cap="VIF Plots for the Men's and Women's 2026 Linear Regression Models", fig.width=14, fig.height=6, out.width="\\textwidth", fig.pos='H'>>=
+Mteams    <- fread("march-machine-learning-mania-2026/MTeams.csv")
+kenpom <- fread("Excel_Files/kenpom-ncaa-2026.csv", encoding = "Latin-1") %>%
+  mutate(Team = trimws(gsub("[^a-zA-Z0-9 &'.-]", "", Team)))
+spellings <- fread("march-machine-learning-mania-2026/MTeamSpellings.csv")
+results   <- fread("march-machine-learning-mania-2026/MRegularSeasonDetailedResults.csv")
+
+kenpom_norm <- kenpom %>%
+  mutate(Team_normalized = tolower(Team))
+
+spellings_norm <- spellings %>%
+  mutate(TeamNameSpelling_normalized = tolower(TeamNameSpelling))
+
+kenpom_matched <- kenpom_norm %>%
+  left_join(
+    spellings_norm %>% select(TeamNameSpelling_normalized, TeamID) %>% distinct(),
+    by = c("Team_normalized" = "TeamNameSpelling_normalized")
+  )
+
+unmatched <- kenpom_matched %>% filter(is.na(TeamID))
+
+if (nrow(unmatched) > 0) {
+  fuzzy_matches <- stringdist_left_join(
+    unmatched %>% select(-TeamID),
+    spellings_norm,
+    by = c("Team_normalized" = "TeamNameSpelling_normalized"),
+    method = "jw",
+    max_dist = 0.3,
+    distance_col = "dist"
+  ) %>%
+    group_by(Team) %>%
+    slice_min(dist, n = 1, with_ties = FALSE) %>%
+    ungroup()
+  
+  cols_to_keep        <- names(kenpom_matched)
+  fuzzy_matches_clean <- fuzzy_matches %>% select(all_of(cols_to_keep))
+  
+  kenpom_final <- kenpom_matched %>%
+    filter(!is.na(TeamID)) %>%
+    bind_rows(fuzzy_matches_clean)
+} else {
+  kenpom_final <- kenpom_matched
+}
+
+kenpom_final <- kenpom_final %>% select(-Team_normalized)
+
+cat("Matched teams:", sum(!is.na(kenpom_final$TeamID)), "out of", nrow(kenpom), "\n")
 
 
-p_mens   <- plot(check_model(model,        check = "vif"))[[1]]
-p_womens <- plot(check_model(womens_model, check = "vif"))[[1]]
+# 2. ELO RATINGS ----------------------------------------------------------
 
-grid.arrange(
-  p_mens   + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)),
-  p_womens + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)),
-  ncol = 2
+calculate_elo <- function(regular_results, initial_rating = 1500, k = 64,
+                          width = 400, hca = 0, carry_over = 0.5) {
+  games        <- regular_results[order(Season, DayNum)]
+  seasons      <- sort(unique(games$Season))
+  all_ratings  <- list()
+  team_ratings <- c()
+  
+  for (s in seasons) {
+    season_games <- games[Season == s]
+    teams <- unique(c(season_games$WTeamID, season_games$LTeamID))
+    
+    if (length(team_ratings) > 0) {
+      for (tid in as.character(teams)) {
+        if (tid %in% names(team_ratings)) {
+          team_ratings[tid] <- carry_over * team_ratings[tid] + (1 - carry_over) * initial_rating
+        } else {
+          team_ratings[tid] <- initial_rating
+        }
+      }
+    } else {
+      team_ratings <- rep(initial_rating, length(teams))
+      names(team_ratings) <- as.character(teams)
+    }
+    
+    for (i in seq_len(nrow(season_games))) {
+      wteam <- as.character(season_games$WTeamID[i])
+      lteam <- as.character(season_games$LTeamID[i])
+      wloc  <- season_games$WLoc[i]
+      
+      rW <- team_ratings[wteam]
+      rL <- team_ratings[lteam]
+      
+      if (wloc == "H") {
+        rW_adj <- rW + hca
+      } else if (wloc == "A") {
+        rW_adj <- rW - hca
+      } else {
+        rW_adj <- rW
+      }
+      
+      eW <- 1 / (1 + 10^((rL - rW_adj) / width))
+      eL <- 1 - eW
+      
+      team_ratings[wteam] <- rW + k * (1 - eW)
+      team_ratings[lteam] <- rL + k * (0 - eL)
+    }
+    
+    all_ratings[[as.character(s)]] <- data.table(
+      Season    = s,
+      TeamID    = as.integer(names(team_ratings)),
+      Elo_final = as.numeric(team_ratings)
+    )
+  }
+  
+  return(rbindlist(all_ratings))
+}
+
+elo_ratings <- calculate_elo(results)
+
+# Pull 2026 end-of-season Elo for each team
+elo_2026 <- elo_ratings[Season == 2026, .(TeamID, Elo_final)]
+
+cat("Teams with 2026 Elo ratings:", nrow(elo_2026), "\n")
+
+
+# 3. PREPARE TRAINING DATA ------------------------------------------------
+
+results_2026 <- results %>% filter(Season == 2026)
+
+results_with_wteam <- results_2026 %>%
+  left_join(kenpom_final %>% select(TeamID, ORtg, DRtg, AdjT, NetRtg),
+            by = c("WTeamID" = "TeamID")) %>%
+  dplyr::rename(WTeam_ORtg = ORtg, WTeam_DRtg = DRtg,
+                WTeam_AdjT = AdjT, WTeam_NetRtg = NetRtg) %>%
+  left_join(elo_2026, by = c("WTeamID" = "TeamID")) %>%
+  dplyr::rename(WTeam_Elo = Elo_final)
+
+results_with_both <- results_with_wteam %>%
+  left_join(kenpom_final %>% select(TeamID, ORtg, DRtg, AdjT, NetRtg),
+            by = c("LTeamID" = "TeamID")) %>%
+  dplyr::rename(LTeam_ORtg = ORtg, LTeam_DRtg = DRtg,
+                LTeam_AdjT = AdjT, LTeam_NetRtg = NetRtg) %>%
+  left_join(elo_2026, by = c("LTeamID" = "TeamID")) %>%
+  dplyr::rename(LTeam_Elo = Elo_final)
+
+results_clean <- results_with_both %>%
+  filter(!is.na(WTeam_ORtg) & !is.na(LTeam_ORtg) &
+           !is.na(WTeam_Elo)  & !is.na(LTeam_Elo))
+
+train_wteam <- results_clean %>%
+  transmute(
+    Points      = WScore,
+    OffRating   = WTeam_ORtg,
+    DefRating   = LTeam_DRtg,
+    AdjT_team   = WTeam_AdjT,
+    AdjT_opp    = LTeam_AdjT,
+    Diff_NetRtg = WTeam_NetRtg - LTeam_NetRtg,
+    Diff_Elo    = WTeam_Elo    - LTeam_Elo
+  )
+
+train_lteam <- results_clean %>%
+  transmute(
+    Points      = LScore,
+    OffRating   = LTeam_ORtg,
+    DefRating   = WTeam_DRtg,
+    AdjT_team   = LTeam_AdjT,
+    AdjT_opp    = WTeam_AdjT,
+    Diff_NetRtg = LTeam_NetRtg - WTeam_NetRtg,
+    Diff_Elo    = LTeam_Elo    - WTeam_Elo
+  )
+
+train_data <- bind_rows(train_wteam, train_lteam)
+
+cat("Total training samples:", nrow(train_data), "\n")
+
+
+# 4. MODEL CREATION -------------------------------------------------------
+
+model <- lm(Points ~ OffRating + DefRating + AdjT_team + AdjT_opp +
+              Diff_NetRtg + Diff_Elo,
+            data = train_data)
+
+summary(model)
+sigma <- summary(model)$sigma
+cat("Standard deviation (sigma):", sigma, "\n")
+
+train_data$Predicted <- predict(model, train_data)
+
+ggplot(train_data, aes(x = Diff_NetRtg, y = Points)) +
+  geom_point(alpha = 0.1, color = "blue") +
+  geom_smooth(method = "lm", color = "red") +
+  labs(title = "Impact of NetRtg Difference on Points",
+       x = "NetRtg Difference (My Net - Opp Net)",
+       y = "Points Scored") +
+  theme_minimal()
+
+plot(model)
+check_model(model, check = "vif")
+
+
+# 5. GAME SIMULATOR FUNCTIONS ---------------------------------------------
+
+simulate_game <- function(team_a_mean, team_b_mean, sigma, n_sims = 100000) {
+  team_a_scores <- rnorm(n_sims, mean = team_a_mean, sd = sigma)
+  team_b_scores <- rnorm(n_sims, mean = team_b_mean, sd = sigma)
+  team_a_wins   <- sum(team_a_scores > team_b_scores)
+  
+  return(list(
+    team_a_win_prob = team_a_wins / n_sims,
+    team_b_win_prob = 1 - (team_a_wins / n_sims),
+    avg_margin      = mean(team_a_scores - team_b_scores)
+  ))
+}
+
+predict_matchup <- function(team_a_id, team_b_id, kenpom_data, elo_data, model, sigma) {
+  
+  team_a   <- kenpom_data %>% filter(TeamID == team_a_id)
+  team_b   <- kenpom_data %>% filter(TeamID == team_b_id)
+  elo_a    <- elo_data    %>% filter(TeamID == team_a_id) %>% pull(Elo_final)
+  elo_b    <- elo_data    %>% filter(TeamID == team_b_id) %>% pull(Elo_final)
+  
+  if (nrow(team_a) == 0 | nrow(team_b) == 0 |
+      length(elo_a) == 0 | length(elo_b) == 0) {
+    return(list(team_a_win_prob = 0.5))
+  }
+  
+  team_a_pred <- predict(model, newdata = data.frame(
+    OffRating   = team_a$ORtg,
+    DefRating   = team_b$DRtg,
+    AdjT_team   = team_a$AdjT,
+    AdjT_opp    = team_b$AdjT,
+    Diff_NetRtg = team_a$NetRtg - team_b$NetRtg,
+    Diff_Elo    = elo_a - elo_b
+  ))
+  
+  team_b_pred <- predict(model, newdata = data.frame(
+    OffRating   = team_b$ORtg,
+    DefRating   = team_a$DRtg,
+    AdjT_team   = team_b$AdjT,
+    AdjT_opp    = team_a$AdjT,
+    Diff_NetRtg = team_b$NetRtg - team_a$NetRtg,
+    Diff_Elo    = elo_b - elo_a
+  ))
+  
+  result <- simulate_game(team_a_pred, team_b_pred, sigma, n_sims = 100000)
+  return(result)
+}
+
+
+# 6. GENERATE ALL-PAIRS 2026 PREDICTIONS ----------------------------------
+
+seeds      <- fread("march-machine-learning-mania-2026/MNCAATourneySeeds.csv")
+seeds_2026 <- seeds %>% filter(Season == 2026)
+
+mens_team_ids_2026 <- seeds_2026$TeamID
+
+matchups_2026 <- expand.grid(Team1 = mens_team_ids_2026, Team2 = mens_team_ids_2026) %>%
+  filter(Team1 < Team2)
+
+cat("Total matchups to predict:", nrow(matchups_2026), "\n")
+
+predictions_list <- list()
+
+cat("Predicting all matchups...\n")
+for (i in 1:nrow(matchups_2026)) {
+  team_a_id <- matchups_2026$Team1[i]
+  team_b_id <- matchups_2026$Team2[i]
+  
+  result <- predict_matchup(
+    team_a_id   = team_a_id,
+    team_b_id   = team_b_id,
+    kenpom_data = kenpom_final,
+    elo_data    = elo_2026,
+    model       = model,
+    sigma       = sigma
+  )
+  
+  predictions_list[[i]] <- data.frame(
+    ID   = paste(2026, team_a_id, team_b_id, sep = "_"),
+    Pred = result$team_a_win_prob
+  )
+  
+  if (i %% 100 == 0) cat("Completed", i, "of", nrow(matchups_2026), "\n")
+}
+
+submission_2026_mens <- bind_rows(predictions_list)
+write.csv(submission_2026_mens, "Excel_Files/submission_2026_model3_mens.csv", row.names = FALSE)
+
+cat("Submission written:", nrow(submission_2026_mens), "rows\n")
+cat("Pred range: [", round(min(submission_2026_mens$Pred), 4), ",",
+    round(max(submission_2026_mens$Pred), 4), "]\n\n")
+
+
+# 7. BRACKET SIMULATION (with live Elo updates) ---------------------------
+
+seeds_2026_bracket <- seeds_2026 %>%
+  mutate(
+    RegionCode = substr(Seed, 1, 1),
+    SeedNum    = as.integer(substr(Seed, 2, 3)),
+    Region     = dplyr::recode(
+      RegionCode,
+      "W" = "East",
+      "X" = "Midwest",
+      "Y" = "South",
+      "Z" = "West"
+    )
+  )
+
+teams_2026 <- seeds_2026_bracket %>%
+  left_join(Mteams %>% select(TeamID, TeamName), by = "TeamID") %>%
+  transmute(TeamID, TeamName, Region, Seed = SeedNum)
+
+cat("Teams in 2026 bracket:", nrow(teams_2026), "\n")
+
+make_kenpom_prediction_model <- function(kenpom_data, elo_data, model, sigma,
+                                         mode = c("stochastic", "deterministic"),
+                                         k = 64, width = 400) {
+  mode <- match.arg(mode)
+  
+  elo_env <- new.env(parent = emptyenv())
+  elo_env$ratings <- setNames(elo_data$Elo_final, as.character(elo_data$TeamID))
+  
+  function(team1_id, team2_id) {
+    
+    # Get current live Elo from environment
+    elo_a <- elo_env$ratings[as.character(team1_id)]
+    elo_b <- elo_env$ratings[as.character(team2_id)]
+    
+    # Fall back to 1500 if a team isn't found
+    if (is.na(elo_a)) elo_a <- 1500
+    if (is.na(elo_b)) elo_b <- 1500
+    
+    team_a <- kenpom_data %>% filter(TeamID == team1_id)
+    team_b <- kenpom_data %>% filter(TeamID == team2_id)
+    
+    if (nrow(team_a) == 0 | nrow(team_b) == 0) {
+      return(list(winner_id = team1_id, p_team1 = 0.5, p_team2 = 0.5))
+    }
+    
+    team_a_pred <- predict(model, newdata = data.frame(
+      OffRating   = team_a$ORtg,
+      DefRating   = team_b$DRtg,
+      AdjT_team   = team_a$AdjT,
+      AdjT_opp    = team_b$AdjT,
+      Diff_NetRtg = team_a$NetRtg - team_b$NetRtg,
+      Diff_Elo    = elo_a - elo_b
+    ))
+    
+    team_b_pred <- predict(model, newdata = data.frame(
+      OffRating   = team_b$ORtg,
+      DefRating   = team_a$DRtg,
+      AdjT_team   = team_b$AdjT,
+      AdjT_opp    = team_a$AdjT,
+      Diff_NetRtg = team_b$NetRtg - team_a$NetRtg,
+      Diff_Elo    = elo_b - elo_a
+    ))
+    
+    result    <- simulate_game(team_a_pred, team_b_pred, sigma, n_sims = 100000)
+    p1        <- result$team_a_win_prob
+    p2        <- 1 - p1
+    
+    winner_id <- if (mode == "stochastic") {
+      ifelse(runif(1) < p1, team1_id, team2_id)
+    } else {
+      ifelse(p1 >= 0.5, team1_id, team2_id)
+    }
+    
+    # ── Update Elo in environment after game result ───────────────────────
+    loser_id  <- ifelse(winner_id == team1_id, team2_id, team1_id)
+    winner_elo <- elo_env$ratings[as.character(winner_id)]
+    loser_elo  <- elo_env$ratings[as.character(loser_id)]
+    
+    eW <- 1 / (1 + 10^((loser_elo - winner_elo) / width))
+    elo_env$ratings[as.character(winner_id)] <- winner_elo + k * (1 - eW)
+    elo_env$ratings[as.character(loser_id)]  <- loser_elo  + k * (0 - (1 - eW))
+    
+    list(winner_id = winner_id, p_team1 = p1, p_team2 = p2)
+  }
+}
+
+prediction_model_kenpom <- make_kenpom_prediction_model(
+  kenpom_data = kenpom_final,
+  elo_data    = elo_2026,       # starting point only — updates live during bracket
+  model       = model,
+  sigma       = sigma,
+  mode        = "stochastic"
 )
+
+source("R_Files/bracket_placement.R")
+
+bracket_results_2026 <- run_full_tournament(
+  teams_df         = teams_2026,
+  prediction_model = prediction_model_kenpom
+)
+
+bracket_results_2026 %>%
+  arrange(round, region, slot) %>%
+  select(round, region, game_id,
+         TeamName_High, seed_high,
+         TeamName_Low,  seed_low,
+         winner_id,
+         p_team_high, p_team_low) %>%
+  print(n = 100)
+
+champion_row <- bracket_results_2026 %>% filter(round == 6)
+cat("\nPredicted championship matchup:\n")
+print(champion_row)
+
+View(bracket_results_2026)
+
 @
-
-The 2026 men's model produced several notable differences from the 2025 version. Most significantly, \texttt{Diff\_Elo} reached statistical significance at the $0.001$ level ($p = 0.000101$) with a negative coefficient of $-0.003569$, reversing the positive but insignificant direction observed in 2025. This suggests that in the 2026 season, after controlling for KenPom efficiency ratings and net rating differential, teams with historically higher Elo ratings relative to their opponents scored slightly fewer points than expected, a possible reflection of season specific regression toward the mean for historically dominant programs. \texttt{Diff\_NetRtg} also strengthened considerably, with its coefficient rising from $0.05398$ in 2025 to $0.1284$ in 2026 and reaching significance at the $0.001$ level. The $R^2$ improved modestly to $0.4021$ from $0.379$, and $\sigma$ increased slightly to $9.676$ from $9.507$.
-
-The 2026 women's model remained structurally consistent with its 2025 counterpart. All five predictors reached statistical significance, with \texttt{OffRating} ($\hat{\beta} = 0.7369$), \texttt{DefRating} ($\hat{\beta} = 0.7750$), \texttt{AdjT\_team} ($\hat{\beta} = 0.9290$), \texttt{AdjT\_opp} ($\hat{\beta} = 0.8534$), and \texttt{Diff\_Elo} ($\hat{\beta} = 0.002479$, $p < 0.001$) all performing consistently with their 2025 estimates. The efficiency coefficients are nearly identical to the 2025 values of $0.7309$ and $0.7866$ respectively, suggesting that the relationship between Bart Torvik efficiency ratings and scoring is stable across seasons. The $R^2$ improved slightly to $0.531$ from $0.524$, and $\sigma$ increased marginally to $9.413$ from $9.300$, indicating comparable predictive precision to the prior year. The stability of the women's model across both seasons reinforces the reliability of the Bart Torvik efficiency framework as a consistent predictor of women's tournament scoring.
-
 
 <<26_womens_monte_carlo, include=FALSE, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE>>=
 # 1. DATA LOAD AND CLEANING -----------------------------------------------
@@ -3683,410 +4067,26 @@ cat("Pred range: [", round(min(submission_2026_combined$Pred), 4), ",",
     round(max(submission_2026_combined$Pred), 4), "]\n")
 @
 
-<<26_mens_monte_carlo, include=FALSE, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE>>=
-# 1. DATA LOAD AND CLEANING -----------------------------------------------
+\usubsubsection{2026 Retraining}
+The Linear Regression Monte Carlo model was retrained on the 2026 regular season data prior to submission, following the same pipeline described in the Methods section. The men's model was trained on $11,236$ observations across six features and the women's model was trained on $10,900$ observations across five features, both reflecting a full 2026 regular season. The linearity, normality, and homoscedasticity assumptions were verified through diagnostic plots and were consistent with the 2025 findings. The collinearity structure, however, showed a notable change in the men's model. The VIF analysis, presented in Figure \ref{fig:vif_2026}, reveals that both \texttt{Diff\_NetRtg} and \texttt{Diff\_Elo} now register in the moderate range, with \texttt{Diff\_NetRtg} at approximately $8.0$ and \texttt{Diff\_Elo} at approximately $5.5$, compared to $7.5$ and below $5$ respectively in 2025. Both values remain below the problematic threshold of $10$, so the coefficient estimates remain valid, but the increased collinearity between these two features is a known limitation of the 2026 men's model. The women's model VIF structure remained clean with all values below $5$, consistent with 2025.
 
-Mteams    <- fread("march-machine-learning-mania-2026/MTeams.csv")
-kenpom <- fread("Excel_Files/kenpom-ncaa-2026.csv", encoding = "Latin-1") %>%
-  mutate(Team = trimws(gsub("[^a-zA-Z0-9 &'.-]", "", Team)))
-spellings <- fread("march-machine-learning-mania-2026/MTeamSpellings.csv")
-results   <- fread("march-machine-learning-mania-2026/MRegularSeasonDetailedResults.csv")
-
-kenpom_norm <- kenpom %>%
-  mutate(Team_normalized = tolower(Team))
-
-spellings_norm <- spellings %>%
-  mutate(TeamNameSpelling_normalized = tolower(TeamNameSpelling))
-
-kenpom_matched <- kenpom_norm %>%
-  left_join(
-    spellings_norm %>% select(TeamNameSpelling_normalized, TeamID) %>% distinct(),
-    by = c("Team_normalized" = "TeamNameSpelling_normalized")
-  )
-
-unmatched <- kenpom_matched %>% filter(is.na(TeamID))
-
-if (nrow(unmatched) > 0) {
-  fuzzy_matches <- stringdist_left_join(
-    unmatched %>% select(-TeamID),
-    spellings_norm,
-    by = c("Team_normalized" = "TeamNameSpelling_normalized"),
-    method = "jw",
-    max_dist = 0.3,
-    distance_col = "dist"
-  ) %>%
-    group_by(Team) %>%
-    slice_min(dist, n = 1, with_ties = FALSE) %>%
-    ungroup()
-  
-  cols_to_keep        <- names(kenpom_matched)
-  fuzzy_matches_clean <- fuzzy_matches %>% select(all_of(cols_to_keep))
-  
-  kenpom_final <- kenpom_matched %>%
-    filter(!is.na(TeamID)) %>%
-    bind_rows(fuzzy_matches_clean)
-} else {
-  kenpom_final <- kenpom_matched
-}
-
-kenpom_final <- kenpom_final %>% select(-Team_normalized)
-
-cat("Matched teams:", sum(!is.na(kenpom_final$TeamID)), "out of", nrow(kenpom), "\n")
+<<vif_2026, message=FALSE, warning=FALSE, echo=FALSE, fig.keep='last', fig.align='center', fig.cap="VIF Plots for the Men's and Women's 2026 Linear Regression Models", fig.width=14, fig.height=6, out.width="\\textwidth", fig.pos='H'>>=
 
 
-# 2. ELO RATINGS ----------------------------------------------------------
+p_mens   <- plot(check_model(model,        check = "vif"))[[1]]
+p_womens <- plot(check_model(womens_model, check = "vif"))[[1]]
 
-calculate_elo <- function(regular_results, initial_rating = 1500, k = 64,
-                          width = 400, hca = 0, carry_over = 0.5) {
-  games        <- regular_results[order(Season, DayNum)]
-  seasons      <- sort(unique(games$Season))
-  all_ratings  <- list()
-  team_ratings <- c()
-  
-  for (s in seasons) {
-    season_games <- games[Season == s]
-    teams <- unique(c(season_games$WTeamID, season_games$LTeamID))
-    
-    if (length(team_ratings) > 0) {
-      for (tid in as.character(teams)) {
-        if (tid %in% names(team_ratings)) {
-          team_ratings[tid] <- carry_over * team_ratings[tid] + (1 - carry_over) * initial_rating
-        } else {
-          team_ratings[tid] <- initial_rating
-        }
-      }
-    } else {
-      team_ratings <- rep(initial_rating, length(teams))
-      names(team_ratings) <- as.character(teams)
-    }
-    
-    for (i in seq_len(nrow(season_games))) {
-      wteam <- as.character(season_games$WTeamID[i])
-      lteam <- as.character(season_games$LTeamID[i])
-      wloc  <- season_games$WLoc[i]
-      
-      rW <- team_ratings[wteam]
-      rL <- team_ratings[lteam]
-      
-      if (wloc == "H") {
-        rW_adj <- rW + hca
-      } else if (wloc == "A") {
-        rW_adj <- rW - hca
-      } else {
-        rW_adj <- rW
-      }
-      
-      eW <- 1 / (1 + 10^((rL - rW_adj) / width))
-      eL <- 1 - eW
-      
-      team_ratings[wteam] <- rW + k * (1 - eW)
-      team_ratings[lteam] <- rL + k * (0 - eL)
-    }
-    
-    all_ratings[[as.character(s)]] <- data.table(
-      Season    = s,
-      TeamID    = as.integer(names(team_ratings)),
-      Elo_final = as.numeric(team_ratings)
-    )
-  }
-  
-  return(rbindlist(all_ratings))
-}
-
-elo_ratings <- calculate_elo(results)
-
-# Pull 2026 end-of-season Elo for each team
-elo_2026 <- elo_ratings[Season == 2026, .(TeamID, Elo_final)]
-
-cat("Teams with 2026 Elo ratings:", nrow(elo_2026), "\n")
-
-
-# 3. PREPARE TRAINING DATA ------------------------------------------------
-
-results_2026 <- results %>% filter(Season == 2026)
-
-results_with_wteam <- results_2026 %>%
-  left_join(kenpom_final %>% select(TeamID, ORtg, DRtg, AdjT, NetRtg),
-            by = c("WTeamID" = "TeamID")) %>%
-  dplyr::rename(WTeam_ORtg = ORtg, WTeam_DRtg = DRtg,
-                WTeam_AdjT = AdjT, WTeam_NetRtg = NetRtg) %>%
-  left_join(elo_2026, by = c("WTeamID" = "TeamID")) %>%
-  dplyr::rename(WTeam_Elo = Elo_final)
-
-results_with_both <- results_with_wteam %>%
-  left_join(kenpom_final %>% select(TeamID, ORtg, DRtg, AdjT, NetRtg),
-            by = c("LTeamID" = "TeamID")) %>%
-  dplyr::rename(LTeam_ORtg = ORtg, LTeam_DRtg = DRtg,
-                LTeam_AdjT = AdjT, LTeam_NetRtg = NetRtg) %>%
-  left_join(elo_2026, by = c("LTeamID" = "TeamID")) %>%
-  dplyr::rename(LTeam_Elo = Elo_final)
-
-results_clean <- results_with_both %>%
-  filter(!is.na(WTeam_ORtg) & !is.na(LTeam_ORtg) &
-           !is.na(WTeam_Elo)  & !is.na(LTeam_Elo))
-
-train_wteam <- results_clean %>%
-  transmute(
-    Points      = WScore,
-    OffRating   = WTeam_ORtg,
-    DefRating   = LTeam_DRtg,
-    AdjT_team   = WTeam_AdjT,
-    AdjT_opp    = LTeam_AdjT,
-    Diff_NetRtg = WTeam_NetRtg - LTeam_NetRtg,
-    Diff_Elo    = WTeam_Elo    - LTeam_Elo
-  )
-
-train_lteam <- results_clean %>%
-  transmute(
-    Points      = LScore,
-    OffRating   = LTeam_ORtg,
-    DefRating   = WTeam_DRtg,
-    AdjT_team   = LTeam_AdjT,
-    AdjT_opp    = WTeam_AdjT,
-    Diff_NetRtg = LTeam_NetRtg - WTeam_NetRtg,
-    Diff_Elo    = LTeam_Elo    - WTeam_Elo
-  )
-
-train_data <- bind_rows(train_wteam, train_lteam)
-
-cat("Total training samples:", nrow(train_data), "\n")
-
-
-# 4. MODEL CREATION -------------------------------------------------------
-
-model <- lm(Points ~ OffRating + DefRating + AdjT_team + AdjT_opp +
-              Diff_NetRtg + Diff_Elo,
-            data = train_data)
-
-summary(model)
-sigma <- summary(model)$sigma
-cat("Standard deviation (sigma):", sigma, "\n")
-
-train_data$Predicted <- predict(model, train_data)
-
-ggplot(train_data, aes(x = Diff_NetRtg, y = Points)) +
-  geom_point(alpha = 0.1, color = "blue") +
-  geom_smooth(method = "lm", color = "red") +
-  labs(title = "Impact of NetRtg Difference on Points",
-       x = "NetRtg Difference (My Net - Opp Net)",
-       y = "Points Scored") +
-  theme_minimal()
-
-plot(model)
-check_model(model, check = "vif")
-
-
-# 5. GAME SIMULATOR FUNCTIONS ---------------------------------------------
-
-simulate_game <- function(team_a_mean, team_b_mean, sigma, n_sims = 100000) {
-  team_a_scores <- rnorm(n_sims, mean = team_a_mean, sd = sigma)
-  team_b_scores <- rnorm(n_sims, mean = team_b_mean, sd = sigma)
-  team_a_wins   <- sum(team_a_scores > team_b_scores)
-  
-  return(list(
-    team_a_win_prob = team_a_wins / n_sims,
-    team_b_win_prob = 1 - (team_a_wins / n_sims),
-    avg_margin      = mean(team_a_scores - team_b_scores)
-  ))
-}
-
-predict_matchup <- function(team_a_id, team_b_id, kenpom_data, elo_data, model, sigma) {
-  
-  team_a   <- kenpom_data %>% filter(TeamID == team_a_id)
-  team_b   <- kenpom_data %>% filter(TeamID == team_b_id)
-  elo_a    <- elo_data    %>% filter(TeamID == team_a_id) %>% pull(Elo_final)
-  elo_b    <- elo_data    %>% filter(TeamID == team_b_id) %>% pull(Elo_final)
-  
-  if (nrow(team_a) == 0 | nrow(team_b) == 0 |
-      length(elo_a) == 0 | length(elo_b) == 0) {
-    return(list(team_a_win_prob = 0.5))
-  }
-  
-  team_a_pred <- predict(model, newdata = data.frame(
-    OffRating   = team_a$ORtg,
-    DefRating   = team_b$DRtg,
-    AdjT_team   = team_a$AdjT,
-    AdjT_opp    = team_b$AdjT,
-    Diff_NetRtg = team_a$NetRtg - team_b$NetRtg,
-    Diff_Elo    = elo_a - elo_b
-  ))
-  
-  team_b_pred <- predict(model, newdata = data.frame(
-    OffRating   = team_b$ORtg,
-    DefRating   = team_a$DRtg,
-    AdjT_team   = team_b$AdjT,
-    AdjT_opp    = team_a$AdjT,
-    Diff_NetRtg = team_b$NetRtg - team_a$NetRtg,
-    Diff_Elo    = elo_b - elo_a
-  ))
-  
-  result <- simulate_game(team_a_pred, team_b_pred, sigma, n_sims = 100000)
-  return(result)
-}
-
-
-# 6. GENERATE ALL-PAIRS 2026 PREDICTIONS ----------------------------------
-
-seeds      <- fread("march-machine-learning-mania-2026/MNCAATourneySeeds.csv")
-seeds_2026 <- seeds %>% filter(Season == 2026)
-
-mens_team_ids_2026 <- seeds_2026$TeamID
-
-matchups_2026 <- expand.grid(Team1 = mens_team_ids_2026, Team2 = mens_team_ids_2026) %>%
-  filter(Team1 < Team2)
-
-cat("Total matchups to predict:", nrow(matchups_2026), "\n")
-
-predictions_list <- list()
-
-cat("Predicting all matchups...\n")
-for (i in 1:nrow(matchups_2026)) {
-  team_a_id <- matchups_2026$Team1[i]
-  team_b_id <- matchups_2026$Team2[i]
-  
-  result <- predict_matchup(
-    team_a_id   = team_a_id,
-    team_b_id   = team_b_id,
-    kenpom_data = kenpom_final,
-    elo_data    = elo_2026,
-    model       = model,
-    sigma       = sigma
-  )
-  
-  predictions_list[[i]] <- data.frame(
-    ID   = paste(2026, team_a_id, team_b_id, sep = "_"),
-    Pred = result$team_a_win_prob
-  )
-  
-  if (i %% 100 == 0) cat("Completed", i, "of", nrow(matchups_2026), "\n")
-}
-
-submission_2026_mens <- bind_rows(predictions_list)
-write.csv(submission_2026_mens, "Excel_Files/submission_2026_model3_mens.csv", row.names = FALSE)
-
-cat("Submission written:", nrow(submission_2026_mens), "rows\n")
-cat("Pred range: [", round(min(submission_2026_mens$Pred), 4), ",",
-    round(max(submission_2026_mens$Pred), 4), "]\n\n")
-
-
-# 7. BRACKET SIMULATION (with live Elo updates) ---------------------------
-
-seeds_2026_bracket <- seeds_2026 %>%
-  mutate(
-    RegionCode = substr(Seed, 1, 1),
-    SeedNum    = as.integer(substr(Seed, 2, 3)),
-    Region     = dplyr::recode(
-      RegionCode,
-      "W" = "East",
-      "X" = "Midwest",
-      "Y" = "South",
-      "Z" = "West"
-    )
-  )
-
-teams_2026 <- seeds_2026_bracket %>%
-  left_join(Mteams %>% select(TeamID, TeamName), by = "TeamID") %>%
-  transmute(TeamID, TeamName, Region, Seed = SeedNum)
-
-cat("Teams in 2026 bracket:", nrow(teams_2026), "\n")
-
-make_kenpom_prediction_model <- function(kenpom_data, elo_data, model, sigma,
-                                         mode = c("stochastic", "deterministic"),
-                                         k = 64, width = 400) {
-  mode <- match.arg(mode)
-  
-  elo_env <- new.env(parent = emptyenv())
-  elo_env$ratings <- setNames(elo_data$Elo_final, as.character(elo_data$TeamID))
-  
-  function(team1_id, team2_id) {
-    
-    # Get current live Elo from environment
-    elo_a <- elo_env$ratings[as.character(team1_id)]
-    elo_b <- elo_env$ratings[as.character(team2_id)]
-    
-    # Fall back to 1500 if a team isn't found
-    if (is.na(elo_a)) elo_a <- 1500
-    if (is.na(elo_b)) elo_b <- 1500
-    
-    team_a <- kenpom_data %>% filter(TeamID == team1_id)
-    team_b <- kenpom_data %>% filter(TeamID == team2_id)
-    
-    if (nrow(team_a) == 0 | nrow(team_b) == 0) {
-      return(list(winner_id = team1_id, p_team1 = 0.5, p_team2 = 0.5))
-    }
-    
-    team_a_pred <- predict(model, newdata = data.frame(
-      OffRating   = team_a$ORtg,
-      DefRating   = team_b$DRtg,
-      AdjT_team   = team_a$AdjT,
-      AdjT_opp    = team_b$AdjT,
-      Diff_NetRtg = team_a$NetRtg - team_b$NetRtg,
-      Diff_Elo    = elo_a - elo_b
-    ))
-    
-    team_b_pred <- predict(model, newdata = data.frame(
-      OffRating   = team_b$ORtg,
-      DefRating   = team_a$DRtg,
-      AdjT_team   = team_b$AdjT,
-      AdjT_opp    = team_a$AdjT,
-      Diff_NetRtg = team_b$NetRtg - team_a$NetRtg,
-      Diff_Elo    = elo_b - elo_a
-    ))
-    
-    result    <- simulate_game(team_a_pred, team_b_pred, sigma, n_sims = 100000)
-    p1        <- result$team_a_win_prob
-    p2        <- 1 - p1
-    
-    winner_id <- if (mode == "stochastic") {
-      ifelse(runif(1) < p1, team1_id, team2_id)
-    } else {
-      ifelse(p1 >= 0.5, team1_id, team2_id)
-    }
-    
-    # ── Update Elo in environment after game result ───────────────────────
-    loser_id  <- ifelse(winner_id == team1_id, team2_id, team1_id)
-    winner_elo <- elo_env$ratings[as.character(winner_id)]
-    loser_elo  <- elo_env$ratings[as.character(loser_id)]
-    
-    eW <- 1 / (1 + 10^((loser_elo - winner_elo) / width))
-    elo_env$ratings[as.character(winner_id)] <- winner_elo + k * (1 - eW)
-    elo_env$ratings[as.character(loser_id)]  <- loser_elo  + k * (0 - (1 - eW))
-    
-    list(winner_id = winner_id, p_team1 = p1, p_team2 = p2)
-  }
-}
-
-prediction_model_kenpom <- make_kenpom_prediction_model(
-  kenpom_data = kenpom_final,
-  elo_data    = elo_2026,       # starting point only — updates live during bracket
-  model       = model,
-  sigma       = sigma,
-  mode        = "stochastic"
+grid.arrange(
+  p_mens   + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)),
+  p_womens + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)),
+  ncol = 2
 )
-
-source("R_Files/bracket_placement.R")
-
-bracket_results_2026 <- run_full_tournament(
-  teams_df         = teams_2026,
-  prediction_model = prediction_model_kenpom
-)
-
-bracket_results_2026 %>%
-  arrange(round, region, slot) %>%
-  select(round, region, game_id,
-         TeamName_High, seed_high,
-         TeamName_Low,  seed_low,
-         winner_id,
-         p_team_high, p_team_low) %>%
-  print(n = 100)
-
-champion_row <- bracket_results_2026 %>% filter(round == 6)
-cat("\nPredicted championship matchup:\n")
-print(champion_row)
-
-View(bracket_results_2026)
-
 @
+
+The 2026 men's model produced several notable differences from the 2025 version. Most significantly, \texttt{Diff\_Elo} reached statistical significance at the $0.001$ level ($p = 0.000101$) with a negative coefficient of $-0.003569$, reversing the positive but insignificant direction observed in 2025. This suggests that in the 2026 season, after controlling for KenPom efficiency ratings and net rating differential, teams with historically higher Elo ratings relative to their opponents scored slightly fewer points than expected, a possible reflection of season specific regression toward the mean for historically dominant programs. \texttt{Diff\_NetRtg} also strengthened considerably, with its coefficient rising from $0.05398$ in 2025 to $0.1284$ in 2026 and reaching significance at the $0.001$ level. The $R^2$ improved modestly to $0.4021$ from $0.379$, and $\sigma$ increased slightly to $9.676$ from $9.507$.
+
+The 2026 women's model remained structurally consistent with its 2025 counterpart. All five predictors reached statistical significance, with \texttt{OffRating} ($\hat{\beta} = 0.7369$), \texttt{DefRating} ($\hat{\beta} = 0.7750$), \texttt{AdjT\_team} ($\hat{\beta} = 0.9290$), \texttt{AdjT\_opp} ($\hat{\beta} = 0.8534$), and \texttt{Diff\_Elo} ($\hat{\beta} = 0.002479$, $p < 0.001$) all performing consistently with their 2025 estimates. The efficiency coefficients are nearly identical to the 2025 values of $0.7309$ and $0.7866$ respectively, suggesting that the relationship between Bart Torvik efficiency ratings and scoring is stable across seasons. The $R^2$ improved slightly to $0.531$ from $0.524$, and $\sigma$ increased marginally to $9.413$ from $9.300$, indicating comparable predictive precision to the prior year. The stability of the women's model across both seasons reinforces the reliability of the Bart Torvik efficiency framework as a consistent predictor of women's tournament scoring.
+
 
 <<mens_table_2026, echo=FALSE, results='asis', message=FALSE, warning=FALSE>>=
 library(xtable)
@@ -4394,7 +4394,7 @@ plot(roc_base_all,
      ylab = "True Positive Rate (TPR)")
 @
 
-The 2026 Kaggle competition results provide important competitive context for evaluating both submissions. The base Monte Carlo model achieved a Brier Score of $0.12797$, finishing 387th out of all submissions. The override submission achieved a Brier Score of $0.13237$, finishing 822nd. The 8th place cutoff, the lowest medal position, was $0.11845$, meaning the base model fell short by only $0.00352$. The competition winning score was $0.10975$. To contextualize these values, a Brier Score of $0.11845$ corresponds to a win probability of approximately $0.656$ assigned to the correct outcome, compared to $0.642$ for the base model. In addition to the flat probability submission, a bracket simulation was run using the stochastic prediction framework described in the Methods section, where each game is predicted and Elo ratings are updated in real time after each result. The bracket correctly predicted $26$ of $32$ first round games, $12$ of $16$ second round games, $5$ of $8$ Sweet Sixteen games, $2$ of $4$ Elite Eight games, and $1$ of $2$ Final Four games, and correctly identified Michigan as the national champion.
+The 2026 Kaggle competition results provide important competitive context for evaluating both submissions. The base Monte Carlo model achieved a Brier Score of $0.12797$, finishing 387th out of all submissions. The override submission achieved a Brier Score of $0.13237$, finishing 822nd. The 8th place cutoff, the lowest medal position, was $0.11845$, meaning the base model fell short by only $0.00352$. The competition winning score was $0.10975$. To contextualize these values, a Brier Score of $0.11845$ corresponds to a win probability of approximately $0.656$ assigned to the correct outcome, compared to $0.642$ for the base model. In addition to the flat probability submission, a bracket simulation was run using the stochastic prediction framework described in the Methods section, where each game is predicted and Elo ratings are updated in real time after each result. The bracket correctly predicted $26$ of $32$ first round games, $12$ of $16$ second round games, $5$ of $8$ Sweet Sixteen games, $2$ of $4$ Elite Eight games, and $1$ of $2$ Final Four games, and correctly identified Michigan and UCLA as the national champion for the men's and women's respectively.
 
 \newpage
 

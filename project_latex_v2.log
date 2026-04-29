@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.1) (preloaded format=pdflatex 2026.2.3)  28 APR 2026 22:08
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.1) (preloaded format=pdflatex 2026.2.3)  29 APR 2026 16:38
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1066,7 +1066,7 @@ Package pdftex.def Info: figure/roc_comparison-1.pdf  used on input line 1191.
 <figure/vif_2026-1.pdf, id=791, 1011.78pt x 433.62pt>
 File: figure/vif_2026-1.pdf Graphic file (type pdf)
 <use figure/vif_2026-1.pdf>
-Package pdftex.def Info: figure/vif_2026-1.pdf  used on input line 1230.
+Package pdftex.def Info: figure/vif_2026-1.pdf  used on input line 1234.
 (pdftex.def)             Requested size: 402.37912pt x 172.45245pt.
 [69 <./figure/vif_2026-1.pdf>] [70] [71] [72]
 <figure/worst_plots_2026-1.pdf, id=817, 867.24pt x 867.24pt>
@@ -1129,7 +1129,7 @@ msfonts/cm/cmsy8.pfb><C:/Users/marin/AppData/Local/Programs/MiKTeX/fonts/type1/
 public/amsfonts/cm/cmti12.pfb><C:/Users/marin/AppData/Local/Programs/MiKTeX/fon
 ts/type1/public/amsfonts/cm/cmtt12.pfb><C:/Users/marin/AppData/Local/Programs/M
 iKTeX/fonts/type1/public/amsfonts/cm/cmtt8.pfb>
-Output written on project_latex_v2.pdf (94 pages, 5460897 bytes).
+Output written on project_latex_v2.pdf (94 pages, 5461014 bytes).
 PDF statistics:
  1023 PDF objects out of 1200 (max. 8388607)
  213 named destinations out of 1000 (max. 500000)
