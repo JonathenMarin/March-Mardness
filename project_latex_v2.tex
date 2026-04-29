@@ -733,7 +733,7 @@ The fourth factor is Free Throw Rate ($FTR$), which measures how frequently a te
 Beyond Oliver's original framework, the model incorporates Win Percentage ($Win\%$) as a fifth feature, calculated as the mean of binary game results over the regular season. While the Four Factors capture efficiency across specific phases of the game, Win Percentage serves as a composite signal that aggregates the cumulative effect of all factors including those not directly measured, such as coaching decisions, late game execution, and opponent quality. All five features are computed as season-level averages from regular season data and then transformed into differentials between the two competing teams prior to modeling, centering the analysis on the relative mismatch between opponents rather than their absolute statistics.
 
 \usubsubsection{Model Implementation}
-The logistic regression model is implemented separately for the men's and women's divisions, with the 2025 model trained on tournament outcomes from the 2023 and 2024 seasons. The decision to train independent models rather than a single combined model with a gender indicator reflects the assumption that the Four Factors carry structurally different predictive weight across divisions. Differences in pace, physicality, and three-point volume suggest that the relationship between efficiency differentials and winning probability is not uniform across genders, and forcing shared parameter estimates would risk masking these structural differences. By isolating the training environments, each algorithm is permitted to optimize its coefficients according to the unique statistical footprint of its respective division.The model uses a logit link function to map the linear combination of input differentials to a probability bounded strictly between zero and one. This mathematical transformation is necessary because ordinary linear regression would produce unbounded predictions that cannot be interpreted as viable probabilities. The formal specification for this relationship is defined as:
+The logistic regression model is implemented separately for the men's and women's divisions, with the 2025 model trained on tournament outcomes from the 2023 and 2024 seasons. The decision to train independent models rather than a single combined model with a gender indicator reflects the assumption that the Four Factors carry structurally different predictive weight across divisions. Differences in pace, physicality, and three-point volume suggest that the relationship between efficiency differentials and winning probability is not uniform across genders, and forcing shared parameter estimates would risk masking these structural differences. By isolating the training environments, each algorithm is permitted to optimize its coefficients according to the unique statistical footprint of its respective division.The model uses a logit link function to map the linear combination of input differentials to a probability bounded strictly between $0$ and $1$. This mathematical transformation is necessary because ordinary linear regression would produce unbounded predictions that cannot be interpreted as viable probabilities. The formal specification for this relationship is defined as:
 
 \begin{equation}
 \begin{split}
@@ -783,8 +783,8 @@ The pairwise correlation matrices for the men's and women's training data are pr
 
 Because separate models were trained for the men's and women's tournaments, the resulting coefficient structures can be analyzed independently to determine the relative importance of each feature. These independent estimates are then compared against one another to assess whether the Four Factors operate fundamentally differently across the two divisions. By rigorously examining the magnitude and statistical significance of each variable, it becomes possible to identify which specific phases of the game best dictate postseason success for each gender. To illustrate these comparative findings, Tables \ref{tab:mens_coef} and \ref{tab:womens_coef} present the estimated coefficients, standard errors, p-values, and significance levels for the men's and women's models, respectively.
 
-% latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Tue Apr 28 14:56:43 2026
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Tue Apr 28 22:08:39 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -802,8 +802,8 @@ Intercept & 0.4352 & 0.2062 & 0.0348 & * \\
 \caption{Logistic Regression Coefficient Estimates (Men's 2025 Model)} 
 \label{tab:mens_coef}
 \end{table}
-% latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Tue Apr 28 14:56:43 2026
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Tue Apr 28 22:08:39 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -931,7 +931,7 @@ This means $50\%$ of a team's historical rating is preserved into the next seaso
 \end{figure}
 
 \usubsubsection{Model Implementation}
-With the training matrix assembled and the feature set finalized, the focus shifts to training the XGBoost model and selecting the configuration that produces the best performance. The model is trained using a binary logistic objective function, which directly optimizes for calibrated win probabilities rather than predicting a continuous point differential that requires a subsequent transformation step. A histogram-based tree method is employed to maximize computational efficiency across the expanded feature space, and a static random seed is set to guarantee reproducibility.Two key decisions must be made before training can begin: the number of boosting rounds and the hyperparameter values that control the complexity and regularization of each individual tree. Neither can be determined from the training data alone without risking overfitting. To address this, five-fold cross validation, as defined in the Modeling Techniques section, is applied to the full tournament training dataset. At each fold, the model is trained on $80\%$ of the tournament games and evaluated on the held out $20\%$, with the average loss across all five folds used as the selection criterion. Early stopping is applied with a patience of $50$ rounds, meaning training halts automatically if the cross validated performance does not improve for $50$ consecutive rounds. Cross validation identified $415$ as the optimal number of boosting rounds. Five folds was chosen as a balance between bias and variance in the performance estimate, as fewer folds reduce the training set size while more folds increase computational cost and can produce high variance estimates on small datasets.
+With the training matrix assembled and the feature set finalized, the focus shifts to training the XGBoost model and selecting the configuration that produces the best performance. The model is trained using a binary logistic objective function, which directly optimizes for calibrated win probabilities rather than predicting a continuous point differential that requires a subsequent transformation step. A histogram-based tree method is employed to maximize computational efficiency across the expanded feature space, and a static random seed is set to guarantee reproducibility. Two key decisions must be made before training can begin: the number of boosting rounds and the hyperparameter values that control the complexity and regularization of each individual tree. Neither can be determined from the training data alone without risking overfitting. To address this, five-fold cross validation, as defined in the Modeling Techniques section, is applied to the full tournament training dataset. At each fold, the model is trained on $80\%$ of the tournament games and evaluated on the held out $20\%$, with the average loss across all five folds used as the selection criterion. Early stopping is applied with a patience of $50$ rounds, meaning training halts automatically if the cross validated performance does not improve for $50$ consecutive rounds. Cross validation identified $415$ as the optimal number of boosting rounds. Five folds was chosen as a balance between bias and variance in the performance estimate, as fewer folds reduce the training set size while more folds increase computational cost and can produce high variance estimates on small datasets.
 
 In addition to the number of boosting rounds, five hyperparameters were tuned to control the complexity and regularization of the model. Each parameter was tuned independently by fixing all others at their current best value and testing candidate values one at a time, selecting the value that produced the lowest cross validated loss before moving to the next parameter. The learning rate \texttt{eta = 0.01} was selected after testing values of $0.02$ and $0.005$, producing a smoother and more regularized model at the cost of requiring more boosting rounds to converge. A value of \texttt{max\_depth = 5} was selected after testing values of $4$ and $6$, controlling how many sequential splits each tree can make. The \texttt{subsample = 0.8} parameter means each tree is built on a random $80\%$ of the training data, introducing stochasticity that reduces overfitting. Similarly, \texttt{colsample\_bytree = 0.7} means each tree randomly samples $70\%$ of the available features, further reducing the influence of any single predictor. Finally, \texttt{min\_child\_weight = 4} sets the minimum number of training observations required in a leaf node before a split is made, preventing highly specific splits that apply to only a handful of games. Predictions for the 2025 tournament are generated by constructing the full feature matrix for every possible matchup using each team's 2025 regular season statistics and final Elo ratings, then applying the fitted model to produce a win probability $\hat{P} \in (0,1)$ for each pairing.
 
@@ -1003,7 +1003,7 @@ and the corresponding specification for the women's model is:
 &+ \beta_4(\mathtt{AdjTempo}_B) + \beta_5(\mathtt{Elo}_A - \mathtt{Elo}_B) + \varepsilon
 \end{split}
 \end{equation}
-where $\varepsilon \sim \mathcal{N}(0, \sigma^2)$ is the residual error term and $\sigma$ is estimated directly from the training data.
+where $\varepsilon \sim \mathcal{N}(0, \sigma^2)$ is the residual error term and $\sigma$ is estimated directly from the training data. Note that $(\mathtt{NetRtg}_A - \mathtt{NetRtg}_B)$ and  $(\mathtt{Elo}_A - \mathtt{Elo}_B)$ correspond directly to  \texttt{Diff\_NetRtg} and \texttt{Diff\_Elo} in the model implementation, respectively, representing the net rating differential and Elo rating differential between the two competing teams.
 
 The decision to train entirely separate models for each division directly mirrors the justification applied in the earlier logistic regression section. The fundamental relationship between efficiency ratings, tempo, and scoring may differ structurally between divisions due to inherent differences in average pace, physicality, and overall playing style. Forcing shared parameter estimates across both genders would carry a significant risk of masking these meaningful structural differences, thereby degrading predictive accuracy. The resulting values of $\sigma$ for both divisions are explicitly reported and interpreted in the Model Analysis section, where they serve as a direct measure of model calibration and as the primary input for the subsequent simulation stage.
 
@@ -1048,7 +1048,7 @@ During the final prediction phase, the men's model utilized $n = 100,000$ simula
 \usubsubsection{Model Analysis}
 With the models estimated on the 2025 regular season data, the analysis begins by verifying that the four core assumptions of multiple linear regression are satisfied before interpreting the coefficient estimates. These assumptions are linearity, normality of residuals, homoscedasticity.
 
-These three assumptions are assessed jointly through the combined diagnostic plots presented in Figures \ref{fig:diag_mens} and \ref{fig:diag_womens}. The first assumption, linearity, requires that the relationship between the dependent variable and each independent variable is linear. The Residuals vs. Fitted panels show residuals randomly scattered around zero with approximately flat smoothing lines across the range of predicted scores, confirming that the linearity assumption is reasonably satisfied in both models. The second assumption, normality of residuals, requires that the residuals follow an approximately normal distribution. The Q-Q panels show that the residuals follow the theoretical normal reference line closely through the central range in both models, with some deviation in the tails driven by a small number of extreme blowout games. The third assumption, homoscedasticity, requires that the variance of the residuals is consistent across all levels of the predicted values. The Residuals vs. Fitted panels appears to indicate the presence of heteroskedasticity. Performing classical tests such as the Breusch-Pagan test result in significant p-values. However, these same tests can be misleading for large sample sizes and the presence of outliers and high leverage points \cite{Pechcinska}. Satisfied with the visual inspection of the Residuals vs. Fitted plot and the existence of high leverage points in the Residuals vs. Leverage plot, we decided to proceed. 
+These three assumptions are assessed jointly through the combined diagnostic plots presented in Figures \ref{fig:diag_mens} and \ref{fig:diag_womens}. The first assumption, linearity, requires that the relationship between the dependent variable and each independent variable is linear. The Residuals vs.\ Fitted panels show approximately flat smoothing lines across the range of predicted scores, confirming that the linearity assumption is reasonably satisfied in both models, though some variation in residual spread is visible. The second assumption, normality of residuals, requires that the residuals follow an approximately normal distribution. The Q-Q panels show that the residuals follow the theoretical normal reference line closely through the central range in both models, with some deviation in the tails driven by a small number of extreme blowout games. The third assumption, homoscedasticity, requires that the variance of the residuals remains consistent across all levels of the predicted values. The variation in residual spread noted in the Residuals vs.\ Fitted panels suggests the homoscedasticity assumption may not be fully satisfied. The Breusch-Pagan test returned a statistically significant result. However, classical heteroscedasticity tests are known to be sensitive to outliers and high leverage points, which can inflate the rejection rate well beyond the nominal level \cite{Pechcinska}. The Residuals vs.\ Leverage panel confirms the presence of high leverage points in both models, suggesting the significant Breusch-Pagan result should be interpreted with caution. As the OLS coefficient estimates remain unbiased under heteroscedasticity, and the model is used for score prediction rather than formal inference, we proceed with the analysis while acknowledging non-constant variance as a limitation.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
 \includegraphics[width=\textwidth]{figure/diag_mens-1} \caption[Diagnostic Plots for the Men's Linear Regression Model]{Diagnostic Plots for the Men's Linear Regression Model.}\label{fig:diag_mens}
@@ -1063,22 +1063,21 @@ These three assumptions are assessed jointly through the combined diagnostic plo
 
 \end{knitrout}
 
-Lastly we check the model for multicollinearity. Multicollinearity requires that the independent variables are not too highly correlated with one another. Figure \ref{fig:vif_log} presents the VIF plots for both the men's and women's models. In the men's model, shows that \texttt{Diff\_NetRtg} carries a moderate VIF of approximately $7.5$, the highest among all predictors. While this falls below the problematic threshold of 10, it indicates meaningful shared variance between \texttt{Diff\_NetRtg} and \texttt{Diff\_Elo}, as both features capture overall team quality. In the women's model, all VIF values fall below $5$, indicating a clean feature structure with no problematic collinearity. 
+Lastly, we check the model for multicollinearity. Multicollinearity requires that the independent variables are not too highly correlated with one another. Figure \ref{fig:vif_mc} presents the VIF plots for both the men's and women's Monte Carlo linear regression models. In the men's model, \texttt{Diff\_NetRtg} carries a moderate VIF of approximately $7.5$, the highest among all predictors. While this falls below the problematic threshold of $10$, it indicates meaningful shared variance between \texttt{Diff\_NetRtg} and \texttt{Diff\_Elo}, as both features capture overall team quality. In the women's model, all VIF values fall below $5$, indicating a clean feature structure with no problematic collinearity.
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
 
-{\centering \includegraphics[width=\textwidth]{figure/vif_log-1} 
+{\centering \includegraphics[width=\textwidth]{figure/vif_mc-1} 
 
 }
 
-\caption[VIF Plots for the Men's (left) and Women's (right) Logistic Regression Models]{VIF Plots for the Men's (left) and Women's (right) Logistic Regression Models.}\label{fig:vif_log}
+\caption[VIF Plots for the Men's (left) and Women's (right) Monte Carlo Linear Regression Models]{VIF Plots for the Men's (left) and Women's (right) Monte Carlo Linear Regression Models.}\label{fig:vif_mc}
 \end{figure}
 
 \end{knitrout}
 
-
-The pairwise correlation matrices in Figure \ref{fig:corr_mc} confirm these findings. In the men's model, \texttt{Diff\_NetRtg} and \texttt{Diff\_Elo} exhibit a correlation of $0.89$, the strongest relationship in the matrix and the primary driver of the elevated VIF for \texttt{Diff\_NetRtg}. All other pairwise correlations in the men's model remain below $0.5$. In the women's model, with \texttt{Diff\_NetRtg} absent, the strongest relationship is between \texttt{OffRating} and \texttt{Diff\_Elo} at $0.46$, which is well within acceptable bounds. A moderate negative correlation of $-0.35$ between \texttt{OffRating} and \texttt{DefRating} is also present in the men's model, with a similar value of$-0.37$ observed in the women's model. This is expected given that teams facing stronger defenses tend to have lower offensive outputs, meaning that higher defensive ratings naturally correspond to lower scoring environments for the opposing offense. While the men's model's moderate collinearity does not invalidate the coefficient estimates, it inflates the standard errors of the affected predictors and makes it more difficult to isolate their individual contributions. Both features were retained for their theoretical relevance rather than purely statistical grounds.
+The pairwise correlation matrices in Figure~\ref{fig:corr_mc} confirm these findings. In the men's model, $(\texttt{NetRtg}_{A} - \texttt{NetRtg}_{B})$ and $(\texttt{Elo}_{A} - \texttt{Elo}_{B})$ exhibit a correlation of $0.89$, the strongest relationship in the matrix and the primary driver of the elevated VIF for $(\texttt{NetRtg}_{A} - \texttt{NetRtg}_{B})$. All other pairwise correlations in the men's model remain below $0.5$. In the women's model, with $(\texttt{NetRtg}_{A} - \texttt{NetRtg}_{B})$ absent, the strongest relationship is between $\texttt{AdjOE}$ and $(\texttt{Elo}_{A} - \texttt{Elo}_{B})$ at $0.46$, which is well within acceptable bounds. A moderate negative correlation of $-0.35$ between $\texttt{OffRating}$ and $\texttt{DefRating}$ is also present in the men's model, with a similar value of $-0.37$ observed in the women's model. This is expected given that teams facing stronger defenses tend to have lower offensive outputs, meaning that higher defensive ratings naturally correspond to lower scoring environments for the opposing offense. While the men's model's moderate collinearity does not invalidate the coefficient estimates, it inflates the standard errors of the affected predictors and makes it more difficult to isolate their individual contributions. Both features were retained for their theoretical relevance rather than purely statistical grounds.
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
@@ -1094,8 +1093,8 @@ The pairwise correlation matrices in Figure \ref{fig:corr_mc} confirm these find
 
 Because separate models were trained for the men's and women's tournaments, the coefficient structures can be analyzed independently and then compared to assess whether the efficiency and tempo features operate differently across divisions. Tables \ref{tab:mens_coef_mc} and \ref{tab:womens_coef_mc} present the estimated coefficients, standard errors, p-values, and significance levels for the men's and women's models respectively.
 
-% latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Tue Apr 28 14:56:47 2026
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Tue Apr 28 22:08:44 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1114,8 +1113,8 @@ Intercept & -207.3986 & 5.4365 & 0.0000 & *** \\
 \caption{Linear Regression Coefficient Estimates (Men's 2025 Model).} 
 \label{tab:mens_coef_mc}
 \end{table}
-% latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Tue Apr 28 14:56:47 2026
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Tue Apr 28 22:08:44 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1157,7 +1156,7 @@ The logistic regression model serves as the interpretable baseline and produces 
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-\includegraphics[width=\linewidth]{figure/conf_matrices_2025-1} \caption[..]{...}\label{fig:conf_matrices_2025}
+\includegraphics[width=\linewidth]{figure/conf_matrices_2025-1} \caption[Confusion Matrices for the 2025 Logistic Regression Model]{Confusion Matrices for the 2025 Logistic Regression Model}\label{fig:conf_matrices_2025}
 \end{figure}
 
 \end{knitrout}
@@ -1182,6 +1181,10 @@ The Linear Regression Monte Carlo model produces the strongest classification pe
 
 Figure \ref{fig:roc_comparison} presents the ROC curves for all three models evaluated on the 2025 tournament predictions. The ROC curve plots the true positive rate against the false positive rate across all possible classification thresholds, with the area under the curve summarizing overall predictive ability. A model with no predictive power would follow the diagonal reference line with an AUC of $0.5$, while a perfect model would achieve an AUC of $1.0$.
 
+
+
+While the AUC results highlight the discriminative advantage of XGBoost and Monte Carlo over the logistic regression baseline, the Brier Scores tell a consistent story. Summarized in Table \ref{tab:model_comparison}, the logistic regression achieves a combined Brier Score of $0.18401$, while XGBoost achieves $0.12761$ and the Monte Carlo model achieves $0.12857$. To contextualize these values, a Brier Score of $B$ implies that the model performed on average similarly to consistently assigning a win probability of $1 - \sqrt{B}$ to the eventual winner. By this measure the logistic regression corresponds to an average assigned probability of approximately $0.571$, while XGBoost and Monte Carlo both correspond to approximately $0.643$ and $0.641$ respectively, reflecting meaningfully sharper probability estimates. 
+
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
 
@@ -1193,11 +1196,10 @@ Figure \ref{fig:roc_comparison} presents the ROC curves for all three models eva
 \end{figure}
 
 \end{knitrout}
+The competition winning score of $0.10411$ corresponds to approximately $0.677$, indicating that top submissions are consistently more confident on clear matchups while remaining appropriately uncertain on competitive ones. The difference of less than $0.001$ between XGBoost and Monte Carlo is negligible in practical terms, confirming that both models produce comparably calibrated win probabilities on the 2025 tournament despite their fundamentally different approaches. All three models fall short of the competition winning Brier Score of $0.10411$, indicating that the best performing submissions in the Kaggle competition produce sharper and better calibrated probabilities than any of the three models developed here. 
 
-While the AUC results highlight the discriminative advantage of XGBoost and Monte Carlo over the logistic regression baseline, the Brier Scores tell a consistent story. Summarized in Table \ref{tab:model_comparison}, the logistic regression achieves a combined Brier Score of $0.18401$, while XGBoost achieves $0.12761$ and the Monte Carlo model achieves $0.12857$. To contextualize these values, a Brier Score of $B$ implies that the model performed on average similarly to consistently assigning a win probability of $1 - \sqrt{B}$ to the eventual winner. By this measure the logistic regression corresponds to an average assigned probability of approximately $0.571$, while XGBoost and Monte Carlo both correspond to approximately $0.643$ and $0.641$ respectively, reflecting meaningfully sharper probability estimates. The competition winning score of $0.10411$ corresponds to approximately $0.677$, indicating that top submissions are consistently more confident on clear matchups while remaining appropriately uncertain on competitive ones. The difference of less than $0.001$ between XGBoost and Monte Carlo is negligible in practical terms, confirming that both models produce comparably calibrated win probabilities on the 2025 tournament despite their fundamentally different approaches. All three models fall short of the competition winning Brier Score of $0.10411$, indicating that the best performing submissions in the Kaggle competition produce sharper and better calibrated probabilities than any of the three models developed here. 
-
-% latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Tue Apr 28 14:56:48 2026
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Tue Apr 28 22:08:45 2026
 \begin{table}[ht]
 \centering
 \scalebox{0.85}{
@@ -1217,7 +1219,7 @@ Logistic Regression & 70.10\% & 77.60\% & 73.90\% & 0.18401 & 0.8098 \\
 \end{table}
 
 
-Given the comparable performance of the XGBoost and Monte Carlo models across all three evaluation metrics, the selection of a model for the 2026 Kaggle submission was not driven by marginal differences in Brier Score or AUC. The Monte Carlo model was selected for submission primarily on the basis of novelty. The simulation based scoring framework, which grounds win probability estimates in explicit score predictions derived from external efficiency ratings rather than learning a direct mapping from features to outcomes, represents a fundamentally different approach to the tournament prediction problem than the ensemble methods that dominate top Kaggle submission. From an academic standpoint the Monte Carlo model also offers greater interpretability, the predicted scores, the residual standard deviation $\sigma$, and the simulated score distributions all carry direct basketball meaning that can be examined and explained in ways that the internal structure of a boosted tree ensemble cannot. The 2025 results confirm that this interpretability does not come at a meaningful cost to predictive performance, as the Monte Carlo model achieved the highest combined classification accuracy of the three models and a Brier Score within $0.001$ of XGBoost.
+Given the comparable performance of the XGBoost and Monte Carlo models across all three evaluation metrics, the selection of a model for the 2026 Kaggle submission was not driven by marginal differences in Brier Score or AUC. The Monte Carlo model was selected for submission primarily on the basis of novelty. The simulation based scoring framework, which grounds win probability estimates in explicit score predictions derived from external efficiency ratings rather than learning a direct mapping from features to outcomes, represents a fundamentally different approach to the tournament prediction problem than the ensemble methods that dominate top Kaggle submission. From an academic standpoint the Monte Carlo model also offers greater interpretability, the predicted scores, the residual standard deviation $\hat{\sigma}$, and the simulated score distributions all carry direct basketball meaning that can be examined and explained in ways that the internal structure of a boosted tree ensemble cannot. The 2025 results confirm that this interpretability does not come at a meaningful cost to predictive performance, as the Monte Carlo model achieved the highest combined classification accuracy of the three models and a Brier Score within $0.001$ of XGBoost.
 
 \usubsubsection{2026 Retraining}
 The Linear Regression Monte Carlo model was retrained on the 2026 regular season data prior to submission, following the same pipeline described in the Methods section. The men's model was trained on $11,236$ observations across six features and the women's model was trained on $10,900$ observations across five features, both reflecting a full 2026 regular season. The linearity, normality, and homoscedasticity assumptions were verified through diagnostic plots and were consistent with the 2025 findings. The collinearity structure, however, showed a notable change in the men's model. The VIF analysis, presented in Figure \ref{fig:vif_2026}, reveals that both \texttt{Diff\_NetRtg} and \texttt{Diff\_Elo} now register in the moderate range, with \texttt{Diff\_NetRtg} at approximately $8.0$ and \texttt{Diff\_Elo} at approximately $5.5$, compared to $7.5$ and below $5$ respectively in 2025. Both values remain below the problematic threshold of $10$, so the coefficient estimates remain valid, but the increased collinearity between these two features is a known limitation of the 2026 men's model. The women's model VIF structure remained clean with all values below $5$, consistent with 2025.
@@ -1243,8 +1245,8 @@ The 2026 women's model remained structurally consistent with its 2025 counterpar
 
 
 
-% latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Tue Apr 28 14:56:49 2026
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Tue Apr 28 22:08:46 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1265,8 +1267,8 @@ Variable & Estimate & Std. Error & p-value & Sig. \\
 \end{table}
 
 
-% latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Tue Apr 28 14:56:49 2026
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Tue Apr 28 22:08:46 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
