@@ -414,7 +414,7 @@ ACKNOWLEDGMENTS
 \doublespacing
 I would like to express my gratitude to Dr. Balderama for his insights and guidance, without which this project would not have been possible. The meetings discussing the basketball landscape and strategies behind March Madness were both enlightening and enjoyable. I would also like to thank my committee members, Dr. Bañuelos and Dr. Chung, whose feedback and advice were invaluable in shaping the final work. I would also like to thank my colleagues whose support and collaboration throughout my coursework made this journey all the more rewarding and possible.
 
-This project would not have been possible without my family and my partner Holly, whose colorful and bubbly energy kept me afloat during the project and throughout the program as a whole. I would also like to thank her little sister Halen, whose wonder for the world was a constant reminder to stay curious. The warmth and laughter from both of them was the fuel that kept me going.
+This project would not have been possible without my family and my partner Holly, whose colorful and bubbly energy kept me afloat during the project and throughout the program as a whole. I would also like to thank her little sister Halen, whose wonder for the world was a constant reminder to stay curious. The warmth and laughter from both of them was the fuel that kept me going. Lastly, I would like to thank my father, who worked tirelessly long hours to take care of me, showing me firsthand the true meaning of hard work and a strong work ethic.
 
 
 \singlespacing
@@ -784,7 +784,7 @@ The pairwise correlation matrices for the men's and women's training data are pr
 Because separate models were trained for the men's and women's tournaments, the resulting coefficient structures can be analyzed independently to determine the relative importance of each feature. These independent estimates are then compared against one another to assess whether the Four Factors operate fundamentally differently across the two divisions. By rigorously examining the magnitude and statistical significance of each variable, it becomes possible to identify which specific phases of the game best dictate postseason success for each gender. To illustrate these comparative findings, Tables \ref{tab:mens_coef} and \ref{tab:womens_coef} present the estimated coefficients, standard errors, p-values, and significance levels for the men's and women's models, respectively.
 
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Wed Apr 29 16:38:20 2026
+% Wed Apr 29 20:54:54 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -803,7 +803,7 @@ Intercept & 0.4352 & 0.2062 & 0.0348 & * \\
 \label{tab:mens_coef}
 \end{table}
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Wed Apr 29 16:38:20 2026
+% Wed Apr 29 20:54:54 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1094,7 +1094,7 @@ The pairwise correlation matrices in Figure~\ref{fig:corr_mc} confirm these find
 Because separate models were trained for the men's and women's tournaments, the coefficient structures can be analyzed independently and then compared to assess whether the efficiency and tempo features operate differently across divisions. Tables \ref{tab:mens_coef_mc} and \ref{tab:womens_coef_mc} present the estimated coefficients, standard errors, p-values, and significance levels for the men's and women's models respectively.
 
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Wed Apr 29 16:38:24 2026
+% Wed Apr 29 20:54:59 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1114,7 +1114,7 @@ Intercept & -207.3986 & 5.4365 & 0.0000 & *** \\
 \label{tab:mens_coef_mc}
 \end{table}
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Wed Apr 29 16:38:24 2026
+% Wed Apr 29 20:54:59 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1199,7 +1199,7 @@ While the AUC results highlight the discriminative advantage of XGBoost and Mont
 The competition winning score of $0.10411$ corresponds to approximately $0.677$, indicating that top submissions are consistently more confident on clear matchups while remaining appropriately uncertain on competitive ones. The difference of less than $0.001$ between XGBoost and Monte Carlo is negligible in practical terms, confirming that both models produce comparably calibrated win probabilities on the 2025 tournament despite their fundamentally different approaches. All three models fall short of the competition winning Brier Score of $0.10411$, indicating that the best performing submissions in the Kaggle competition produce sharper and better calibrated probabilities than any of the three models developed here. 
 
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Wed Apr 29 16:38:26 2026
+% Wed Apr 29 20:55:00 2026
 \begin{table}[ht]
 \centering
 \scalebox{0.85}{
@@ -1246,7 +1246,7 @@ The 2026 women's model remained structurally consistent with its 2025 counterpar
 
 
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Wed Apr 29 16:38:27 2026
+% Wed Apr 29 20:55:01 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1268,7 +1268,7 @@ Variable & Estimate & Std. Error & p-value & Sig. \\
 
 
 % latex table generated in R 4.4.2 by xtable 1.8-4 package
-% Wed Apr 29 16:38:27 2026
+% Wed Apr 29 20:55:01 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1308,8 +1308,6 @@ Of the $32$ matchups where overrides were applied, $30$ resulted in the correct 
 \end{figure}
 
 \end{knitrout}
-
-The two incorrect overrides are particularly notable given both the pregame betting market context and the historical seeding record supporting them. In the men's tournament, Florida entered as a $1$ seed facing Iowa, a $9$ seed, in a matchup where $1$ seeds hold a record of $85-8$ against $9$ seeds \cite{mcubed}. Florida was also a $-10.5$ point spread favorite with a moneyline of $-575$, implying a win probability of approximately 85\%. Despite this combination of historical dominance and heavy market favoritism, Iowa prevailed. In the women's tournament, Iowa entered as a $2$ seed facing Virginia in a matchup where $2$ seeds hold an all-time record of $48-7$ against $10$ seeds \cite{mcubed}. Iowa was a $-14.5$ point spread favorite with a moneyline of $-1450$, implying a win probability of approximately 94\%. Virginia nonetheless upset Iowa. Both losses occurred in matchups where every available signal, historical seeding records, point spreads, and moneyline odds, pointed overwhelmingly toward the favorite. These two upsets serve as a reminder that deterministic overrides remain vulnerable to the inherent unpredictability that makes the NCAA tournament compelling.
 
 The confusion matrices for the override and base submissions are identical since no override changed the predicted winner, only the confidence assigned to each outcome. Figure \ref{fig:conf_2026} presents the confusion matrices for the men's, women's, and combined results. The men's model achieves a classification accuracy of $74.60\%$, the women's model achieves $80.95\%$, and the combined accuracy is $77.78\%$. The women's model again outperforms the men's in directional accuracy, consistent with the pattern observed in the 2025 results and the stronger $R^2$ and lower $\sigma$ of the women's linear regression. Both divisions exceed the $50\%$ random baseline comfortably, confirming that the Monte Carlo model retains meaningful predictive power on the 2026 tournament.
 

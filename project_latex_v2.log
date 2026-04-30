@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.1) (preloaded format=pdflatex 2026.2.3)  29 APR 2026 16:38
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.1) (preloaded format=pdflatex 2026.2.3)  29 APR 2026 20:55
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1076,27 +1076,26 @@ Package pdftex.def Info: figure/worst_plots_2026-1.pdf  used on input line 1303
 .
 (pdftex.def)             Requested size: 402.37912pt x 402.37582pt.
 [73] [74 <./figure/worst_plots_2026-1.pdf>]
-<figure/conf_2026-1.pdf, id=836, 722.7pt x 289.08pt>
+<figure/conf_2026-1.pdf, id=833, 722.7pt x 289.08pt>
 File: figure/conf_2026-1.pdf Graphic file (type pdf)
 <use figure/conf_2026-1.pdf>
-Package pdftex.def Info: figure/conf_2026-1.pdf  used on input line 1318.
+Package pdftex.def Info: figure/conf_2026-1.pdf  used on input line 1316.
 (pdftex.def)             Requested size: 402.37912pt x 160.95297pt.
-[75]
-<figure/roc_2026-1.pdf, id=842, 722.7pt x 361.35pt>
+<figure/roc_2026-1.pdf, id=835, 722.7pt x 361.35pt>
 File: figure/roc_2026-1.pdf Graphic file (type pdf)
 <use figure/roc_2026-1.pdf>
-Package pdftex.def Info: figure/roc_2026-1.pdf  used on input line 1328.
+Package pdftex.def Info: figure/roc_2026-1.pdf  used on input line 1326.
 (pdftex.def)             Requested size: 402.37912pt x 201.19122pt.
-[76 <./figure/conf_2026-1.pdf>] [77 <./figure/roc_2026-1.pdf>] [78] [79] [80] [
-81] [82
+[75 <./figure/conf_2026-1.pdf>] [76 <./figure/roc_2026-1.pdf>] [77] [78] [79] [
+80] [81
 
-] [83]
-Overfull \hbox (44.39061pt too wide) in paragraph at lines 1423--1424
+] [82]
+Overfull \hbox (44.39061pt too wide) in paragraph at lines 1421--1422
 \OT1/cmtt/m/n/12 https://thesis.eur.nl/pub/70292/Thesis[]AgnieszkaPechcinska[]6
 38592.pdf  
  []
 
-[84] [85] (project_latex_v2.aux)
+[83] [84] (project_latex_v2.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
@@ -1105,8 +1104,8 @@ Package rerunfilecheck Info: File `project_latex_v2.out' has not changed.
 (rerunfilecheck)             Checksum: 74AA5770766742E44C3958B73CABE515;1882.
  ) 
 Here is how much of TeX's memory you used:
- 24163 strings out of 467866
- 454391 string characters out of 5418326
+ 24162 strings out of 467866
+ 454384 string characters out of 5418326
  831721 words of memory out of 5000000
  52379 multiletter control sequences out of 15000+600000
  637242 words of font info for 79 fonts, out of 8000000 for 9000
@@ -1129,9 +1128,9 @@ msfonts/cm/cmsy8.pfb><C:/Users/marin/AppData/Local/Programs/MiKTeX/fonts/type1/
 public/amsfonts/cm/cmti12.pfb><C:/Users/marin/AppData/Local/Programs/MiKTeX/fon
 ts/type1/public/amsfonts/cm/cmtt12.pfb><C:/Users/marin/AppData/Local/Programs/M
 iKTeX/fonts/type1/public/amsfonts/cm/cmtt8.pfb>
-Output written on project_latex_v2.pdf (94 pages, 5461014 bytes).
+Output written on project_latex_v2.pdf (93 pages, 5458244 bytes).
 PDF statistics:
- 1023 PDF objects out of 1200 (max. 8388607)
- 213 named destinations out of 1000 (max. 500000)
+ 1017 PDF objects out of 1200 (max. 8388607)
+ 212 named destinations out of 1000 (max. 500000)
  276 words of extra memory for PDF output out of 10000 (max. 10000000)
 
