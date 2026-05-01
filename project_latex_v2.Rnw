@@ -583,7 +583,7 @@ Having established the empirical context and strategic motivation for the select
 Logistic Regression is a binary classification model that estimates the probability of an outcome by applying the logistic (also known as sigmoid) function to a linear combination of input features. The model is defined as:
 
 \begin{equation}
-P(Y=1|\mathbf{x}) = \frac{1}{1 + e^{-(\beta_0 + \beta_1 x_1 + \beta_2 x_2 + ... + \beta_n x_k)}}
+P(Y=1|\mathbf{x}) = \frac{1}{1 + e^{-(\beta_0 + \beta_1 x_1 + \beta_2 x_2 + ... + \beta_k x_k)}}
 \end{equation}
 where $Y$ is the binary outcome, $\mathbf{x} = (x_1,x_2,\ldots,x_k)$ represents the feature vector, and $\boldsymbol{\beta} = (\beta_0,\beta_1\, \ldots, \beta_n)$ are the model coefficients estimated through the maximum likelihood estimation. This function ensures the predicted probabilities are bounded between $[0,1]$. Logistic regression assumes a linear relationship between the input features and the log-odds of the outcome. This assumption can be restrictive when the true relationships are nonlinear. To address this limitation, common approaches are feature engineering with polynomial or interaction terms (e.g, $x^2, x_i \cdot x_j)$ to capture nonlinear patterns. 
 
@@ -596,7 +596,6 @@ where $\hat{Y}$ is the predicted continuous outcome, $X = (x_1, x_2, \ldots, x_k
 
 \begin{figure}[H]
     \centering
-    % First Figure
     \begin{minipage}{0.45\textwidth}
         \centering
         \includegraphics[width=\linewidth]{paper_photos/logisticreg.png}
@@ -612,7 +611,7 @@ where $\hat{Y}$ is the predicted continuous outcome, $X = (x_1, x_2, \ldots, x_k
     \end{minipage}
 \end{figure}
 
-Monte Carlo Simulation is a computational technique that uses repeated random sampling to estimate probabilities for systems with inherent uncertainty. The method generates $N$ independent samples $x_1, x_2, \ldots, x_N$ from a probability distribution $f(x)$, then estimates probabilities by computation the proportion of samples satisfying a certain condition. The simulation is defined as:
+Monte Carlo Simulation is a computational technique that uses repeated random sampling to estimate probabilities for systems with inherent uncertainty. The method generates $N$ independent samples $x_1, x_2, \ldots, x_N$ from a probability distribution $f(x)$, then estimates probabilities by computing the proportion of samples satisfying a certain condition. The simulation is defined as:
 \begin{equation}
 \hat{P} = \frac{1}{N}\sum_{i=1}^{N} {1}(x_i \in A),
 \end{equation}

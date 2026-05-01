@@ -9,6 +9,11 @@ output:
       in_header: preamble.tex
 ---
 
+## Outline
+\tableofcontents
+
+# Background
+
 ## Introduction
 \begin{itemize}
 \item March Madness is the NCAA Division I Basketball Tournament, a single-elimination bracket of $68$ teams held each March and April across both the Men's and Women's divisions to crown the National Champions.
@@ -19,7 +24,7 @@ output:
 \vspace{0.1in}
 \item With 63 games decided by single elimination, upsets are frequent, which is why the tournament has become famous for its unpredictability, hence the name ``March Madness.''
 \end{itemize}
-## Introduction
+## Tournament Bracket
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth,height=0.8\textheight,keepaspectratio]{March_Madness_Bracket_Web_Womans_2026.png}
@@ -42,8 +47,9 @@ output:
 \begin{itemize}
 \item Annual Kaggle competition running since 2014, challenging participants to predict outcomes of every possible matchup in the NCAA tournament.
 \vspace{0.2in}
-\item Submissions are a probability $P \in [0,1]$ for each of the $2 \times \binom{68}{2} = 4556$ possible matchups across Men's and Women's.
-\vspace{0.2in} Scored using the Brier Score:
+\item Submissions are a probability $p \in [0,1]$ for each of the $4556$ possible matchups across Men's and Women's.
+\vspace{0.2in} 
+\item Scored using the Brier Score:
 \begin{equation}
 BS = \frac{1}{N}\sum_{t=1}^N(f_t - o_t)^2
 \end{equation}
@@ -51,14 +57,185 @@ BS = \frac{1}{N}\sum_{t=1}^N(f_t - o_t)^2
 \item $o_t$ is $1$ if the team wins, and $0$ is they lose. 
 \end{itemize}
 
+## Brier Score
+\begin{itemize}
+\item A naive 'coin flip' strategy (50\% probability for all games) yields a Brier Score of 0.25, serving as our baseline.
+    \vspace{0.2in}
+\end{itemize}
+\begin{table}[h]
+\centering
+\begin{tabular}{lllr}
+\hline
+\textbf{Predicted} & \textbf{Outcome} & \textbf{Scenario} & \textbf{Brier Score} \\
+\hline
+0.50 & Win or Loss & Baseline & 0.2500 \\
+1.00 & Win         & Perfectly confident, correct   & 0.0000 \\
+1.00 & Loss        & Perfectly confident, incorrect & 1.0000 \\
+0.70 & Win         & Moderately confident, correct  & 0.0900 \\
+0.70 & Loss        & Moderately confident, incorrect & 0.4900 \\
+0.90 & Win         & Highly confident, correct      & 0.0100 \\
+0.90 & Loss        & Highly confident, incorrect    & 0.8100 \\
+\hline
+\end{tabular}
+\caption{Brier Score Examples}
+\label{tab:brier}
+\end{table}
+
 ## Prediction Difficulty
 \begin{itemize}
-\item Top predictive models plateau near $75\%$ accuracy.
+\item Top predictive models plateau near $75\%$ accuracy \cite{Zimmermann}.
 \vspace{0.2in}
 \item Odds of a perfect bracket: $1$ in $9.2$ quintillion (random) to $1$ in $128$ billion (informed).
 \vspace{0.2in}
-\item No publicly verified bracket has survived past the Sweet Sixteen.
+\item No publicly verified bracket has survived past the Sweet Sixteen \cite{Bergen2018}.
 \vspace{0.2in}
-\item \$$3.1$ billion wagered in 2025, sportsbook lines are the benchmark to beat.
+\item \$$3.1$ billion wagered in 2025, sportsbook lines are the benchmark to beat \cite{AGA2025}.
 \end{itemize}
 
+# Data 
+
+## Kaggle Data
+\begin{itemize}
+\item Kaggle provides $37$ tables spanning over three decades, separated by gender.
+\item Contains detailed regular season and playoff results, plus tournament seeding tables.
+\item Detailed box scores begin in $2003$ for men and $2010$ for women.
+\end{itemize}
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{ll}
+\hline
+\textbf{Variable} & \textbf{Description} \\
+\hline
+PTS         & Points scored \\
+FGM / FGA   & Field goals made and attempted \\
+FGM3 / FGA3 & Three-point field goals made and attempted \\
+FTM / FTA   & Free throws made and attempted \\
+OR / DR     & Offensive and defensive rebounds \\
+Ast         & Assists \\
+TO          & Turnovers \\
+Blk         & Blocks \\
+PF          & Personal fouls \\
+\hline
+\end{tabular}
+\caption{Detailed Result Variables}
+\end{table}
+
+## External Data Sources
+\begin{itemize}
+\item Box scores miss nuances such as pace of play and strength of schedule.
+\item Supplement Kaggle data with advanced efficiency metrics:
+  \begin{itemize}
+  \item \textbf{KenPom} (Men's): industry standard, per-possession efficiency adjusted for opponent \cite{KenPom}.
+  \item \textbf{Bart Torvik} (Women's): comparable methodology, used since KenPom is men's only \cite{Torvik}.
+  \end{itemize}
+\end{itemize}
+\vspace{0.2in}
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\begin{table}
+\centering
+\scriptsize
+\begin{tabular}{ll}
+\hline
+\textbf{Metric} & \textbf{Description} \\
+\hline
+NetRtg & ORtg $-$ DRtg \\
+ORtg   & Pts / 100 poss. \\
+DRtg   & Pts allowed / 100 poss. \\
+AdjT   & Possessions per 40 min \\
+\hline
+\end{tabular}
+\caption{KenPom Metrics}
+\end{table}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+\begin{table}
+\centering
+\scriptsize
+\begin{tabular}{ll}
+\hline
+\textbf{Metric} & \textbf{Description} \\
+\hline
+ADJOE & Adjusted offensive efficiency \\
+ADJDE & Adjusted defensive efficiency \\
+AdjT  & Adjusted tempo \\
+\hline
+\end{tabular}
+\caption{Bart Torvik Metrics}
+\end{table}
+\end{column}
+\end{columns}
+
+## Data Considerations
+\begin{itemize}
+\item \textbf{2020 Tournament Gap:} the COVID-canceled tournament produces no playoff observations; regular season $2020$ data is still usable.
+\vspace{0.15in}
+\item \textbf{Completeness:} no missing values across Kaggle, KenPom, or Torvik. Every team has a complete statistical profile.
+\vspace{0.15in}
+\item \textbf{Team Name Matching:} external sources use inconsistent spellings (ex: ``St.\ Mary's'' vs ``Saint Mary's CA'').
+   \begin{itemize}
+   \item Stage 1: exact match on normalized names against Kaggle lookup
+   \item Stage 2: fuzzy match using Jaro-Winkler distance with threshold $0.3$
+   \item All teams successfully matched in both divisions
+   \end{itemize}
+\end{itemize}
+
+# Past Strategies
+
+## Academic Foundation
+\begin{itemize}
+\item Tournament seeding alone is a strong predictor via logistic regression with z-score transformation \cite{Schwertman}.
+\vspace{0.15in}
+\item Combined logistic regression and Markov chain models, benchmarked against nearly $100$ ranking systems, established logistic regression as the baseline standard \cite{Sokol2026}.
+\vspace{0.15in}
+\item No classifier (decision trees, random forests, naive Bayes, MLPs) exceeds $74$–$75\%$ accuracy on NCAAB data \cite{Zimmermann}.
+\vspace{0.15in}
+\item \textbf{Key takeaway:} feature construction matters more than model choice.
+\end{itemize}
+
+## Dominant Frameworks
+\begin{itemize}
+\item \textbf{Fundamental Analysis:} construct a ``true" probability independent of public sentiment.
+   \begin{itemize}
+   \item Elo ratings \cite{chess}, KenPom, FiveThirtyEight, Massey
+   \vspace{0.1in}
+   \item Treats expert outputs as features, not final predictions
+   \vspace{0.1in}
+   \end{itemize}
+\vspace{0.2in}
+\item \textbf{Efficient Market Hypothesis} \cite{EMH}: betting markets aggregate information better than any single model.
+   \begin{itemize}
+   \item Uses closing lines from major bookmakers.
+   \item \texttt{goto\_conversion} algorithm \cite{goto} corrects for favorite-long shot bias.
+   \end{itemize}
+\end{itemize}
+
+## NIL Era and Recent Baselines
+\begin{itemize}
+\item \textbf{Boosting} \cite{raddar}: tiered features (seeding to efficiency to Elo to GLM team quality), implemented in XGBoost. Multiple top $10$ finishes in 2024 and 2025 cite his work as the baseline for their submission.
+\vspace{0.15in}
+\item \textbf{Simulation pipelines} among top 2024 finishers: predict point margins, then simulate brackets thousands of times via normal distribution over margins. 
+\vspace{0.15in}
+\item Inspired the three models in this paper: \textbf{Logistic Regression}, \textbf{XGBoost}, and \textbf{Linear Regression Monte Carlo}.
+\end{itemize}
+
+# Modeling Techniques
+
+## Logistic Regression
+\begin{itemize}
+\item Binary classification model that applies the sigmoid function to a linear combination of features.
+\end{itemize}
+\vspace{0.1in}
+\begin{equation}
+P(Y=1 \mid \mathbf{x}) = \frac{1}{1 + e^{-(\beta_0 + \beta_1 x_1 + \cdots + \beta_k x_k)}}
+\end{equation}
+\vspace{0.05in}
+\begin{itemize}
+\item $\mathbf{x} = (x_1, \ldots, x_k)$: feature vector
+\item $\boldsymbol{\beta} = (\beta_0, \ldots, \beta_k)$: coefficients estimated via maximum likelihood
+\vspace{0.1in}
+\item Output is bounded between $[0,1]$, making it interpretable as a probability.
+\item Assumes linear relationship between features and log-odds; nonlinearity addressed via polynomial or interaction terms.
+\end{itemize}
