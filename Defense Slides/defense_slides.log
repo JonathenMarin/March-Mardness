@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.1) (preloaded format=pdflatex 2026.4.14)  30 APR 2026 15:27
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.1) (preloaded format=pdflatex 2026.4.14)  1 MAY 2026 16:15
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1282,7 +1282,7 @@ LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <6> not available
 [4
 
 ]
-<March_Madness_Bracket_Web_Womans_2026.png, id=90, 1017.8025pt x 636.3775pt>
+<March_Madness_Bracket_Web_Womans_2026.png, id=92, 1017.8025pt x 636.3775pt>
 File: March_Madness_Bracket_Web_Womans_2026.png Graphic file (type png)
 <use March_Madness_Bracket_Web_Womans_2026.png>
 Package pdftex.def Info: March_Madness_Bracket_Web_Womans_2026.png  used on inp
@@ -1429,6 +1429,138 @@ LaTeX Font Info:    Font shape `T1/lmss/bx/it' in size <6> not available
 [19
 
 ]
+
+LaTeX Warning: Citation `OLS' on page 20 undefined on input line 391.
+
+[20
+
+]
+<logisticreg.png, id=270, 722.7pt x 482.80376pt>
+File: logisticreg.png Graphic file (type png)
+<use logisticreg.png>
+Package pdftex.def Info: logisticreg.png  used on input line 408.
+(pdftex.def)             Requested size: 164.36488pt x 109.80487pt.
+
+LaTeX Warning: Citation `logphoto' on page 21 undefined on input line 408.
+
+
+LaTeX Warning: Citation `logphoto' on page 21 undefined on input line 408.
+
+<simple_regression.png, id=271, 736.7525pt x 581.17125pt>
+File: simple_regression.png Graphic file (type png)
+<use simple_regression.png>
+Package pdftex.def Info: simple_regression.png  used on input line 408.
+(pdftex.def)             Requested size: 164.35692pt x 129.64938pt.
+
+LaTeX Warning: Citation `linearphoto' on page 21 undefined on input line 408.
+
+
+LaTeX Warning: Citation `linearphoto' on page 21 undefined on input line 408.
+
+[21
+
+ <./logisticreg.png> <./simple_regression.png>]
+
+LaTeX Warning: Citation `LargeNumbers' on page 22 undefined on input line 429.
+
+[22
+
+]
+
+LaTeX Warning: Citation `XGBoost' on page 23 undefined on input line 448.
+
+[23
+
+] [24
+
+]
+Overfull \vbox (1.68073pt too high) detected at line 500
+ []
+
+[25
+
+]
+<Schematic-illustration-of-the-XGboost-model_W640.jpg, id=315, 215.1293pt x 242
+.02046pt>
+File: Schematic-illustration-of-the-XGboost-model_W640.jpg Graphic file (type j
+pg)
+<use Schematic-illustration-of-the-XGboost-model_W640.jpg>
+Package pdftex.def Info: Schematic-illustration-of-the-XGboost-model_W640.jpg  
+used on input line 509.
+(pdftex.def)             Requested size: 185.23409pt x 208.38834pt.
+
+LaTeX Warning: Citation `XGphoto' on page 26 undefined on input line 509.
+
+
+Overfull \vbox (9.41759pt too high) detected at line 509
+ []
+
+[26
+
+ <./Schematic-illustration-of-the-XGboost-model_W640.jpg>]
+
+LaTeX Warning: Citation `cv' on page 27 undefined on input line 520.
+
+[27
+
+]
+<Cross_Validation_Ferrer_2-scaled.png, id=332, 2569.6pt x 2198.2125pt>
+File: Cross_Validation_Ferrer_2-scaled.png Graphic file (type png)
+<use Cross_Validation_Ferrer_2-scaled.png>
+Package pdftex.def Info: Cross_Validation_Ferrer_2-scaled.png  used on input li
+ne 529.
+(pdftex.def)             Requested size: 152.2089pt x 130.20996pt.
+
+LaTeX Warning: Citation `cvart' on page 28 undefined on input line 529.
+
+[28
+
+ <./Cross_Validation_Ferrer_2-scaled.png>] [29
+
+] [30
+
+] [31
+
+]
+
+LaTeX Warning: Citation `Dean' on page 32 undefined on input line 570.
+
+[32
+
+] [33
+
+] [34
+
+] [35
+
+] [36
+
+]
+<vif_log-1.pdf, id=416, 1011.78pt x 433.62pt>
+File: vif_log-1.pdf Graphic file (type pdf)
+<use vif_log-1.pdf>
+Package pdftex.def Info: vif_log-1.pdf  used on input line 662.
+(pdftex.def)             Requested size: 342.44136pt x 146.76057pt.
+[37
+
+ <./vif_log-1.pdf>]
+<corr_log-1.pdf, id=434, 867.24pt x 433.62pt>
+File: corr_log-1.pdf Graphic file (type pdf)
+<use corr_log-1.pdf>
+Package pdftex.def Info: corr_log-1.pdf  used on input line 674.
+(pdftex.def)             Requested size: 342.43034pt x 171.21516pt.
+
+Overfull \vbox (6.24443pt too high) detected at line 674
+ []
+
+[38
+
+ <./corr_log-1.pdf>]
+LaTeX Font Info:    Font shape `T1/lmss/b/n' in size <5> not available
+(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 720.
+[39
+
+]
 \tf@nav=\write5
 \openout5 = `defense_slides.nav'.
 
@@ -1448,13 +1580,13 @@ LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 28148 strings out of 467866
- 563801 string characters out of 5414453
- 953357 words of memory out of 5000000
- 56249 multiletter control sequences out of 15000+600000
- 734687 words of font info for 182 fonts, out of 8000000 for 9000
+ 28342 strings out of 467866
+ 567187 string characters out of 5414453
+ 960258 words of memory out of 5000000
+ 56363 multiletter control sequences out of 15000+600000
+ 738497 words of font info for 193 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 128i,15n,123p,1013b,730s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 128i,19n,123p,1013b,730s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/jonathenmarin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/l
 mex10.pfb><C:/Users/jonathenmarin/AppData/Local/Programs/MiKTeX/fonts/type1/pub
 lic/lm/lmmi10.pfb><C:/Users/jonathenmarin/AppData/Local/Programs/MiKTeX/fonts/t
@@ -1470,9 +1602,9 @@ nathenmarin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsso10.pfb><C:
 m/lmsy10.pfb><C:/Users/jonathenmarin/AppData/Local/Programs/MiKTeX/fonts/type1/
 public/lm/lmsy8.pfb><C:/Users/jonathenmarin/AppData/Local/Programs/MiKTeX/fonts
 /type1/public/lm/lmtt10.pfb>
-Output written on defense_slides.pdf (19 pages, 769066 bytes).
+Output written on defense_slides.pdf (39 pages, 1081390 bytes).
 PDF statistics:
- 348 PDF objects out of 1000 (max. 8388607)
- 59 named destinations out of 1000 (max. 500000)
- 65812 words of extra memory for PDF output out of 74296 (max. 10000000)
+ 562 PDF objects out of 1000 (max. 8388607)
+ 119 named destinations out of 1000 (max. 500000)
+ 67928 words of extra memory for PDF output out of 74296 (max. 10000000)
 

@@ -643,7 +643,6 @@ where $\hat{Y}$ is the predicted continuous outcome, $X = (x_1, x_2, \ldots, x_k
         \caption{An Example of a Logistic Regression Equation \cite{logphoto}.}
         \label{logistic}
     \end{minipage}\hfill
-    % Second Figure
     \begin{minipage}{0.45\textwidth}
         \centering
         \includegraphics[width=\linewidth]{paper_photos/simple_regression.png}
@@ -783,7 +782,7 @@ The pairwise correlation matrices for the men's and women's training data are pr
 Because separate models were trained for the men's and women's tournaments, the resulting coefficient structures can be analyzed independently to determine the relative importance of each feature. These independent estimates are then compared against one another to assess whether the Four Factors operate fundamentally differently across the two divisions. By rigorously examining the magnitude and statistical significance of each variable, it becomes possible to identify which specific phases of the game best dictate postseason success for each gender. To illustrate these comparative findings, Tables \ref{tab:mens_coef} and \ref{tab:womens_coef} present the estimated coefficients, standard errors, p-values, and significance levels for the men's and women's models, respectively.
 
 % latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Thu Apr 30 15:49:17 2026
+% Fri May  1 14:41:15 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -802,7 +801,7 @@ Intercept & 0.4352 & 0.2062 & 0.0348 & * \\
 \label{tab:mens_coef}
 \end{table}
 % latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Thu Apr 30 15:49:17 2026
+% Fri May  1 14:41:15 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1093,7 +1092,7 @@ The pairwise correlation matrices in Figure~\ref{fig:corr_mc} confirm these find
 Because separate models were trained for the men's and women's tournaments, the coefficient structures can be analyzed independently and then compared to assess whether the efficiency and tempo features operate differently across divisions. Tables \ref{tab:mens_coef_mc} and \ref{tab:womens_coef_mc} present the estimated coefficients, standard errors, p-values, and significance levels for the men's and women's models respectively.
 
 % latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Thu Apr 30 15:49:20 2026
+% Fri May  1 14:41:20 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1113,7 +1112,7 @@ Intercept & -207.3986 & 5.4365 & 0.0000 & *** \\
 \label{tab:mens_coef_mc}
 \end{table}
 % latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Thu Apr 30 15:49:20 2026
+% Fri May  1 14:41:20 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1198,7 +1197,7 @@ While the AUC results highlight the discriminative advantage of XGBoost and Mont
 The competition winning score of $0.10411$ corresponds to approximately $0.677$, indicating that top submissions are consistently more confident on clear matchups while remaining appropriately uncertain on competitive ones. The difference of less than $0.001$ between XGBoost and Monte Carlo is negligible in practical terms, confirming that both models produce comparably calibrated win probabilities on the 2025 tournament despite their fundamentally different approaches. All three models fall short of the competition winning Brier Score of $0.10411$, indicating that the best performing submissions in the Kaggle competition produce sharper and better calibrated probabilities than any of the three models developed here. 
 
 % latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Thu Apr 30 15:49:21 2026
+% Fri May  1 14:41:21 2026
 \begin{table}[ht]
 \centering
 \scalebox{0.85}{
@@ -1245,7 +1244,7 @@ The 2026 women's model remained structurally consistent with its 2025 counterpar
 
 
 % latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Thu Apr 30 15:49:22 2026
+% Fri May  1 14:41:21 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1267,7 +1266,7 @@ Variable & Estimate & Std. Error & p-value & Sig. \\
 
 
 % latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Thu Apr 30 15:49:22 2026
+% Fri May  1 14:41:21 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}

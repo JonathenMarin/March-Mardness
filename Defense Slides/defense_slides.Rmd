@@ -239,3 +239,302 @@ P(Y=1 \mid \mathbf{x}) = \frac{1}{1 + e^{-(\beta_0 + \beta_1 x_1 + \cdots + \bet
 \item Output is bounded between $[0,1]$, making it interpretable as a probability.
 \item Assumes linear relationship between features and log-odds; nonlinearity addressed via polynomial or interaction terms.
 \end{itemize}
+
+## Linear Regression
+\begin{itemize}
+\item Models a continuous outcome as a linear combination of features, with coefficients estimated by ordinary least squares \cite{OLS}.
+\end{itemize}
+\vspace{0.1in}
+\begin{equation}
+\hat{Y} = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \cdots + \beta_k x_k
+\end{equation}
+\vspace{0.05in}
+\begin{itemize}
+\item Unlike logistic regression, output is unbounded and not a probability.
+\vspace{0.1in}
+\item In sports prediction, used to estimate point margins which are then converted to win probabilities via:
+   \begin{itemize}
+   \item logistic transformation of the predicted margin, or
+   \item Monte Carlo simulation over the margin distribution.
+   \end{itemize}
+\end{itemize}
+
+## Visualization
+\begin{figure}
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=0.7\textheight,keepaspectratio]{logisticreg.png}
+        \caption{Logistic Regression Illustration \cite{logphoto}}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=0.7\textheight,keepaspectratio]{simple_regression.png}
+        \caption{Linear Regression Illustration\cite{linearphoto}}
+    \end{minipage}
+\end{figure}
+
+## Monte Carlo Simulation
+\begin{itemize}
+\item Computational technique that uses repeated random sampling to estimate probabilities for systems with uncertainty.
+\vspace{0.1in}
+\item Generates $N$ independent samples $x_1, x_2, \ldots, x_N$ from a distribution $f(x)$, then estimates probabilities by counting how often a condition is met:
+\end{itemize}
+\begin{equation}
+\hat{P} = \frac{1}{N}\sum_{i=1}^{N} \mathbf{1}(x_i \in A)
+\end{equation}
+\begin{itemize}
+\item $\mathbf{1}(\cdot)$: indicator function ($1$ if condition met, $0$ otherwise).
+\item $A$: event of interest; $\hat{P}$: estimate of true probability $P(A)$.
+\vspace{0.1in}
+\item By the Law of Large Numbers \cite{LargeNumbers}, $\hat{P} \to P(A)$ as $N \to \infty$.
+\vspace{0.1in}
+\end{itemize}
+
+## XGBoost: Overview
+\begin{itemize}
+\item \textbf{Extreme Gradient Boosting} \cite{XGBoost} is an ensemble of decision trees built sequentially.
+\vspace{0.15in}
+\item Each new tree corrects the residual errors of the previous trees.
+\vspace{0.15in}
+\item Final prediction is the sum of contributions from all trees:
+\end{itemize}
+\begin{equation}
+\hat{y}_i = \sum_{k=1}^K f_k(x_i)
+\end{equation}
+\vspace{0.05in}
+\begin{itemize}
+\item Widely used in competitive ML for structured data; captures complex interactions and nonlinearity automatically.
+\end{itemize}
+
+## Building Each Tree
+\begin{itemize}
+\item Start with an initial prediction (e.g., the average outcome).
+\vspace{0.1in}
+\item Compute the \textbf{loss} (binary cross-entropy):
+\end{itemize}
+\begin{equation}
+\ell(y_i, \hat{y}_i) = -[y_i \log(\hat{y}_i) + (1-y_i)\log(1-\hat{y}_i)]
+\end{equation}
+\begin{itemize}
+\item Compute the \textbf{gradient} of the loss with respect to each prediction:
+\end{itemize}
+\begin{equation}
+g_i = \hat{y}_i - y_i
+\end{equation}
+\begin{itemize}
+\item The gradient tells each prediction how to move to reduce loss.
+\vspace{0.1in}
+\item The next tree is trained to predict these gradients across the feature space.
+\end{itemize}
+
+## Objective Function
+\begin{itemize}
+\item Each tree is added to minimize the objective function:
+\end{itemize}
+\begin{equation}
+\text{obj}(\theta) = \sum_{i=1}^n \ell(y_i, \hat{y}_i) + \sum_{k=1}^K \Omega(f_k)
+\end{equation}
+\begin{itemize}
+\item \textbf{Loss term} $\sum \ell(y_i, \hat{y}_i)$: total prediction error; the gradient is its derivative.
+\item \textbf{Regularization term} $\sum \Omega(f_k)$: penalizes complex trees:
+\end{itemize}
+\begin{equation}
+\Omega(f) = \gamma T + \frac{1}{2}\lambda \sum_{j=1}^T w_j^2
+\end{equation}
+\begin{itemize}
+\item $T$: number of leaves; $w_j$: leaf values; $\gamma, \lambda$: regularization hyperparameters.
+\item Discourages overly deep trees and extreme leaf values.
+\end{itemize}
+
+## XGBoost Example
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth,height=0.8\textheight,keepaspectratio]{Schematic-illustration-of-the-XGboost-model_W640.jpg}
+\caption{How XGBoost combines trees sequentially \cite{XGphoto}}
+\end{figure}
+
+## Cross Validation
+\begin{itemize}
+\item Evaluation technique that systematically rotates which portion of the data is held out, so every observation serves as both training and validation \cite{cv}.
+\vspace{0.1in}
+\item In \textbf{$k$-fold cross validation}: partition data into $k$ equally sized folds. Train $k$ times, each time using $k-1$ folds for training and the remaining fold for validation.
+\vspace{0.1in}
+\item Final score is the average performance across all $k$ folds.
+\end{itemize}
+
+## CV Example
+\begin{figure}
+\centering
+\includegraphics[width=0.85\textwidth,height=0.5\textheight,keepaspectratio]{Cross_Validation_Ferrer_2-scaled.png}
+\caption{Cross Validation vs.\ Regular Train/Test Split \cite{cvart}}
+\end{figure}
+
+# Methods
+## Logistic Regression: Setup
+\begin{itemize}
+\item Outcome is binary (win/loss), and logistic regression directly models the log-odds as a linear combination of features.
+\vspace{0.1in}
+\item Output is a calibrated probability so no transformation needed.
+\vspace{0.1in}
+\item Coefficients are interpretable, providing direct insight into which features drive predictions.
+\vspace{0.1in}
+\item \textbf{Training boundary:} features computed from regular season data, model trained on tournament outcomes.
+\end{itemize}
+
+## Training Window
+\begin{itemize}
+\item To prevent data leakage and reflect roster turnover, the model uses a \textbf{rolling two-year window}.
+\vspace{0.15in}
+\item Example: to forecast the 2025 tournament, train only on 2023 and 2024 tournament games.
+\vspace{0.15in}
+\item \textbf{Motivation:} high roster turnover in college basketball means a program undergoes near-complete personnel transformation within $2$--$3$ seasons.
+\vspace{0.15in}
+\item Older data does not reflect current team strength.
+\end{itemize}
+
+## Variable Selection: The Pace Problem
+\begin{itemize}
+\item Raw box score totals are confounded by \textbf{pace}.
+\vspace{0.2in}
+\item High-tempo teams accumulate more counting stats without being more efficient.
+\vspace{0.2in}
+\item To compare teams fairly, statistics must be normalized by possessions.
+\vspace{0.2in}
+\item Solution: Dean Oliver's \textbf{Four Factors} \cite{Dean}, the components most correlated with winning.
+\end{itemize}
+
+## The Four Factors
+\begin{itemize}
+\item Possession estimation from box score data:
+\end{itemize}
+\begin{equation}
+\text{Poss} = (FGA - OR) + TO + 0.44 \cdot FTA
+\end{equation}
+\vspace{0.05in}
+\begin{equation}
+eFG\% = \frac{FGM + 0.5 \cdot FGM3}{FGA} \quad\quad TOV\% = \frac{TO}{\text{Poss}}
+\end{equation}
+\vspace{0.05in}
+\begin{equation}
+ORB\% = \frac{OR}{OR + DR_{opp}} \quad\quad FTR = \frac{FTM}{FGA}
+\end{equation}
+\begin{itemize}
+\item \textbf{Effective FG\%}: adjusts for the added value of three-pointers.
+\item \textbf{Turnover \%}: turnovers per possession.
+\item \textbf{Offensive Rebound \%}: rebounding dominance per opportunity.
+\item \textbf{Free Throw Rate}: free throw frequency relative to FG attempts.
+\end{itemize}
+
+## Final Feature Set
+\begin{itemize}
+\item Beyond the Four Factors, the model adds \textbf{Win Percentage} as a fifth feature.
+\vspace{0.15in}
+\item Win\% aggregates effects the Four Factors miss directly:
+   \begin{itemize}
+   \item Coaching decisions
+   \item Late-game execution
+   \item Opponent quality
+   \end{itemize}
+\vspace{0.15in}
+\item All five features computed as season averages from regular season data.
+\vspace{0.15in}
+\item Transformed into \textbf{differentials} between competing teams, centering the analysis on the relative mismatch.
+\end{itemize}
+
+## Model Implementation
+\begin{itemize}
+\item Logistic regression implemented separately for Men's and Women's divisions.
+\vspace{0.15in}
+\item Why not one combined model with a gender indicator?
+   \begin{itemize}
+   \item Differences in pace, physicality, and three-point volume.
+   \item The Four Factors carry structurally different predictive weight across divisions.
+   \item Forcing shared parameters would mask these differences.
+   \end{itemize}
+\vspace{0.15in}
+\item Each model optimizes its coefficients to the unique statistical footprint of its division.
+\end{itemize}
+
+## Model Specification
+\begin{itemize}
+\item Logit link function maps linear combination of differentials to a probability in $(0, 1)$:
+\end{itemize}
+\begin{equation}
+\begin{split}
+\text{logit}(\hat{P}) = \ln\left(\frac{P}{1-P}\right) = \beta_0 & + \beta_1(\text{eFG\_diff}) + \beta_2(\text{TOV\_diff}) \\
+& + \beta_3(\text{ORB\_diff}) + \beta_4(\text{FTR\_diff}) \\
+& + \beta_5(\text{Win\_diff})
+\end{split}
+\end{equation}
+\begin{itemize}
+\item $P$: probability of a Team $1$ victory.
+\item Coefficients $\boldsymbol{\beta}$ estimated via maximum likelihood:
+\end{itemize}
+\begin{equation}
+\sum_{i=1}^n \left[ y_i \log p(x_i) + (1-y_i)\log(1-p(x_i)) \right]
+\end{equation}
+
+## Multicollinearity Check
+\begin{itemize}
+\item All five predictors fall below VIF $= 3$ in both division so no problematic collinearity.
+\end{itemize}
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth,height=0.75\textheight,keepaspectratio]{vif_log-1.pdf}
+\caption{Men's (left) and Women's (right) VIF Plots for 2025}
+\end{figure}
+
+## Feature Correlations
+\begin{itemize}
+\item Pairwise correlations are modest in both divisions; consistent with VIF results.
+\end{itemize}
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth,height=0.75\textheight,keepaspectratio]{corr_log-1.pdf}
+\caption{Men's (left) and Women's (right) Correlation Matrix for 2025 }
+\end{figure}
+
+## Coefficient Estimates
+\begin{center}\textbf{Men's Model}\end{center}
+\vspace{-0.1in}
+\begin{center}
+\scriptsize
+\begin{tabular}{lrrrl}
+\hline
+\textbf{Variable} & \textbf{Est.} & \textbf{SE} & \textbf{p} & \textbf{Sig.} \\
+\hline
+Intercept    & 0.4352   & 0.2062  & 0.0348 & * \\
+eFG Diff     & 7.7952   & 6.4160  & 0.2244 &   \\
+TOV Pct Diff & -20.5106 & 12.1028 & 0.0901 & . \\
+ORB Pct Diff & 12.3634  & 4.1219  & 0.0027 & ** \\
+FTR Diff     & -1.4307  & 4.5405  & 0.7527 &   \\
+Win Diff     & 1.3253   & 1.7033  & 0.4365 &   \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.05in}
+\begin{center}\textbf{Women's Model}\end{center}
+\vspace{-0.1in}
+\begin{center}
+\scriptsize
+\begin{tabular}{lrrrl}
+\hline
+\textbf{Variable} & \textbf{Est.} & \textbf{SE} & \textbf{p} & \textbf{Sig.} \\
+\hline
+Intercept    & -0.0888  & 0.2055 & 0.6657 &   \\
+eFG Diff     & 17.4458  & 5.5413 & 0.0016 & ** \\
+TOV Pct Diff & -19.8212 & 8.7655 & 0.0237 & * \\
+ORB Pct Diff & 12.4308  & 3.5127 & 0.0004 & *** \\
+FTR Diff     & 3.9742   & 5.1691 & 0.4420 &   \\
+Win Diff     & -1.8468  & 2.2764 & 0.4172 &   \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.1in}
+\begin{itemize}
+\item ORB\% drives wins in both divisions ($\sim 12.4$) --- universal driver.
+\item eFG\% significant in women's, not men's.
+\end{itemize}

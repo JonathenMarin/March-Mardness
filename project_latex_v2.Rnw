@@ -602,7 +602,6 @@ where $\hat{Y}$ is the predicted continuous outcome, $X = (x_1, x_2, \ldots, x_k
         \caption{An Example of a Logistic Regression Equation \cite{logphoto}.}
         \label{logistic}
     \end{minipage}\hfill
-    % Second Figure
     \begin{minipage}{0.45\textwidth}
         \centering
         \includegraphics[width=\linewidth]{paper_photos/simple_regression.png}

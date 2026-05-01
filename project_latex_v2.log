@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.1) (preloaded format=pdflatex 2026.4.14)  30 APR 2026 15:49
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.1) (preloaded format=pdflatex 2026.4.14)  1 MAY 2026 14:41
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1035,7 +1035,7 @@ Package pdftex.def Info: paper_photos/logisticreg.png  used on input line 642.
 File: paper_photos/simple_regression.png Graphic file (type png)
 <use paper_photos/simple_regression.png>
 Package pdftex.def Info: paper_photos/simple_regression.png  used on input line
- 649.
+ 648.
 (pdftex.def)             Requested size: 181.06937pt x 142.82716pt.
 [16] [17 <./paper_photos/logisticreg.png> <./paper_photos/simple_regression.png
 >] [18]
@@ -1045,7 +1045,7 @@ File: paper_photos/Schematic-illustration-of-the-XGboost-model_W640.jpg Graphic
  file (type jpg)
 <use paper_photos/Schematic-illustration-of-the-XGboost-model_W640.jpg>
 Package pdftex.def Info: paper_photos/Schematic-illustration-of-the-XGboost-mod
-el_W640.jpg  used on input line 678.
+el_W640.jpg  used on input line 677.
 (pdftex.def)             Requested size: 258.15385pt x 290.42308pt.
 [19 <./paper_photos/Schematic-illustration-of-the-XGboost-model_W640.jpg>]
 <paper_photos/Cross_Validation_Ferrer_2-scaled.png, id=376, 2569.6pt x 2198.212
@@ -1054,49 +1054,49 @@ File: paper_photos/Cross_Validation_Ferrer_2-scaled.png Graphic file (type png)
 
 <use paper_photos/Cross_Validation_Ferrer_2-scaled.png>
 Package pdftex.def Info: paper_photos/Cross_Validation_Ferrer_2-scaled.png  use
-d on input line 688.
+d on input line 687.
 (pdftex.def)             Requested size: 256.97505pt x 219.83412pt.
 [20 <./paper_photos/Cross_Validation_Ferrer_2-scaled.png>] [21] [22] [23] [24] 
 [25] [26] [27]
 <figure/vif_log_DO-1.pdf, id=432, 867.24pt x 361.35pt>
 File: figure/vif_log_DO-1.pdf Graphic file (type pdf)
 <use figure/vif_log_DO-1.pdf>
-Package pdftex.def Info: figure/vif_log_DO-1.pdf  used on input line 760.
+Package pdftex.def Info: figure/vif_log_DO-1.pdf  used on input line 759.
 (pdftex.def)             Requested size: 402.37912pt x 167.65659pt.
 [28 <./figure/vif_log_DO-1.pdf>]
 <figure/corr_log-1.pdf, id=448, 867.24pt x 433.62pt>
 File: figure/corr_log-1.pdf Graphic file (type pdf)
 <use figure/corr_log-1.pdf>
-Package pdftex.def Info: figure/corr_log-1.pdf  used on input line 774.
+Package pdftex.def Info: figure/corr_log-1.pdf  used on input line 773.
 (pdftex.def)             Requested size: 402.37912pt x 201.18791pt.
 [29 <./figure/corr_log-1.pdf>] [30] [31] [32]
 <figure/roc_log-1.pdf, id=475, 867.24pt x 361.35pt>
 File: figure/roc_log-1.pdf Graphic file (type pdf)
 <use figure/roc_log-1.pdf>
-Package pdftex.def Info: figure/roc_log-1.pdf  used on input line 836.
+Package pdftex.def Info: figure/roc_log-1.pdf  used on input line 835.
 (pdftex.def)             Requested size: 402.37912pt x 167.65659pt.
 [33 <./figure/roc_log-1.pdf>] [34] [35] [36] [37]
 <figure/unnamed-chunk-1-1.pdf, id=505, 289.08pt x 289.08pt>
 File: figure/unnamed-chunk-1-1.pdf Graphic file (type pdf)
 <use figure/unnamed-chunk-1-1.pdf>
-Package pdftex.def Info: figure/unnamed-chunk-1-1.pdf  used on input line 871.
+Package pdftex.def Info: figure/unnamed-chunk-1-1.pdf  used on input line 870.
 (pdftex.def)             Requested size: 193.14024pt x 193.14003pt.
 <figure/unnamed-chunk-2-1.pdf, id=506, 289.08pt x 289.08pt>
 File: figure/unnamed-chunk-2-1.pdf Graphic file (type pdf)
 <use figure/unnamed-chunk-2-1.pdf>
-Package pdftex.def Info: figure/unnamed-chunk-2-1.pdf  used on input line 879.
+Package pdftex.def Info: figure/unnamed-chunk-2-1.pdf  used on input line 878.
 (pdftex.def)             Requested size: 193.14024pt x 193.14003pt.
 [38 <./figure/unnamed-chunk-1-1.pdf> <./figure/unnamed-chunk-2-1.pdf>] [39] [40
 ]
 <figure/unnamed-chunk-3-1.pdf, id=542, 289.08pt x 361.35pt>
 File: figure/unnamed-chunk-3-1.pdf Graphic file (type pdf)
 <use figure/unnamed-chunk-3-1.pdf>
-Package pdftex.def Info: figure/unnamed-chunk-3-1.pdf  used on input line 917.
+Package pdftex.def Info: figure/unnamed-chunk-3-1.pdf  used on input line 916.
 (pdftex.def)             Requested size: 193.14024pt x 241.42505pt.
 <figure/unnamed-chunk-4-1.pdf, id=543, 289.08pt x 361.35pt>
 File: figure/unnamed-chunk-4-1.pdf Graphic file (type pdf)
 <use figure/unnamed-chunk-4-1.pdf>
-Package pdftex.def Info: figure/unnamed-chunk-4-1.pdf  used on input line 925.
+Package pdftex.def Info: figure/unnamed-chunk-4-1.pdf  used on input line 924.
 (pdftex.def)             Requested size: 193.14024pt x 241.42505pt.
 [41] [42 <./figure/unnamed-chunk-3-1.pdf> <./figure/unnamed-chunk-4-1.pdf>] [43
 ] [44]
@@ -1104,21 +1104,21 @@ Package pdftex.def Info: figure/unnamed-chunk-4-1.pdf  used on input line 925.
 File: figure/feature_importance-1.pdf Graphic file (type pdf)
 <use figure/feature_importance-1.pdf>
 Package pdftex.def Info: figure/feature_importance-1.pdf  used on input line 94
-6.
+5.
 (pdftex.def)             Requested size: 321.90451pt x 321.90814pt.
 [45 <./figure/feature_importance-1.pdf>]
 <figure/auc_xgb-1.pdf, id=588, 433.62pt x 361.35pt>
 File: figure/auc_xgb-1.pdf Graphic file (type pdf)
 <use figure/auc_xgb-1.pdf>
-Package pdftex.def Info: figure/auc_xgb-1.pdf  used on input line 960.
+Package pdftex.def Info: figure/auc_xgb-1.pdf  used on input line 959.
 (pdftex.def)             Requested size: 281.66415pt x 234.73135pt.
 [46 <./figure/auc_xgb-1.pdf>] [47] [48] [49]
-Overfull \hbox (14.37535pt too wide) detected at line 997
+Overfull \hbox (14.37535pt too wide) detected at line 996
 []
  []
 
 
-Overfull \hbox (14.37535pt too wide) in alignment at lines 996--997
+Overfull \hbox (14.37535pt too wide) in alignment at lines 995--996
 [] [] 
  []
 
@@ -1126,92 +1126,92 @@ Overfull \hbox (14.37535pt too wide) in alignment at lines 996--997
 <figure/hist_mens-1.pdf, id=630, 505.89pt x 361.35pt>
 File: figure/hist_mens-1.pdf Graphic file (type pdf)
 <use figure/hist_mens-1.pdf>
-Package pdftex.def Info: figure/hist_mens-1.pdf  used on input line 1024.
+Package pdftex.def Info: figure/hist_mens-1.pdf  used on input line 1023.
 (pdftex.def)             Requested size: 321.90451pt x 229.9344pt.
 [52]
 <figure/hist_womens-1.pdf, id=640, 505.89pt x 361.35pt>
 File: figure/hist_womens-1.pdf Graphic file (type pdf)
 <use figure/hist_womens-1.pdf>
-Package pdftex.def Info: figure/hist_womens-1.pdf  used on input line 1036.
+Package pdftex.def Info: figure/hist_womens-1.pdf  used on input line 1035.
 (pdftex.def)             Requested size: 321.90451pt x 229.9344pt.
 [53 <./figure/hist_mens-1.pdf> <./figure/hist_womens-1.pdf>]
 <figure/diag_mens-1.pdf, id=658, 722.7pt x 722.7pt>
 File: figure/diag_mens-1.pdf Graphic file (type pdf)
 <use figure/diag_mens-1.pdf>
-Package pdftex.def Info: figure/diag_mens-1.pdf  used on input line 1053.
+Package pdftex.def Info: figure/diag_mens-1.pdf  used on input line 1052.
 (pdftex.def)             Requested size: 402.37912pt x 402.38243pt.
 [54] [55]
 <figure/diag_womens-1.pdf, id=669, 722.7pt x 722.7pt>
 File: figure/diag_womens-1.pdf Graphic file (type pdf)
 <use figure/diag_womens-1.pdf>
-Package pdftex.def Info: figure/diag_womens-1.pdf  used on input line 1060.
+Package pdftex.def Info: figure/diag_womens-1.pdf  used on input line 1059.
 (pdftex.def)             Requested size: 402.37912pt x 402.38243pt.
 [56 <./figure/diag_mens-1.pdf>] [57 <./figure/diag_womens-1.pdf>]
 <figure/vif_mc-1.pdf, id=689, 1011.78pt x 433.62pt>
 File: figure/vif_mc-1.pdf Graphic file (type pdf)
 <use figure/vif_mc-1.pdf>
-Package pdftex.def Info: figure/vif_mc-1.pdf  used on input line 1070.
+Package pdftex.def Info: figure/vif_mc-1.pdf  used on input line 1069.
 (pdftex.def)             Requested size: 402.37912pt x 172.45245pt.
 [58 <./figure/vif_mc-1.pdf>]
 <figure/corr_mc-1.pdf, id=704, 867.24pt x 433.62pt>
 File: figure/corr_mc-1.pdf Graphic file (type pdf)
 <use figure/corr_mc-1.pdf>
-Package pdftex.def Info: figure/corr_mc-1.pdf  used on input line 1084.
+Package pdftex.def Info: figure/corr_mc-1.pdf  used on input line 1083.
 (pdftex.def)             Requested size: 402.37912pt x 201.18791pt.
 [59 <./figure/corr_mc-1.pdf>] [60] [61] [62] [63]
 <figure/conf_matrices_2025-1.pdf, id=736, 722.7pt x 289.08pt>
 File: figure/conf_matrices_2025-1.pdf Graphic file (type pdf)
 <use figure/conf_matrices_2025-1.pdf>
 Package pdftex.def Info: figure/conf_matrices_2025-1.pdf  used on input line 11
-58.
+57.
 (pdftex.def)             Requested size: 402.37912pt x 160.95297pt.
 [64 <./figure/conf_matrices_2025-1.pdf>]
 <figure/conf_matrix_xgb-1.pdf, id=749, 722.7pt x 289.08pt>
 File: figure/conf_matrix_xgb-1.pdf Graphic file (type pdf)
 <use figure/conf_matrix_xgb-1.pdf>
-Package pdftex.def Info: figure/conf_matrix_xgb-1.pdf  used on input line 1167.
+Package pdftex.def Info: figure/conf_matrix_xgb-1.pdf  used on input line 1166.
 
 (pdftex.def)             Requested size: 402.37912pt x 160.95297pt.
 <figure/conf_mc-1.pdf, id=751, 722.7pt x 289.08pt>
 File: figure/conf_mc-1.pdf Graphic file (type pdf)
 <use figure/conf_mc-1.pdf>
-Package pdftex.def Info: figure/conf_mc-1.pdf  used on input line 1176.
+Package pdftex.def Info: figure/conf_mc-1.pdf  used on input line 1175.
 (pdftex.def)             Requested size: 402.37912pt x 160.95297pt.
 [65 <./figure/conf_matrix_xgb-1.pdf>] [66 <./figure/conf_mc-1.pdf>]
 <figure/roc_comparison-1.pdf, id=774, 867.24pt x 361.35pt>
 File: figure/roc_comparison-1.pdf Graphic file (type pdf)
 <use figure/roc_comparison-1.pdf>
-Package pdftex.def Info: figure/roc_comparison-1.pdf  used on input line 1190.
+Package pdftex.def Info: figure/roc_comparison-1.pdf  used on input line 1189.
 (pdftex.def)             Requested size: 402.37912pt x 167.65659pt.
 [67 <./figure/roc_comparison-1.pdf>] [68]
 <figure/vif_2026-1.pdf, id=791, 1011.78pt x 433.62pt>
 File: figure/vif_2026-1.pdf Graphic file (type pdf)
 <use figure/vif_2026-1.pdf>
-Package pdftex.def Info: figure/vif_2026-1.pdf  used on input line 1233.
+Package pdftex.def Info: figure/vif_2026-1.pdf  used on input line 1232.
 (pdftex.def)             Requested size: 402.37912pt x 172.45245pt.
 [69 <./figure/vif_2026-1.pdf>] [70] [71] [72]
 <figure/worst_plots_2026-1.pdf, id=817, 867.24pt x 867.24pt>
 File: figure/worst_plots_2026-1.pdf Graphic file (type pdf)
 <use figure/worst_plots_2026-1.pdf>
-Package pdftex.def Info: figure/worst_plots_2026-1.pdf  used on input line 1302
+Package pdftex.def Info: figure/worst_plots_2026-1.pdf  used on input line 1301
 .
 (pdftex.def)             Requested size: 402.37912pt x 402.37582pt.
 [73] [74 <./figure/worst_plots_2026-1.pdf>]
 <figure/conf_2026-1.pdf, id=833, 722.7pt x 289.08pt>
 File: figure/conf_2026-1.pdf Graphic file (type pdf)
 <use figure/conf_2026-1.pdf>
-Package pdftex.def Info: figure/conf_2026-1.pdf  used on input line 1315.
+Package pdftex.def Info: figure/conf_2026-1.pdf  used on input line 1314.
 (pdftex.def)             Requested size: 402.37912pt x 160.95297pt.
 <figure/roc_2026-1.pdf, id=835, 722.7pt x 361.35pt>
 File: figure/roc_2026-1.pdf Graphic file (type pdf)
 <use figure/roc_2026-1.pdf>
-Package pdftex.def Info: figure/roc_2026-1.pdf  used on input line 1325.
+Package pdftex.def Info: figure/roc_2026-1.pdf  used on input line 1324.
 (pdftex.def)             Requested size: 402.37912pt x 201.19122pt.
 [75 <./figure/conf_2026-1.pdf>] [76 <./figure/roc_2026-1.pdf>] [77] [78] [79] [
 80] [81
 
 ] [82]
-Overfull \hbox (44.39061pt too wide) in paragraph at lines 1420--1421
+Overfull \hbox (44.39061pt too wide) in paragraph at lines 1419--1420
 \OT1/cmtt/m/n/12 https://thesis.eur.nl/pub/70292/Thesis[]AgnieszkaPechcinska[]6
 38592.pdf  
  []
