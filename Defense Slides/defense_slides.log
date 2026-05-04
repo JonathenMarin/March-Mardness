@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.1) (preloaded format=pdflatex 2026.2.3)  4 MAY 2026 01:24
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.1) (preloaded format=pdflatex 2026.2.3)  4 MAY 2026 12:20
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1520,49 +1520,45 @@ Package pdftex.def Info: xgboost-4.pdf  used on input line 885.
 (pdftex.def)             Requested size: 221.41122pt x 221.41122pt.
 [48
 
- <./xgboost-4.pdf>]
-<xgboost-5.pdf, id=563, 505.89pt x 505.89pt>
-File: xgboost-5.pdf Graphic file (type pdf)
-<use xgboost-5.pdf>
-Package pdftex.def Info: xgboost-5.pdf  used on input line 893.
-(pdftex.def)             Requested size: 221.41122pt x 221.41122pt.
-[49
+ <./xgboost-4.pdf>] [49
 
- <./xgboost-5.pdf>] [50
-
-] [51
+] [50
 
 ]
-<Duke_Dist.png, id=595, 328.22626pt x 310.15875pt>
+<Duke_Dist.png, id=580, 328.22626pt x 310.15875pt>
 File: Duke_Dist.png Graphic file (type png)
 <use Duke_Dist.png>
-Package pdftex.def Info: Duke_Dist.png  used on input line 933.
+Package pdftex.def Info: Duke_Dist.png  used on input line 925.
+(pdftex.def)             Requested size: 234.30437pt x 221.40688pt.
+[51
+
+ <./Duke_Dist.png>]
+<Duke_Houst_Dist.png, id=590, 328.22626pt x 310.15875pt>
+File: Duke_Houst_Dist.png Graphic file (type png)
+<use Duke_Houst_Dist.png>
+Package pdftex.def Info: Duke_Houst_Dist.png  used on input line 933.
 (pdftex.def)             Requested size: 234.30437pt x 221.40688pt.
 [52
 
- <./Duke_Dist.png>]
-<Duke_Houst_Dist.png, id=605, 328.22626pt x 310.15875pt>
-File: Duke_Houst_Dist.png Graphic file (type png)
-<use Duke_Houst_Dist.png>
-Package pdftex.def Info: Duke_Houst_Dist.png  used on input line 941.
-(pdftex.def)             Requested size: 234.30437pt x 221.40688pt.
-[53
-
  <./Duke_Houst_Dist.png (PNG copy)>]
 
-LaTeX Warning: Citation `KenPom' on page 54 undefined on input line 963.
+LaTeX Warning: Citation `KenPom' on page 53 undefined on input line 955.
 
 
-LaTeX Warning: Citation `Torvik' on page 54 undefined on input line 963.
+LaTeX Warning: Citation `Torvik' on page 53 undefined on input line 955.
 
 
-LaTeX Warning: Citation `haupts_elo' on page 54 undefined on input line 963.
+LaTeX Warning: Citation `haupts_elo' on page 53 undefined on input line 955.
 
-[54
+[53
+
+] [54
 
 ] [55
 
 ] [56
+
+] [57
 
 ]
 \tf@nav=\write5
@@ -1584,11 +1580,11 @@ LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 28519 strings out of 467866
- 566598 string characters out of 5418326
- 960997 words of memory out of 5000000
- 56474 multiletter control sequences out of 15000+600000
- 745701 words of font info for 205 fonts, out of 8000000 for 9000
+ 28524 strings out of 467866
+ 566581 string characters out of 5418326
+ 962031 words of memory out of 5000000
+ 56472 multiletter control sequences out of 15000+600000
+ 746224 words of font info for 208 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  128i,19n,123p,1013b,730s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/marin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmex10.pf
@@ -1606,9 +1602,9 @@ pfb><C:/Users/marin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy7.p
 fb><C:/Users/marin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy8.pf
 b><C:/Users/marin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt10.pf
 b>
-Output written on defense_slides.pdf (56 pages, 1200277 bytes).
+Output written on defense_slides.pdf (57 pages, 1188934 bytes).
 PDF statistics:
- 758 PDF objects out of 1000 (max. 8388607)
- 170 named destinations out of 1000 (max. 500000)
- 72059 words of extra memory for PDF output out of 74296 (max. 10000000)
+ 759 PDF objects out of 1000 (max. 8388607)
+ 173 named destinations out of 1000 (max. 500000)
+ 72054 words of extra memory for PDF output out of 74296 (max. 10000000)
 

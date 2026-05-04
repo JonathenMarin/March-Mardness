@@ -108,10 +108,10 @@ BS = \frac{1}{N}\sum_{t=1}^N(f_t - o_t)^2
 \textbf{Variable} & \textbf{Description} \\
 \hline
 PTS         & Points scored \\
-FGM / FGA   & Field goals made and attempted \\
-FGM3 / FGA3 & Three-point field goals made and attempted \\
-FTM / FTA   & Free throws made and attempted \\
-OR / DR     & Offensive and defensive rebounds \\
+FGM, FGA   & Field goals made and attempted \\
+FGM3,FGA3 & Three-point field goals made and attempted \\
+FTM, FTA   & Free throws made and attempted \\
+OR, DR     & Offensive and defensive rebounds \\
 Ast         & Assists \\
 TO          & Turnovers \\
 Blk         & Blocks \\
@@ -218,7 +218,7 @@ AdjT  & Adjusted tempo \\
 \vspace{0.15in}
 \item \textbf{Simulation pipelines} among top 2024 finishers: predict point margins, then simulate brackets thousands of times via normal distribution over margins. 
 \vspace{0.15in}
-\item Inspired the three models in this paper: \textbf{Logistic Regression}, \textbf{XGBoost}, and \textbf{Linear Regression Monte Carlo}.
+\item Inspired the three models in this paper: \textbf{Logistic Regression}, \textbf{XGBoost}, and \textbf{Linear Regression with Monte Carlo}.
 \end{itemize}
 
 # Modeling Techniques
@@ -681,11 +681,6 @@ R_\text{new} = 0.5 \cdot R_\text{final} + 750
 \includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{xgboost-4.pdf}
 \end{figure}
 
-## XGBoost: Discriminative Performance
-\begin{figure}
-\centering
-\includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{xgboost-5.pdf}
-\end{figure}
 
 ## Linear Regression Monte Carlo
 \begin{itemize}
@@ -732,7 +727,7 @@ R_\text{new} = 0.5 \cdot R_\text{final} + 750
 \item Built around \textbf{opponent-adjusted efficiency ratings} from external sources:
    \begin{itemize}
    \item \textbf{Men's:} KenPom \cite{KenPom} --- \texttt{OffRating}, \texttt{DefRating}, \texttt{AdjTempo}.
-   \item \textbf{Women's:} Bart Torvik \cite{Torvik} --- \texttt{AdjOE}, \texttt{AdjDE}, \texttt{AdjT}.
+   \item \textbf{Women's:} Bart Torvik \cite{Torvik} --- \texttt{AdjOE}, \texttt{AdjDE}, \texttt{AdjTempo}.
    \end{itemize}
 \vspace{0.15in}
 \item \textbf{Pairing structure:} each team's offensive profile is matched against its opponent's defensive profile.
@@ -786,7 +781,64 @@ R_\text{new} = 0.5 \cdot R_\text{final} + 750
 \begin{equation}
 \hat{P}(\text{Team A wins}) = \frac{1}{n} \sum_{i=1}^{n} \mathbf{1}[\text{Points}_{A,i} > \text{Points}_{B,i}]
 \end{equation}
+
+## LRMC: Regression Assumptions
 \begin{itemize}
-\item $n = 100{,}000$ for men's, $n = 50{,}000$ for women's.
-\item Standard error bounded by $0.002$.
+\item Three core assumptions of multiple linear regression:
+   \begin{itemize}
+   \item \textbf{Linearity}: relationship between features and target is linear.
+   \item \textbf{Normality}: residuals are approximately normally distributed.
+   \item \textbf{Homoscedasticity}: residual variance is constant across predicted values.
+   \end{itemize}
+\vspace{0.15in}
+\item \textbf{Linearity \& normality:} verified via residuals vs.\ fitted and Q-Q plots --- assumptions reasonably satisfied in both models.
+\vspace{0.1in}
+\item \textbf{Homoscedasticity:} Breusch-Pagan significant, but driven by high-leverage outliers and large $n$. OLS estimates remain unbiased;
+\vspace{0.1in}
+\item \textbf{Multicollinearity:} men's model has VIF $\approx 7.5$ between Diff\_NetRtg and Diff\_Elo (correlation $0.89$). Women's model is clean (all VIF $< 5$).
+\end{itemize}
+
+## LRMC Coefficients
+\begin{center}\textbf{Men's Model}\end{center}
+\vspace{-0.1in}
+\begin{center}
+\scriptsize
+\begin{tabular}{lrrrl}
+\hline
+\textbf{Variable} & \textbf{Estimate} & \textbf{Std. Error} & \textbf{p-value} & \textbf{Sig.} \\
+\hline
+Intercept    & -207.4000 & 5.4360  & $<$0.001 & *** \\
+Off Rating   & 0.6519    & 0.0216  & $<$0.001 & *** \\
+Def Rating   & 0.6421    & 0.0239  & $<$0.001 & *** \\
+AdjT Team    & 1.0830    & 0.0378  & $<$0.001 & *** \\
+AdjT Opp     & 1.0090    & 0.0378  & $<$0.001 & *** \\
+Diff NetRtg  & 0.0540    & 0.0181  & 0.0029   & **  \\
+Diff Elo     & 0.0013    & 0.0008  & 0.1229   &     \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.05in}
+\begin{center}\textbf{Women's Model}\end{center}
+\vspace{-0.1in}
+\begin{center}
+\scriptsize
+\begin{tabular}{lrrrl}
+\hline
+\textbf{Variable} & \textbf{Estimate} & \textbf{Std. Error} & \textbf{p-value} & \textbf{Sig.} \\
+\hline
+Intercept    & -202.9000 & 3.9730  & $<$0.001 & *** \\
+Off Rating   & 0.7309    & 0.0136  & $<$0.001 & *** \\
+Def Rating   & 0.7866    & 0.0189  & $<$0.001 & *** \\
+AdjT Team    & 0.9605    & 0.0333  & $<$0.001 & *** \\
+AdjT Opp     & 0.8542    & 0.0331  & $<$0.001 & *** \\
+Diff Elo     & 0.0024    & 0.0006  & $<$0.001 & *** \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.1in}
+\begin{itemize}
+\item Women's: $R^2 = 0.524$, $\hat{\sigma} = 9.30$. Men's: $R^2 = 0.379$, $\hat{\sigma} = 9.51$.
+\item Men's \textbf{Diff\_Elo} insignificant due to collinearity with Diff\_NetRtg.
 \end{itemize}
