@@ -538,3 +538,255 @@ Win Diff     & -1.8468  & 2.2764 & 0.4172 &   \\
 \item ORB\% drives wins in both divisions ($\sim 12.4$) --- universal driver.
 \item eFG\% significant in women's, not men's.
 \end{itemize}
+
+## Why XGBoost?
+\begin{itemize}
+\item Logistic regression assumes a \textbf{linear} relationship between differentials and log-odds.
+\vspace{0.1in}
+\item Reality is nonlinear and full of interactions:
+   \begin{itemize}
+   \item Offensive rebounding only converts to wins past a shooting efficiency threshold.
+   \item Linear models cannot capture this without explicit feature engineering.
+   \end{itemize}
+\vspace{0.15in}
+\item XGBoost advantages:
+   \begin{itemize}
+   \item No distributional assumptions on features.
+   \item Robust to scale differences, no normalization needed ( e.g. points scored vs.\ steals).
+   \item Built-in regularization handles modest sample sizes.
+   \end{itemize}
+\end{itemize}
+
+## Data Construction
+\begin{itemize}
+\item \textbf{Symmetric duplication}: every game contributes two rows.
+   \begin{itemize}
+   \item Row 1: winner as Team $1$ (outcome $= 1$).
+   \item Row 2: loser as Team $1$ (outcome $= 0$).
+   \end{itemize}
+\vspace{0.15in}
+\item \textbf{Three benefits:}
+   \begin{itemize}
+   \item Model learns from both perspectives.
+   \item No positional bias toward Team $1$ slot.
+   \item Exactly $50/50$ class balance.
+   \end{itemize}
+\vspace{0.15in}
+\item \textbf{Pooled across divisions} ($2003$--$2024$): $4{,}552$ rows, $139$ features.
+\vspace{0.1in}
+\item Binary \texttt{men\_women} indicator retained to capture structural differences.
+\end{itemize}
+
+## Feature Set: Three Tiers
+\begin{itemize}
+\item \textbf{Tier 1: Seeding} - $T_1$\_seed, $T_2$\_seed, Seed\_diff.
+   \begin{itemize}
+   \item Including absolute seeds captures nonlinearity ($1$ vs.\ $2$ $\neq$ $8$ vs.\ $9$).
+   \end{itemize}
+\vspace{0.1in}
+\item \textbf{Tier 2: Simple season statistics} - win\%, points scored / allowed, point differential, plus pairwise differentials.
+\vspace{0.1in}
+\item \textbf{Tier 3: Strength of schedule adjusted box scores}.
+   \begin{itemize}
+   \item Off\_ and Def\_ prefixes for team's own offense/defense.
+   \item SOS\_ prefix for opponent quality faced.
+   \item All adjusted for overtime: $\text{adjOT} = \frac{40 + 5 \cdot \text{NumOT}}{40}$.
+   \end{itemize}
+\vspace{0.1in}
+\item Plus: \textbf{Elo ratings} (covered next).
+\end{itemize}
+
+## Seeding as Predictive Signal
+\begin{figure}
+\centering
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\linewidth]{seed_pointdiff-1.pdf}
+\caption{Point Differential Declines with Seed in Both Divisions.}
+\end{minipage}\hfill
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\linewidth]{seed_diffdiff-1.pdf}
+\caption{larger seed gaps $\to$ larger margins of victory.}
+\end{minipage}
+\end{figure}
+
+## Custom Elo Rating System
+\begin{itemize}
+\item Captures team strength --- updates after every game.
+\vspace{0.1in}
+\item Adapted from chess Elo \cite{chess}, structure inspired by \cite{haupts_elo}.
+\item Expected win probability for team $A$:
+\end{itemize}
+\begin{equation}
+E_A = \frac{1}{1 + 10^{(R_B - R_A)/400}}
+\end{equation}
+\begin{itemize}
+\item $R_A, R_B$: current Elo ratings, $400$: scaling constant.
+\vspace{0.1in}
+\item Rating update for team $A$ after each game:
+\end{itemize}
+\begin{equation}
+R_A = R_A + k(S_A - E_A)
+\end{equation}
+\begin{itemize}
+\item $S_A$: actual outcome ($1$ if win, $0$ if loss), $k = 64$, maximum elo points exchanged.
+\end{itemize}
+
+
+## Elo Carryover Across Seasons
+\begin{itemize}
+\item Rather than resetting each season, ratings carry forward partially:
+\end{itemize}
+\begin{equation}
+R_\text{new} = 0.5 \cdot R_\text{final} + 750
+\end{equation}
+\begin{itemize}
+\item $50\%$ of historical rating preserved; $50\%$ regresses toward $1500$.
+\item Captures program quality (Duke, UConn) without letting ratings drift indefinitely.
+\item Final feature set includes $T_1$\_Elo, $T_2$\_Elo, and Elo\_diff.
+\end{itemize}
+
+## 2025 Elo
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{xgboost-3.pdf}
+\end{figure}
+
+## XGBoost Implementation: Training
+\begin{itemize}
+\item \textbf{Training Objective:} \texttt{binary:logistic}
+   \begin{itemize}
+   \item Applies sigmoid to the summed contributions of all trees; output lives in $[0,1]$.
+   \item Trains using binary cross-entropy loss.
+   \end{itemize}
+\vspace{0.15in}
+\item Two decisions to make before training:
+   \begin{itemize}
+   \item Number of boosting rounds.
+   \item Hyperparameter values controlling tree complexity.
+   \end{itemize}
+\vspace{0.15in}
+\item \textbf{$5$-fold cross validation} on the full tournament dataset:
+   \begin{itemize}
+   \item Average loss across folds = selection criterion.
+   \item Early stopping with patience of $50$ rounds.
+   \item Optimal number of rounds: \textbf{$415$}.
+   \end{itemize}
+\end{itemize}
+
+## Feature Importance
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{xgboost-4.pdf}
+\end{figure}
+
+## XGBoost: Discriminative Performance
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{xgboost-5.pdf}
+\end{figure}
+
+## Linear Regression Monte Carlo
+\begin{itemize}
+\item Logistic regression and XGBoost predict win probability \textbf{directly} from features.
+\vspace{0.1in}
+\item LRMC takes a different approach: predict the \textbf{score}, then derive win probability from simulated outcomes.
+\vspace{0.15in}
+\item \textbf{Motivation:} predicting a final score is a more tractable regression problem than directly estimating a win probability.
+\vspace{0.15in}
+\item Residual standard deviation $\sigma$ from the regression captures inherent unpredictability and drives the simulation stage.
+\end{itemize}
+
+## Two-Stage Pipeline
+\begin{itemize}
+\item \textbf{Stage 1: Linear Regression (Score Prediction)}
+   \begin{itemize}
+   \item Predicts each team's expected points given offensive efficiency, opponent's defensive efficiency, and pace.
+   \item $\sigma$ quantifies score uncertainty.
+   \end{itemize}
+\vspace{0.2in}
+\item \textbf{Stage 2: Monte Carlo Simulation}
+   \begin{itemize}
+   \item Draw thousands of samples from each team's score distribution.
+   \item Win probability = proportion of simulations in which the team outscores its opponent.
+   \end{itemize}
+\vspace{0.15in}
+\item Naturally produces calibrated probabilities reflecting underlying score uncertainty.
+\end{itemize}
+
+## LRMC Example
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{Duke_Dist.png}
+\end{figure}
+
+## LRMC Example
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{Duke_Houst_Dist.png}
+\end{figure}
+
+## Feature Set
+\begin{itemize}
+\item Built around \textbf{opponent-adjusted efficiency ratings} from external sources:
+   \begin{itemize}
+   \item \textbf{Men's:} KenPom \cite{KenPom} --- \texttt{OffRating}, \texttt{DefRating}, \texttt{AdjTempo}.
+   \item \textbf{Women's:} Bart Torvik \cite{Torvik} --- \texttt{AdjOE}, \texttt{AdjDE}, \texttt{AdjT}.
+   \end{itemize}
+\vspace{0.15in}
+\item \textbf{Pairing structure:} each team's offensive profile is matched against its opponent's defensive profile.
+   \begin{itemize}
+   \item Mirrors how scoring actually occurs --- output depends on the matchup, not just team strength.
+   \end{itemize}
+\vspace{0.15in}
+\item Additional features:
+   \begin{itemize}
+   \item Elo differential (custom implementation \cite{haupts_elo}).
+   \item Net rating differential (men's only --- limitation of the women's model).
+   \end{itemize}
+\end{itemize}
+
+## LRMC: Model Specification
+\begin{itemize}
+\item Linear regression fit separately for Men's and Women's via OLS.
+\item Training data: $10{,}326$ rows (Men's), $10{,}828$ rows (Women's).
+\end{itemize}
+\vspace{0.05in}
+\textbf{Men's model:}
+\begin{equation}
+\begin{split}
+\text{Points}_A = \beta_0 &+ \beta_1\mathtt{OffRating}_A + \beta_2\mathtt{DefRating}_B + \beta_3\mathtt{AdjTempo}_A \\
+&+ \beta_4\mathtt{AdjTempo}_B + \beta_5\text{Diff\_NetRtg} + \beta_6\text{Diff\_Elo} + \varepsilon
+\end{split}
+\end{equation}
+\textbf{Women's model:}
+\begin{equation}
+\begin{split}
+\text{Points}_A = \beta_0 &+ \beta_1\mathtt{AdjOE}_A + \beta_2\mathtt{AdjDE}_B + \beta_3\mathtt{AdjTempo}_A \\
+&+ \beta_4\mathtt{AdjTempo}_B + \beta_5\text{Diff\_Elo} + \varepsilon
+\end{split}
+\end{equation}
+\begin{itemize}
+\item $\varepsilon \sim \mathcal{N}(0, \hat{\sigma}^2)$ --- residual error estimated from training data.
+\end{itemize}
+
+## Monte Carlo Simulation
+\begin{itemize}
+\item Fitted regression produces expected scores $\hat{\mu}_A$ and $\hat{\mu}_B$.
+\vspace{0.1in}
+\item Draw simulated scores from normal distributions:
+\end{itemize}
+\begin{equation}
+\text{Points}_A \sim \mathcal{N}(\hat{\mu}_A, \hat{\sigma}^2), \quad \text{Points}_B \sim \mathcal{N}(\hat{\mu}_B, \hat{\sigma}^2)
+\end{equation}
+\begin{itemize}
+\item Win probability = proportion of simulations where Team $A$ outscores Team $B$:
+\end{itemize}
+\begin{equation}
+\hat{P}(\text{Team A wins}) = \frac{1}{n} \sum_{i=1}^{n} \mathbf{1}[\text{Points}_{A,i} > \text{Points}_{B,i}]
+\end{equation}
+\begin{itemize}
+\item $n = 100{,}000$ for men's, $n = 50{,}000$ for women's.
+\item Standard error bounded by $0.002$.
+\end{itemize}
