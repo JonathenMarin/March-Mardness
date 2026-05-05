@@ -20,7 +20,7 @@ output:
 \vspace{0.1in}
 \item The regular season determines the seeding. Teams are seeded 1 through 16 within each of four regions, where lower seeds are considered the strongest and are rewarded with matchups against the highest seeds.
 \vspace{0.1in}
-\item With 63 games decided by single elimination, upsets are frequent, which is why the tournament has become famous for its unpredictability.
+\item With 67 games decided by single elimination, upsets are frequent, which is why the tournament has become famous for its unpredictability.
 \end{itemize}
 ## Tournament Bracket
 \begin{figure}
@@ -918,3 +918,6 @@ Kaggle Winner       & ---       & ---       & ---       & $0.10411$ & ---       
 \bibitem{haupts_elo} Haupts, L. (2025). Calculate Elo Ratings. \textit{Kaggle Notebook}.
 
 \end{thebibliography}
+
+## 
+\Huge\centerline{Thank You!}
