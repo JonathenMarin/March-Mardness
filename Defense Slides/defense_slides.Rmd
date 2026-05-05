@@ -18,11 +18,9 @@ output:
 \begin{itemize}
 \item March Madness is the NCAA Division I Basketball Tournament, a single-elimination bracket of $68$ teams held each March and April across both the Men's and Women's divisions to crown the National Champions.
 \vspace{0.1in}
-\item Teams earn a spot either by winning their conference tournament (an automatic bid) or by being selected by the NCAA Selection Committee (an at-large bid).
-\vspace{0.1in}
 \item The regular season determines the seeding. Teams are seeded 1 through 16 within each of four regions, where lower seeds are considered the strongest and are rewarded with matchups against the highest seeds.
 \vspace{0.1in}
-\item With 63 games decided by single elimination, upsets are frequent, which is why the tournament has become famous for its unpredictability, hence the name ``March Madness.''
+\item With 63 games decided by single elimination, upsets are frequent, which is why the tournament has become famous for its unpredictability.
 \end{itemize}
 ## Tournament Bracket
 \begin{figure}
@@ -141,9 +139,9 @@ PF          & Personal fouls \\
 \textbf{Metric} & \textbf{Description} \\
 \hline
 NetRtg & ORtg $-$ DRtg \\
-ORtg   & Pts / 100 poss. \\
-DRtg   & Pts allowed / 100 poss. \\
-AdjT   & Possessions per 40 min \\
+OffRtg   & Pts per 100 poss. \\
+DeffRtg   & Pts allowed per 100 poss. \\
+AdjTempo   & Possessions per 40 min \\
 \hline
 \end{tabular}
 \caption{KenPom Metrics}
@@ -160,27 +158,13 @@ AdjT   & Possessions per 40 min \\
 \hline
 ADJOE & Adjusted offensive efficiency \\
 ADJDE & Adjusted defensive efficiency \\
-AdjT  & Adjusted tempo \\
+AdjTempo  & Adjusted tempo \\
 \hline
 \end{tabular}
 \caption{Bart Torvik Metrics}
 \end{table}
 \end{column}
 \end{columns}
-
-## Data Considerations
-\begin{itemize}
-\item \textbf{2020 Tournament Gap:} the COVID-canceled tournament produces no playoff observations; regular season $2020$ data is still usable.
-\vspace{0.15in}
-\item \textbf{Completeness:} no missing values across Kaggle, KenPom, or Torvik. Every team has a complete statistical profile.
-\vspace{0.15in}
-\item \textbf{Team Name Matching:} external sources use inconsistent spellings (ex: ``St.\ Mary's'' vs ``Saint Mary's CA'').
-   \begin{itemize}
-   \item Stage 1: exact match on normalized names against Kaggle lookup
-   \item Stage 2: fuzzy match using Jaro-Winkler distance with threshold $0.3$
-   \item All teams successfully matched in both divisions
-   \end{itemize}
-\end{itemize}
 
 # Past Strategies
 
@@ -212,7 +196,7 @@ AdjT  & Adjusted tempo \\
    \end{itemize}
 \end{itemize}
 
-## NIL Era and Recent Baselines
+## Recent Baselines
 \begin{itemize}
 \item \textbf{Boosting} \cite{raddar}: tiered features (seeding to efficiency to Elo to GLM team quality), implemented in XGBoost. Multiple top $10$ finishes in 2024 and 2025 cite his work as the baseline for their submission.
 \vspace{0.15in}
@@ -250,7 +234,6 @@ P(Y=1 \mid \mathbf{x}) = \frac{1}{1 + e^{-(\beta_0 + \beta_1 x_1 + \cdots + \bet
 \end{equation}
 \vspace{0.05in}
 \begin{itemize}
-\item Unlike logistic regression, output is unbounded and not a probability.
 \vspace{0.1in}
 \item In sports prediction, used to estimate point margins which are then converted to win probabilities via:
    \begin{itemize}
@@ -307,45 +290,6 @@ P(Y=1 \mid \mathbf{x}) = \frac{1}{1 + e^{-(\beta_0 + \beta_1 x_1 + \cdots + \bet
 \item Widely used in competitive ML for structured data; captures complex interactions and nonlinearity automatically.
 \end{itemize}
 
-## Building Each Tree
-\begin{itemize}
-\item Start with an initial prediction (e.g., the average outcome).
-\vspace{0.1in}
-\item Compute the \textbf{loss} (binary cross-entropy):
-\end{itemize}
-\begin{equation}
-\ell(y_i, \hat{y}_i) = -[y_i \log(\hat{y}_i) + (1-y_i)\log(1-\hat{y}_i)]
-\end{equation}
-\begin{itemize}
-\item Compute the \textbf{gradient} of the loss with respect to each prediction:
-\end{itemize}
-\begin{equation}
-g_i = \hat{y}_i - y_i
-\end{equation}
-\begin{itemize}
-\item The gradient tells each prediction how to move to reduce loss.
-\vspace{0.1in}
-\item The next tree is trained to predict these gradients across the feature space.
-\end{itemize}
-
-## Objective Function
-\begin{itemize}
-\item Each tree is added to minimize the objective function:
-\end{itemize}
-\begin{equation}
-\text{obj}(\theta) = \sum_{i=1}^n \ell(y_i, \hat{y}_i) + \sum_{k=1}^K \Omega(f_k)
-\end{equation}
-\begin{itemize}
-\item \textbf{Loss term} $\sum \ell(y_i, \hat{y}_i)$: total prediction error; the gradient is its derivative.
-\item \textbf{Regularization term} $\sum \Omega(f_k)$: penalizes complex trees:
-\end{itemize}
-\begin{equation}
-\Omega(f) = \gamma T + \frac{1}{2}\lambda \sum_{j=1}^T w_j^2
-\end{equation}
-\begin{itemize}
-\item $T$: number of leaves; $w_j$: leaf values; $\gamma, \lambda$: regularization hyperparameters.
-\item Discourages overly deep trees and extreme leaf values.
-\end{itemize}
 
 ## XGBoost Example
 \begin{figure}
@@ -358,7 +302,7 @@ g_i = \hat{y}_i - y_i
 \begin{itemize}
 \item Evaluation technique that systematically rotates which portion of the data is held out, so every observation serves as both training and validation \cite{cv}.
 \vspace{0.1in}
-\item In \textbf{$k$-fold cross validation}: partition data into $k$ equally sized folds. Train $k$ times, each time using $k-1$ folds for training and the remaining fold for validation.
+\item In $k$-fold cross validation: partition data into $k$ equally sized folds. Train $k$ times, each time using $k-1$ folds for training and the remaining fold for validation.
 \vspace{0.1in}
 \item Final score is the average performance across all $k$ folds.
 \end{itemize}
@@ -371,19 +315,11 @@ g_i = \hat{y}_i - y_i
 \end{figure}
 
 # Methods
+
 ## Logistic Regression: Setup
 \begin{itemize}
-\item Outcome is binary (win/loss), and logistic regression directly models the log-odds as a linear combination of features.
-\vspace{0.1in}
-\item Output is a calibrated probability so no transformation needed.
-\vspace{0.1in}
-\item Coefficients are interpretable, providing direct insight into which features drive predictions.
-\vspace{0.1in}
 \item \textbf{Training boundary:} features computed from regular season data, model trained on tournament outcomes.
-\end{itemize}
-
-## Training Window
-\begin{itemize}
+\vspace{0.15in}
 \item To prevent data leakage and reflect roster turnover, the model uses a \textbf{rolling two-year window}.
 \vspace{0.15in}
 \item Example: to forecast the 2025 tournament, train only on 2023 and 2024 tournament games.
@@ -399,9 +335,9 @@ g_i = \hat{y}_i - y_i
 \vspace{0.2in}
 \item High-tempo teams accumulate more counting stats without being more efficient.
 \vspace{0.2in}
-\item To compare teams fairly, statistics must be normalized by possessions.
+\item To compare teams fairly, statistics must be expressed as \textbf{rates} (per opportunity) rather than totals.
 \vspace{0.2in}
-\item Solution: Dean Oliver's \textbf{Four Factors} \cite{Dean}, the components most correlated with winning.
+\item Solution: Dean Oliver's \textbf{Four Factors} \cite{Dean} --- each metric normalized by its natural opportunity denominator.
 \end{itemize}
 
 ## The Four Factors
@@ -438,7 +374,7 @@ ORB\% = \frac{OR}{OR + DR_{opp}} \quad\quad FTR = \frac{FTM}{FGA}
    \end{itemize}
 \vspace{0.15in}
 \item All five features computed as season averages from regular season data.
-\vspace{0.15in}
+\vspace{0.1in}
 \item Transformed into \textbf{differentials} between competing teams, centering the analysis on the relative mismatch.
 \end{itemize}
 
@@ -469,11 +405,8 @@ ORB\% = \frac{OR}{OR + DR_{opp}} \quad\quad FTR = \frac{FTM}{FGA}
 \end{equation}
 \begin{itemize}
 \item $P$: probability of a Team $1$ victory.
-\item Coefficients $\boldsymbol{\beta}$ estimated via maximum likelihood:
 \end{itemize}
-\begin{equation}
-\sum_{i=1}^n \left[ y_i \log p(x_i) + (1-y_i)\log(1-p(x_i)) \right]
-\end{equation}
+
 
 ## Multicollinearity Check
 \begin{itemize}
@@ -541,7 +474,7 @@ Win Diff     & -1.8468  & 2.2764 & 0.4172 &   \\
 
 ## Why XGBoost?
 \begin{itemize}
-\item Logistic regression assumes a \textbf{linear} relationship between differentials and log-odds.
+\item Logistic regression assumes a \textbf{linear} relationship between differentials.
 \vspace{0.1in}
 \item Reality is nonlinear and full of interactions:
    \begin{itemize}
@@ -653,26 +586,21 @@ R_\text{new} = 0.5 \cdot R_\text{final} + 750
 \includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{xgboost-3.pdf}
 \end{figure}
 
-## XGBoost Implementation: Training
+## Cross Validation: Selecting the Number of Rounds
 \begin{itemize}
-\item \textbf{Training Objective:} \texttt{binary:logistic}
+\item Number of boosting rounds chosen via $5$-fold cross validation on the full tournament dataset.
+\vspace{0.15in}
+\item For each fold:
    \begin{itemize}
-   \item Applies sigmoid to the summed contributions of all trees; output lives in $[0,1]$.
-   \item Trains using binary cross-entropy loss.
+   \item Train on $80\%$ of games, validate on the held-out $20\%$.
+   \item Track validation loss (binary cross-entropy) as trees are added.
    \end{itemize}
 \vspace{0.15in}
-\item Two decisions to make before training:
-   \begin{itemize}
-   \item Number of boosting rounds.
-   \item Hyperparameter values controlling tree complexity.
-   \end{itemize}
+\item \textbf{Early stopping:} halt when validation loss does not improve for $50$ consecutive rounds.
 \vspace{0.15in}
-\item \textbf{$5$-fold cross validation} on the full tournament dataset:
-   \begin{itemize}
-   \item Average loss across folds = selection criterion.
-   \item Early stopping with patience of $50$ rounds.
-   \item Optimal number of rounds: \textbf{$415$}.
-   \end{itemize}
+\item Selection criterion: average validation loss across the $5$ folds.
+\vspace{0.15in}
+\item \textbf{Optimal number of rounds: $415$.}
 \end{itemize}
 
 ## Feature Importance
@@ -690,7 +618,7 @@ R_\text{new} = 0.5 \cdot R_\text{final} + 750
 \vspace{0.15in}
 \item \textbf{Motivation:} predicting a final score is a more tractable regression problem than directly estimating a win probability.
 \vspace{0.15in}
-\item Residual standard deviation $\sigma$ from the regression captures inherent unpredictability and drives the simulation stage.
+\item Residual standard deviation $\hat{\sigma}$ from the regression captures inherent unpredictability and drives the simulation stage.
 \end{itemize}
 
 ## Two-Stage Pipeline
@@ -709,18 +637,6 @@ R_\text{new} = 0.5 \cdot R_\text{final} + 750
 \vspace{0.15in}
 \item Naturally produces calibrated probabilities reflecting underlying score uncertainty.
 \end{itemize}
-
-## LRMC Example
-\begin{figure}
-\centering
-\includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{Duke_Dist.png}
-\end{figure}
-
-## LRMC Example
-\begin{figure}
-\centering
-\includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{Duke_Houst_Dist.png}
-\end{figure}
 
 ## Feature Set
 \begin{itemize}
@@ -782,6 +698,19 @@ R_\text{new} = 0.5 \cdot R_\text{final} + 750
 \hat{P}(\text{Team A wins}) = \frac{1}{n} \sum_{i=1}^{n} \mathbf{1}[\text{Points}_{A,i} > \text{Points}_{B,i}]
 \end{equation}
 
+## LRMC Example
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{Duke_Dist.png}
+\end{figure}
+
+## LRMC Example
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{Duke_Houst_Dist.png}
+\end{figure}
+
+
 ## LRMC: Regression Assumptions
 \begin{itemize}
 \item Three core assumptions of multiple linear regression:
@@ -842,3 +771,150 @@ Diff Elo     & 0.0024    & 0.0006  & $<$0.001 & *** \\
 \item Women's: $R^2 = 0.524$, $\hat{\sigma} = 9.30$. Men's: $R^2 = 0.379$, $\hat{\sigma} = 9.51$.
 \item Men's \textbf{Diff\_Elo} insignificant due to collinearity with Diff\_NetRtg.
 \end{itemize}
+
+# 2025 Results
+## 2025 Model Comparison
+\begin{table}
+\centering
+\small
+\begin{tabular}{lccccc}
+\hline
+\textbf{Model} & \textbf{Men's} & \textbf{Women's} & \textbf{Combined} & \textbf{Brier} & \textbf{AUC} \\
+\hline
+Logistic Regression & $70.10\%$ & $77.60\%$ & $73.90\%$ & $0.18401$ & $0.8098$ \\
+XGBoost             & $77.60\%$ & $80.60\%$ & $79.10\%$ & $0.12761$ & $0.9215$ \\
+Monte Carlo         & $77.61\%$ & $82.09\%$ & $79.85\%$ & $0.12857$ & $0.9125$ \\
+Kaggle Winner       & ---       & ---       & ---       & $0.10411$ & ---       \\
+\hline
+\end{tabular}
+\end{table}
+\vspace{0.15in}
+\begin{itemize}
+\item Monte Carlo achieves the highest combined accuracy ($79.85\%$).
+\item XGBoost and Monte Carlo essentially tied on Brier Score.
+\end{itemize}
+
+## 2025 ROC Curves
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{roc_comparison-1.pdf}
+\end{figure}
+
+# 2026 Results
+## 2026: Override Strategy
+\begin{itemize}
+\item Applied $32$ deterministic probability overrides to highly predictable matchups before submission.
+\vspace{0.15in}
+\item \textbf{Motivation:} medal contention requires aggressive submission, not just calibrated probabilities.
+   \begin{itemize}
+   \item A $0.95$ probability still accumulates Brier penalty even when the favorite wins.
+   \item Setting probability to $1.0$ accepts upset risk for zero penalty on expected outcomes.
+   \end{itemize}
+\vspace{0.15in}
+\item \textbf{Men's overrides:} $1$ and $2$ seeds in Round $1$; $1$ seeds in Round $2$.
+\item \textbf{Women's overrides:} $1$ and $2$ seeds in Rounds $1$ and $2$; $1$ seeds in Round $3$; UConn in Round $4$.
+\end{itemize}
+
+## Override Outcome
+\begin{itemize}
+\item $30$ of $32$ overrides correct (zero Brier penalty).
+\item $2$ overrides incorrect (maximum penalty of $1.0$ each).
+\vspace{0.15in}
+\item \textbf{Net effect on Brier Score: +$0.00440$ (worse).}
+   \begin{itemize}
+   \item Override submission: $0.13237$
+   \item Base (no overrides): $0.12797$
+   \end{itemize}
+\vspace{0.15in}
+\item Two incorrect overrides outweighed the cumulative benefit of $30$ correct ones.
+\end{itemize}
+
+## 2026 Confusion Matrices
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth,height=0.6\textheight,keepaspectratio]{conf_2026-1.pdf}
+\end{figure}
+\begin{itemize}
+\item Men's: $74.60\%$. Women's: $80.95\%$. Combined: $77.78\%$.
+\end{itemize}
+
+## 2026 ROC Curves
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth,height=0.6\textheight,keepaspectratio]{roc_2026-1.pdf}
+\end{figure}
+\begin{itemize}
+\item Base AUC ($0.9021$) outperforms Override AUC ($0.8871$).
+\end{itemize}
+
+## 2026 Competition Results
+\begin{itemize}
+\item \textbf{Base Monte Carlo:} $0.12797$ Brier $\to$ $387$th place.
+\item \textbf{Override submission:} $0.13237$ Brier $\to$ $822$nd place.
+\vspace{0.1in}
+\item Medal cutoff (8th place): $0.11845$ --- base model fell short by only $0.00352$.
+\item Competition winner: $0.10975$.
+\vspace{0.15in}
+\item \textbf{Bracket simulation results:}
+   \begin{itemize}
+   \item $26$ of $32$ Round $1$, $12$ of $16$ Round $2$, $5$ of $8$ Sweet $16$.
+   \item $2$ of $4$ Elite $8$, $1$ of $2$ Final $4$.
+   \item Correctly predicted Michigan (Men's) and UCLA (Women's) as champions in that iteration.
+   \end{itemize}
+\end{itemize}
+
+# References
+
+## References (1/2)
+\tiny
+\begin{thebibliography}{99}
+
+\bibitem{Zimmermann} Zimmermann, A., Moorthy, S., \& Shi, Z. (2013). Predicting College Basketball Match Outcomes Using Machine Learning Techniques. \textit{arXiv:1310.3607}.
+
+\bibitem{Bergen2018} Harris, J. (2026). How Hard Is It to Pick a Perfect Bracket? \textit{NCAA.com}.
+
+\bibitem{AGA2025} Cohen, D. (2025). Americans to Legally Wager Estimated \$3.1 Billion on March Madness. \textit{American Gaming Association}.
+
+\bibitem{KenPom} Pomeroy, K. (2025). \textit{Pomeroy College Basketball Ratings}. The Forecast Factory LLC.
+
+\bibitem{Torvik} Torvik, B. (2017). T-Rank FAQ. \textit{Blogspot}.
+
+\bibitem{Schwertman} Schwertman, N. C., Schenk, K. L., \& Holbrook, B. C. (1996). More Probability Models for the NCAA Regional Basketball Tournaments. \textit{The American Statistician}, 50(1), 34-38.
+
+\bibitem{Sokol2026} Bracketology Driven by Data. (2026). \textit{Georgia Tech News Center}.
+
+\bibitem{chess} Glickman, M. E., \& Doan, T. (2025). \textit{The US Chess Rating System}.
+
+\bibitem{EMH} Burns, W. (2024). Efficient-Market Hypothesis (EMH). \textit{EBSCO Information Services}.
+
+\bibitem{goto} gotoConversion. (2025). \textit{Goto\_conversion} [GitHub Repository].
+
+\bibitem{raddar} raddar. (2024). Kaggle March Machine Learning Mania 2024. \textit{Kaggle}.
+
+\end{thebibliography}
+
+## References (2/2)
+\tiny
+\begin{thebibliography}{99}
+
+\bibitem{OLS} Lumivero. (2025). Ordinary Least Squares Regression (OLS). \textit{XLSTAT}.
+
+\bibitem{logphoto} Kanade, V. (2022). Everything You Need to Know about Logistic Regression. \textit{Spiceworks}.
+
+\bibitem{linearphoto} Raschka, S. \textit{LinearRegression: An Implementation of Ordinary Least-Squares Linear Regression}. mlxtend.
+
+\bibitem{LargeNumbers} Law of Large Numbers. (2022). \textit{EBSCO Information Services}.
+
+\bibitem{XGBoost} Kavlakoglu, E., \& Russi, E. (2024). XGBoost. \textit{IBM}.
+
+\bibitem{XGphoto} Yao, X., Fu, X., \& Zong, C. (2022). Short-Term Load Forecasting Method Based on Feature Preference Strategy and LightGBM-XGboost. \textit{IEEE Access}.
+
+\bibitem{cv} Rudin, C. \textit{Cross Validation Duke Course Notes}.
+
+\bibitem{cvart} Ferrer, J. (2025). What Is Cross-Validation? A Plain English Guide with Diagrams. \textit{KDnuggets}.
+
+\bibitem{Dean} Oliver, D. (2004). \textit{Basketball on Paper}. Potomac Books.
+
+\bibitem{haupts_elo} Haupts, L. (2025). Calculate Elo Ratings. \textit{Kaggle Notebook}.
+
+\end{thebibliography}

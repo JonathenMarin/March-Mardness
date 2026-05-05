@@ -781,8 +781,8 @@ The pairwise correlation matrices for the men's and women's training data are pr
 
 Because separate models were trained for the men's and women's tournaments, the resulting coefficient structures can be analyzed independently to determine the relative importance of each feature. These independent estimates are then compared against one another to assess whether the Four Factors operate fundamentally differently across the two divisions. By rigorously examining the magnitude and statistical significance of each variable, it becomes possible to identify which specific phases of the game best dictate postseason success for each gender. To illustrate these comparative findings, Tables \ref{tab:mens_coef} and \ref{tab:womens_coef} present the estimated coefficients, standard errors, p-values, and significance levels for the men's and women's models, respectively.
 
-% latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Fri May  1 14:41:15 2026
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Mon May  4 16:43:12 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -800,8 +800,8 @@ Intercept & 0.4352 & 0.2062 & 0.0348 & * \\
 \caption{Logistic Regression Coefficient Estimates (Men's 2025 Model)} 
 \label{tab:mens_coef}
 \end{table}
-% latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Fri May  1 14:41:15 2026
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Mon May  4 16:43:12 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1091,8 +1091,8 @@ The pairwise correlation matrices in Figure~\ref{fig:corr_mc} confirm these find
 
 Because separate models were trained for the men's and women's tournaments, the coefficient structures can be analyzed independently and then compared to assess whether the efficiency and tempo features operate differently across divisions. Tables \ref{tab:mens_coef_mc} and \ref{tab:womens_coef_mc} present the estimated coefficients, standard errors, p-values, and significance levels for the men's and women's models respectively.
 
-% latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Fri May  1 14:41:20 2026
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Mon May  4 16:43:17 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1111,8 +1111,8 @@ Intercept & -207.3986 & 5.4365 & 0.0000 & *** \\
 \caption{Linear Regression Coefficient Estimates (Men's 2025 Model).} 
 \label{tab:mens_coef_mc}
 \end{table}
-% latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Fri May  1 14:41:20 2026
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Mon May  4 16:43:17 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1196,8 +1196,8 @@ While the AUC results highlight the discriminative advantage of XGBoost and Mont
 \end{knitrout}
 The competition winning score of $0.10411$ corresponds to approximately $0.677$, indicating that top submissions are consistently more confident on clear matchups while remaining appropriately uncertain on competitive ones. The difference of less than $0.001$ between XGBoost and Monte Carlo is negligible in practical terms, confirming that both models produce comparably calibrated win probabilities on the 2025 tournament despite their fundamentally different approaches. All three models fall short of the competition winning Brier Score of $0.10411$, indicating that the best performing submissions in the Kaggle competition produce sharper and better calibrated probabilities than any of the three models developed here. 
 
-% latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Fri May  1 14:41:21 2026
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Mon May  4 16:43:18 2026
 \begin{table}[ht]
 \centering
 \scalebox{0.85}{
@@ -1243,8 +1243,8 @@ The 2026 men's model produced several notable differences from the 2025 version.
 The 2026 women's model remained structurally consistent with its 2025 counterpart. All five predictors reached statistical significance, with \texttt{OffRating} ($\hat{\beta} = 0.7369$), \texttt{DefRating} ($\hat{\beta} = 0.7750$), \texttt{AdjT\_team} ($\hat{\beta} = 0.9290$), \texttt{AdjT\_opp} ($\hat{\beta} = 0.8534$), and \texttt{Diff\_Elo} ($\hat{\beta} = 0.002479$, $p < 0.001$) all performing consistently with their 2025 estimates. The efficiency coefficients are nearly identical to the 2025 values of $0.7309$ and $0.7866$ respectively, suggesting that the relationship between Bart Torvik efficiency ratings and scoring is stable across seasons. The $R^2$ improved slightly to $0.531$ from $0.524$, and $\sigma$ increased marginally to $9.413$ from $9.300$, indicating comparable predictive precision to the prior year. The stability of the women's model across both seasons reinforces the reliability of the Bart Torvik efficiency framework as a consistent predictor of women's tournament scoring.
 
 
-% latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Fri May  1 14:41:21 2026
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Mon May  4 16:43:19 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
@@ -1265,8 +1265,8 @@ Variable & Estimate & Std. Error & p-value & Sig. \\
 \end{table}
 
 
-% latex table generated in R 4.5.1 by xtable 1.8-4 package
-% Fri May  1 14:41:21 2026
+% latex table generated in R 4.4.2 by xtable 1.8-4 package
+% Mon May  4 16:43:19 2026
 \begin{table}[ht]
 \centering
 \begin{tabular}{lrrrl}
